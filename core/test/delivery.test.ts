@@ -119,6 +119,12 @@ describe('view recovery and prompts', () => {
 
     const view = { viewVersion: '1', locale: 'en', theme: 'paper', projection: 'flat', lens: 'flow', focus: 'b', collapsed: ['b'], camera: { x: 12, y: 13, zoom: 2 } };
     expect(parseView(JSON.parse(JSON.stringify(view)), graph).view).toEqual(view);
+
+    const rotated = { ...view, camera: { x: 12, y: 13, zoom: 2, rotate: 12 } };
+    expect(parseView(JSON.parse(JSON.stringify(rotated)), graph).view).toEqual(rotated);
+    const badRotate = parseView({ camera: { x: 0, y: 0, zoom: 1, rotate: 31 } }, graph);
+    expect(badRotate.warnings).toContain('invalid:camera');
+    expect(badRotate.view.camera).toBeUndefined();
   });
 
   it('prompts for review and plans only, with graph provenance', () => {

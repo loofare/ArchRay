@@ -167,6 +167,11 @@
           "minimum": 0.1,
           "maximum": 20,
           "type": "number"
+        },
+        "rotate": {
+          "minimum": -30,
+          "maximum": 30,
+          "type": "number"
         }
       }
     }

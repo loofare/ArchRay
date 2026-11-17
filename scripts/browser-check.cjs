@@ -65,6 +65,29 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
   assert.ok(canvas0.width > 1200 && canvas0.height > 500, `desktop canvas ${JSON.stringify(canvas0)}`);
   assert.ok(toolbar0.y + toolbar0.height <= canvas0.y + 1, 'toolbar does not overlap the canvas');
   assert.equal(await page.locator('#archray-scene g').count() > 0, true, 'scene draws content');
+  assert.equal(await page.locator('.ar-shell').getAttribute('data-projection'), 'stack', 'default projection is the layered stack view');
+
+  // Cursor-centered zoom, orbital rotate and minimap navigation.
+  const zoom0 = Number(await page.locator('.ar-shell').getAttribute('data-zoom'));
+  const wheelAt = await box(page, '#archray-scene');
+  await page.mouse.move(wheelAt.x + wheelAt.width * 0.55, wheelAt.y + wheelAt.height * 0.45);
+  await page.mouse.wheel(0, -320);
+  await page.waitForTimeout(350);
+  assert.ok(Number(await page.locator('.ar-shell').getAttribute('data-zoom')) > zoom0, 'wheel zoom changes the camera');
+  const rotate0 = Number(await page.locator('.ar-shell').getAttribute('data-rotate'));
+  await page.mouse.move(wheelAt.x + wheelAt.width * 0.5, wheelAt.y + wheelAt.height * 0.5);
+  await page.mouse.down({ button: 'right' });
+  await page.mouse.move(wheelAt.x + wheelAt.width * 0.62, wheelAt.y + wheelAt.height * 0.5, { steps: 6 });
+  await page.mouse.up({ button: 'right' });
+  await page.waitForTimeout(250);
+  assert.ok(Math.abs(Number(await page.locator('.ar-shell').getAttribute('data-rotate')) - rotate0) > 1, 'right-drag rotates the scene');
+  const camera0 = await page.locator('.ar-shell').getAttribute('data-camera');
+  const mm = await box(page, '.ar-minimap svg');
+  await page.mouse.click(mm.x + mm.width * 0.18, mm.y + mm.height * 0.18);
+  await page.waitForTimeout(250);
+  assert.notEqual(await page.locator('.ar-shell').getAttribute('data-camera'), camera0, 'minimap click moves the camera');
+  await page.click('button:has-text("Fit")');
+  await page.waitForTimeout(250);
 
   // Styles and brand icons
   await page.selectOption('.ar-style', 'blueprint');
@@ -131,6 +154,13 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
   assert.equal(await reduced.locator('.ar-shell').getAttribute('data-motion'), 'full', 'explicit user choice can override');
   assert.ok((await reduced.locator('.ar-particle').count()) > 0, 'override restores particles');
   await reduced.close();
+
+  // Real mouse click on a node body, not a dispatched event or the find box.
+  const firstNode = page.locator('[data-node]').first();
+  await firstNode.click({ position: { x: 30, y: 30 } });
+  await page.waitForTimeout(250);
+  assert.equal(await page.locator('.ar-inspector').count(), 1, 'real click on a node opens the inspector');
+  await page.locator('.ar-inspector button:has-text("×")').click();
 
   await page.selectOption('.ar-find', 'order');
   await page.waitForTimeout(400);

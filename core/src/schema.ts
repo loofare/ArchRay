@@ -226,7 +226,11 @@ export const ViewState = Open(Type.Object({
   hidden: Type.Optional(Type.Array(Id)),
   pinned: Type.Optional(Type.Record(Id, Type.Object({ x: Type.Number(), y: Type.Number() }), { description: 'Manual position overrides in layout space.' })),
   scenario: Type.Optional(Id),
-  camera: Type.Optional(Type.Object({ x: Type.Number(), y: Type.Number(), zoom: Type.Number({minimum:0.1,maximum:20}) })),
+  camera: Type.Optional(Type.Object({
+    x: Type.Number(), y: Type.Number(),
+    zoom: Type.Number({minimum:0.1,maximum:20}),
+    rotate: Type.Optional(Type.Number({minimum:-30,maximum:30})),
+  })),
 }, { $id: 'https://archray.dev/schema/v2/view.json', title: 'ArchRay View State' }));
 
 /* ---------------------------------------------------------------- types */

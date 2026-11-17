@@ -74,9 +74,9 @@ Motion is `full`, `calm` or `off`, via `--motion` or the toolbar. `full` adds am
 
 ## What the HTML gives you
 
-The single HTML embeds the viewer and the graph data, and uses the operating-system font stack; font files are not embedded. It opens offline, including over `file://`. It defaults to flat and also offers stack/iso, module selection, drill-down, fold/expand, zoom controls, wheel zoom, background drag and Fit. Details show full descriptions and source paths; narrow screens use a closable overlay.
+The single HTML embeds the viewer and the graph data, and uses the operating-system font stack; font files are not embedded. It opens offline, including over `file://`. It defaults to the layered stack view and also offers iso/flat. Wheel zoom is cursor-centred; drag pans; right-drag or Alt-drag rotates iso/stack; fullscreen and a minimap make large graphs navigable. It also offers module selection, drill-down, fold/expand and Fit. The health lens adds a score, hotspots and per-layer health; the replaceability lens summarises high/medium/low, lock-in and saved options. Details show full descriptions and source paths; narrow screens use a closable overlay.
 
-Flow highlighting follows declared directed edges, not observed traffic. Save `view.json`, then import it or embed it with `--view` to restore language, style, motion, projection, lens, focus, collapsed groups, layers, camera and scenario. Invalid or stale view values fall back with warnings.
+Flow highlighting follows declared directed edges, not observed traffic. Save `view.json`, then import it or embed it with `--view` to restore language, style, motion, projection, lens, focus, collapsed groups, layers, camera (including rotation) and scenario. Invalid or stale view values fall back with warnings.
 
 Export the current camera or the **whole graph** as PNG (2x, capped at a safe canvas size). Ambient particles are stripped from stills so nothing freezes mid-path. A **Record** guide explains the system shortcuts and what to demonstrate; the page never records by itself, so nothing leaves the machine.
 

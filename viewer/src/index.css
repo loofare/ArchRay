@@ -53,3 +53,158 @@ html, body, #root { width: 100%; height: 100%; margin: 0; overflow: hidden; font
 @media (prefers-reduced-motion: reduce) {
   .ar-current, .ar-flow, .ar-pulse, .ar-status { animation: none !important; }
 }
+
+/* ---- premium shell ---------------------------------------------------- */
+.ar-shell { background-attachment: fixed; }
+.ar-toolbar {
+  position: relative; z-index: 4; box-sizing: border-box;
+  margin: 12px 12px 0; padding: 11px 14px;
+  border: 1px solid; border-radius: 18px;
+  backdrop-filter: blur(18px) saturate(1.25);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, .28);
+}
+.ar-brand { display: flex; align-items: center; gap: 11px; min-width: 260px; flex: 1 1 360px; }
+.ar-logo {
+  width: 36px; height: 36px; flex: 0 0 auto; display: grid; place-items: center;
+  border-radius: 12px; color: #fff;
+  background: linear-gradient(135deg, #38bdf8 0%, #6366f1 52%, #a855f7 100%);
+  box-shadow: 0 8px 24px rgba(56, 189, 248, .28), inset 0 1px 0 rgba(255,255,255,.35);
+}
+.ar-logo svg { width: 21px; height: 21px; }
+.ar-title { min-width: 0; line-height: 1.2; }
+.ar-kicker { display: flex; align-items: center; gap: 6px; font-size: 10px; letter-spacing: .16em; color: #38bdf8; font-weight: 800; text-transform: uppercase; white-space: nowrap; }
+.ar-kicker span { color: #475569; }
+.ar-kicker b { color: currentColor; letter-spacing: .01em; font-size: 13px; font-weight: 700; text-transform: none; overflow: hidden; text-overflow: ellipsis; }
+.ar-subtitle { margin-top: 3px; font-size: 10.5px; color: #7c8ba3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ar-subtitle a { color: inherit; cursor: pointer; }
+.ar-subtitle a:hover { color: #bae6fd; }
+.ar-score-pill {
+  display: inline-flex; align-items: baseline; gap: 3px; flex: 0 0 auto;
+  margin-left: 4px; padding: 4px 9px; border-radius: 999px;
+  color: #6ee7b7; background: rgba(16, 185, 129, .12);
+  border: 1px solid rgba(52, 211, 153, .34); font-size: 11px; font-weight: 800;
+}
+.ar-score-pill svg { align-self: center; margin-right: 1px; }
+.ar-score-pill small { font-size: 9px; font-weight: 600; opacity: .65; }
+.ar-score-pill.is-warn { color: #fde68a; background: rgba(245, 158, 11, .12); border-color: rgba(251, 191, 36, .36); }
+.ar-score-pill.is-bad { color: #fca5a5; background: rgba(239, 68, 68, .12); border-color: rgba(248, 113, 113, .4); }
+.ar-lensbar { display: flex; align-items: center; gap: 3px; padding: 3px; border-radius: 12px; background: rgba(2, 6, 23, .32); border: 1px solid rgba(148, 163, 184, .16); }
+.ar-lens {
+  display: inline-flex; align-items: center; gap: 5px; border: 0; border-radius: 9px;
+  padding: 6px 9px; background: transparent; color: #8fa0b8; font: inherit; font-size: 11.5px; font-weight: 650;
+  cursor: pointer; white-space: nowrap; transition: background .18s, color .18s, box-shadow .18s;
+}
+.ar-lens:hover { color: #e2e8f0; background: rgba(148, 163, 184, .10); }
+.ar-lens.is-active { color: #e0f2fe; background: linear-gradient(180deg, rgba(56,189,248,.24), rgba(56,189,248,.12)); box-shadow: inset 0 0 0 1px rgba(56,189,248,.45), 0 4px 16px rgba(56,189,248,.10); }
+.ar-lens em { font-style: normal; font-size: 9px; font-weight: 800; padding: 1px 5px; border-radius: 999px; color: #7dd3fc; background: rgba(56,189,248,.16); }
+.ar-lens em.is-hot { color: #fcd34d; background: rgba(245,158,11,.18); }
+.ar-stage {
+  flex: 1 1 auto; min-height: 0; overflow: hidden;
+  margin: 8px 0 0; border: 1px solid; border-left: 0; border-right: 0; border-radius: 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+}
+.ar-canvas { position: absolute; inset: 0; }
+.ar-canvas.ar-has-selection { right: 380px; }
+.ar-scene-wrap { position: absolute; inset: 0; overflow: hidden; }
+.ar-scene { display: block; cursor: grab; }
+.ar-scene.is-pan { cursor: grabbing; }
+.ar-scene.is-rotate { cursor: ew-resize; }
+.ar-zoom {
+  position: absolute; right: 14px; bottom: 14px; display: flex; gap: 4px; align-items: center; z-index: 3;
+  padding: 4px; border-radius: 12px; background: rgba(8, 13, 24, .72); border: 1px solid rgba(148,163,184,.18);
+  box-shadow: 0 10px 30px rgba(0,0,0,.32); backdrop-filter: blur(14px);
+}
+.ar-zoom button { min-width: 29px; height: 29px; border-radius: 8px !important; border: 1px solid rgba(148,163,184,.14) !important; background: rgba(255,255,255,.04) !important; color: #b8c5d8 !important; display: inline-grid; place-items: center; padding: 0 7px !important; font-size: 11px !important; }
+.ar-zoom button:hover { background: rgba(56,189,248,.14) !important; border-color: rgba(56,189,248,.45) !important; color: #e0f2fe !important; }
+.ar-zoom-hint { display: none; }
+@media (min-width: 1100px) {
+  .ar-zoom-hint { display: block; max-width: 260px; font-size: 9.5px; line-height: 1.35; color: #64748b; padding: 0 7px 0 3px; }
+}
+.ar-footer {
+  flex: 0 0 auto; display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+  margin: 8px 12px 12px; padding: 7px 9px; max-height: 18vh; overflow-y: auto;
+  border: 1px solid; border-radius: 13px; backdrop-filter: blur(14px); z-index: 4;
+}
+.ar-footer button { border-radius: 8px !important; }
+.ar-minimap {
+  position: absolute; left: 14px; bottom: 14px; width: 172px; height: 112px; z-index: 3;
+  border-radius: 12px; overflow: hidden; background: rgba(8, 13, 24, .74);
+  border: 1px solid rgba(148, 163, 184, .20); box-shadow: 0 10px 30px rgba(0,0,0,.30);
+  backdrop-filter: blur(14px);
+}
+.ar-minimap svg { width: 100%; height: 100%; display: block; cursor: crosshair; }
+.ar-minimap-zoom { position: absolute; right: 7px; bottom: 5px; font-size: 9px; font-weight: 700; color: #7dd3fc; background: rgba(2,6,23,.6); padding: 1px 5px; border-radius: 4px; pointer-events: none; }
+.ar-insight {
+  position: absolute; left: 14px; top: 14px; z-index: 3; width: 312px; max-height: calc(100% - 148px);
+  overflow-y: auto; padding: 13px 14px; border-radius: 14px;
+  background: rgba(8, 13, 24, .80); border: 1px solid rgba(148, 163, 184, .18);
+  box-shadow: 0 18px 48px rgba(0,0,0,.32); backdrop-filter: blur(18px) saturate(1.2);
+  color: #dfe8f5; font-size: 11.5px;
+}
+.ar-insight header { display: flex; gap: 9px; align-items: flex-start; margin-bottom: 12px; }
+.ar-insight header b { display: block; font-size: 12.5px; letter-spacing: .02em; }
+.ar-insight header small { display: block; margin-top: 2px; color: #6f8098; font-size: 9.5px; line-height: 1.35; }
+.ar-insight-icon { width: 25px; height: 25px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 8px; color: #7dd3fc; background: rgba(56,189,248,.12); border: 1px solid rgba(56,189,248,.24); }
+.ar-score { display: flex; align-items: center; gap: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(148,163,184,.12); }
+.ar-score-ring { position: relative; width: 76px; height: 76px; flex: 0 0 auto; display: grid; place-items: center; }
+.ar-score-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ar-score-ring b { font-size: 23px; line-height: 1; letter-spacing: -.04em; }
+.ar-score-ring span { position: absolute; bottom: 17px; font-size: 8px; color: #7d8ea6; }
+.ar-score-meta { min-width: 0; display: grid; gap: 4px; }
+.ar-score-label { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; color: #a8b8ce; }
+.ar-score-meta small { color: #64748b; font-size: 9.5px; }
+.ar-health-chips { display: flex; flex-wrap: wrap; gap: 4px 7px; font-size: 9.5px; font-weight: 650; }
+.ar-insight-list { margin-top: 10px; }
+.ar-insight-list > small { display: flex; align-items: center; gap: 4px; color: #7d8ea6; font-size: 9.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 5px; }
+.ar-insight-list > div { display: flex; align-items: baseline; gap: 7px; padding: 4px 0; border-top: 1px solid rgba(148,163,184,.08); }
+.ar-insight-list > div span { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ar-insight-list > div b { flex: 0 0 auto; font-size: 9px; font-weight: 700; color: #fbbf24; }
+.ar-insight-list > div.critical b { color: #f87171; }
+.ar-insight-list > div em { flex: 1 0 100%; color: #718096; font-style: normal; font-size: 9px; line-height: 1.35; padding-left: 0; }
+.ar-layer-health { display: grid !important; grid-template-columns: minmax(0, 1fr) 24px; gap: 3px 6px !important; align-items: center; }
+.ar-layer-health i { grid-column: 1 / -1; height: 3px; background: rgba(148,163,184,.12); border-radius: 999px; overflow: hidden; }
+.ar-layer-health i em { display: block; height: 100%; border-radius: inherit; }
+.ar-layer-health b { color: #b8c7da !important; }
+.ar-insight-empty { color: #718096; font-size: 10px; line-height: 1.5; margin: 8px 0 0; }
+.ar-replace-bars { display: grid; gap: 7px; }
+.ar-replace-row { display: grid; grid-template-columns: minmax(0,1fr) 24px; gap: 4px 8px; align-items: center; font-size: 10px; }
+.ar-replace-row span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ar-replace-row b { text-align: right; font-size: 11px; }
+.ar-replace-row i { grid-column: 1 / -1; height: 3px; background: rgba(148,163,184,.12); border-radius: 999px; overflow: hidden; }
+.ar-replace-row i em { display: block; height: 100%; border-radius: inherit; }
+.ar-insight-stat { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 8px; border-top: 1px solid rgba(148,163,184,.12); color: #9aabc1; }
+.ar-insight-stat b { color: #e2e8f0; }
+@media (max-width: 900px) {
+  .ar-insight { width: 270px; max-height: 46%; }
+}
+@media (max-width: 767px) {
+  .ar-toolbar { margin: 8px 8px 0; padding: 9px 10px; border-radius: 14px; }
+  .ar-stage { margin: 6px 0 0; }
+  .ar-footer { margin: 6px 8px 8px; border-radius: 11px; }
+  .ar-brand { min-width: 0; flex-basis: 100%; }
+  .ar-score-pill { margin-left: auto; }
+  .ar-lensbar { width: 100%; overflow-x: auto; }
+  .ar-minimap { width: 120px; height: 82px; left: 8px; bottom: 8px; }
+  .ar-zoom { right: 8px; bottom: 8px; }
+  .ar-insight { left: 8px; top: 8px; width: calc(100% - 16px); max-height: 42%; }
+  .ar-canvas.ar-has-selection { right: 0; }
+}
+
+.ar-insight-list > div { flex-wrap: wrap; }
+.ar-insight-list > div em { overflow-wrap: anywhere; white-space: normal; }
+.ar-insight-list > div span { overflow-wrap: anywhere; white-space: normal; }
+
+/* theme-aware chrome */
+.ar-kicker { color: var(--ar-accent); }
+.ar-kicker b { color: var(--ar-text); }
+.ar-kicker span { color: var(--ar-faint); }
+.ar-subtitle { color: var(--ar-sub); }
+.ar-lensbar { background: color-mix(in srgb, var(--ar-text) 5%, transparent); border-color: color-mix(in srgb, var(--ar-text) 14%, transparent); }
+.ar-lens { color: var(--ar-sub); }
+.ar-lens:hover { color: var(--ar-text); background: color-mix(in srgb, var(--ar-text) 7%, transparent); }
+.ar-lens.is-active { color: var(--ar-text); background: color-mix(in srgb, var(--ar-accent) 18%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ar-accent) 48%, transparent), 0 4px 16px color-mix(in srgb, var(--ar-accent) 12%, transparent); }
+.ar-lens em { color: var(--ar-accent); background: color-mix(in srgb, var(--ar-accent) 14%, transparent); }
+.ar-lens em.is-hot { color: var(--ar-warn); background: color-mix(in srgb, var(--ar-warn) 16%, transparent); }
+.ar-score-pill { color: var(--ar-good); background: color-mix(in srgb, var(--ar-good) 12%, transparent); border-color: color-mix(in srgb, var(--ar-good) 34%, transparent); }
+.ar-score-pill.is-warn { color: var(--ar-warn); background: color-mix(in srgb, var(--ar-warn) 12%, transparent); border-color: color-mix(in srgb, var(--ar-warn) 36%, transparent); }
+.ar-score-pill.is-bad { color: var(--ar-critical); background: color-mix(in srgb, var(--ar-critical) 12%, transparent); border-color: color-mix(in srgb, var(--ar-critical) 40%, transparent); }

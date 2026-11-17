@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { Activity, Box, GitBranchPlus, Maximize2, Minimize2, RotateCcw } from 'lucide-react';
 import {
   parseView, applyScenario, computeLayout, graphLayerChipLabel, graphLayers, graphLocales, impactOf, indexGraph,
   negotiateLocale, replacementPrompt, t, ui, validateGraph, visibleGraph,
   type ArchGraph, type PlanarLayout, type ProjectionId, type UiKey,
 } from '@archray/core';
-import { Scene, type Lens } from './Scene';
+import { Scene, type Camera, type Lens } from './Scene';
 import { Inspector } from './Inspector';
 import { THEMES, alpha, type Theme } from './theme';
 import { exportPng } from './export';
+import { Insights, summarizeHealth } from './Insights';
 
 declare global { interface Window { __ARCHRAY_DATA__?: unknown; __ARCHRAY_VIEW__?: Record<string, unknown> } }
 
@@ -70,13 +72,14 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
   const initial = useMemo(() => parseView({ ...(window.__ARCHRAY_VIEW__ ?? {}), ...qs }, base), [base]);
   const v0 = initial.view;
   const [notices, setNotices] = useState<string[]>(initial.warnings);
-  const [camera, setCamera] = useState(v0.camera ?? { x: 0, y: 0, zoom: 1 });
+  const [camera, setCamera] = useState<Camera>(v0.camera ? { ...v0.camera, rotate: v0.camera.rotate ?? 0 } : { x: 0, y: 0, zoom: 1, rotate: 0 });
+  const [cameraEpoch, setCameraEpoch] = useState(0);
   const [retry, setRetry] = useState(0);
   const baseIdx = useMemo(() => indexGraph(base), [base]);
   const { locales, defaultLocale } = graphLocales(base);
   const [locale, setLocale] = useState<string>(v0.locale ?? negotiateLocale(locales, navigator.languages));
   const [themeId, setThemeId] = useState<Theme['id']>(v0.theme ?? 'midnight');
-  const [projection, setProjection] = useState<ProjectionId>(v0.projection ?? 'flat');
+  const [projection, setProjection] = useState<ProjectionId>(v0.projection ?? 'stack');
   const [lens, setLens] = useState<Lens>(v0.lens ?? 'topology');
   const [root, setRoot] = useState<string | null>(v0.focus ?? null);
   const [expanded, setExpanded] = useState<Set<string>>(() => {
@@ -93,6 +96,16 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
     v0.motion ?? (window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'calm' : 'full'));
   const activeMotion = systemReduced && !motionOverride && motion === 'full' ? 'calm' : motion;
   useEffect(() => { if (systemReduced) setMotionOverride(false); }, [systemReduced]);
+  const [fullscreen, setFullscreen] = useState(false);
+  useEffect(() => {
+    const sync = () => setFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', sync);
+    return () => document.removeEventListener('fullscreenchange', sync);
+  }, []);
+  const toggleFullscreen = () => {
+    if (document.fullscreenElement) void document.exitFullscreen();
+    else void document.documentElement.requestFullscreen?.().catch(() => {});
+  };
   const [flowId, setFlowId] = useState<string | null>(null);
   const [showRecord, setShowRecord] = useState(false);
   const [showMore, setShowMore] = useState(false);
@@ -109,11 +122,11 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
   const L = (x: Parameters<typeof t>[0]) => t(x, locale, defaultLocale);
   const showNotice = (code: string) => setNotices([code]);
   const cameraTouched = useRef(false);
-  const changeCamera = (next: { x: number; y: number; zoom: number }) => {
+  const changeCamera = (next: Camera) => {
     cameraTouched.current = true;
     setCamera(next);
   };
-  const resetCamera = () => changeCamera({ x: 0, y: 0, zoom: 1 });
+  const resetCamera = () => { setCameraEpoch((e) => e + 1); changeCamera({ x: 0, y: 0, zoom: 1, rotate: 0 }); };
 
   const autoZoomed = useRef(false);
   const scen = base.scenarios?.find((s) => s.id === scenarioId) ?? null;
@@ -180,6 +193,7 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
   }, [layout, base.nodes.length, v0.camera, v0.layers, v0.focus]);
 
   const impact = useMemo(() => (selected && baseIdx.byId.has(selected) ? impactOf(baseIdx, selected) : null), [baseIdx, selected]);
+  const health = useMemo(() => summarizeHealth(base, baseIdx, locale, defaultLocale), [base, baseIdx, locale, defaultLocale]);
   const highlight = useMemo(() => {
     if (flowNodes) return flowNodes;
     if (!selected || !impact) return null;
@@ -198,7 +212,8 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
 
   const saveView = () => {
     const view = {
-      camera, $schema: './view.schema.json', viewVersion: '1', locale, theme: themeId, projection, lens,
+      camera: { x: camera.x, y: camera.y, zoom: camera.zoom, ...(camera.rotate ? { rotate: camera.rotate } : {}) },
+      $schema: './view.schema.json', viewVersion: '1', locale, theme: themeId, projection, lens,
       ...(root ? { focus: root } : {}),
       collapsed: [...idx.children.keys()].filter((g): g is string => !!g && !expanded.has(g)),
       ...(layers.length ? { layers } : {}),
@@ -218,11 +233,12 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
       const { view: v, warnings } = parseView(JSON.parse(await file.text()), base);
       setLocale(v.locale ?? defaultLocale);
       setThemeId(v.theme ?? 'midnight');
-      setProjection(v.projection ?? 'flat');
+      setProjection(v.projection ?? 'stack');
       setLens(v.lens ?? 'topology');
       setRoot(v.focus ?? null);
       setScenarioId(v.scenario ?? null);
-      changeCamera(v.camera ?? { x: 0, y: 0, zoom: 1 });
+      setCameraEpoch((e) => e + 1);
+      changeCamera(v.camera ? { ...v.camera, rotate: v.camera.rotate ?? 0 } : { x: 0, y: 0, zoom: 1, rotate: 0 });
       setExpanded(new Set(base.nodes.filter((n) => base.nodes.some((c) => c.parent === n.id) && !v.collapsed?.includes(n.id)).map((n) => n.id)));
       setSelected(null);
       setLayers(v.layers ?? []);
@@ -244,6 +260,23 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
       ))}
     </div>
   );
+  const lensIcon = { topology: Box, health: Activity, replaceability: GitBranchPlus } as const;
+  const lensSeg = (
+    <div className="ar-lensbar" role="tablist" aria-label={U('lens.topology')}>
+      {(['topology', 'health', 'replaceability'] as const).map((id) => {
+        const Icon = lensIcon[id];
+        const badge = id === 'health' ? health.counts.critical + health.counts.warn : id === 'replaceability' ? base.nodes.filter((n) => n.alternatives?.replaceability === 'low').length : 0;
+        return (
+          <button key={id} role="tab" aria-selected={lens === id} onClick={() => setLens(id)}
+            className={`ar-lens${lens === id ? ' is-active' : ''}`}>
+            <Icon size={14} /> <span>{U(`lens.${id}`)}</span>
+            {badge > 0 && <em className={id === 'health' ? 'is-hot' : ''}>{id === 'health' ? `${badge} hot` : `${badge} core`}</em>}
+          </button>
+        );
+      })}
+    </div>
+  );
+
   const buttonStyle = (active = false): CSSProperties => ({
     border: `1px solid ${active ? th.accent : th.panelBorder}`, background: active ? th.accent : th.panel,
     color: active ? th.bg : th.text, borderRadius: 8, padding: '6px 10px', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit',
@@ -253,25 +286,35 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
   );
 
   return (
-    <div className={`ar-shell ar-motion-${activeMotion}`} data-motion={activeMotion} data-zoom={camera.zoom}
-      style={{ background: th.bg, color: th.text, ...background, ['--ar-accent' as string]: th.accent } as CSSProperties}>
-      <div className="ar-toolbar">
-        <div style={{ marginRight: 8 }}>
-          <div style={{ fontSize: 17, fontWeight: 700 }}>{L(graph.meta.name)}</div>
-          <div style={{ fontSize: 12, color: th.sub }}>
-            {crumbs.length ? <>
-              <a style={{ color: th.accent, cursor: 'pointer' }} onClick={() => setRoot(null)}>{U('common.root')}</a>
-              {crumbs.map((c) => <span key={c}> / <a style={{ color: th.accent, cursor: 'pointer' }} onClick={() => setRoot(c)}>{L(idx.byId.get(c)?.name)}</a></span>)}
-            </> : `${graph.nodes.length} ${U('common.nodes')} · ${graph.edges.length} ${U('common.edges')}`}
+    <div className={`ar-shell ar-motion-${activeMotion}`} data-motion={activeMotion} data-projection={projection} data-zoom={camera.zoom} data-rotate={camera.rotate ?? 0} data-camera={`${camera.x.toFixed(2)},${camera.y.toFixed(2)}`}
+      style={{ background: th.bg, color: th.text, ...background,
+        ['--ar-accent' as string]: th.accent, ['--ar-text' as string]: th.text, ['--ar-sub' as string]: th.sub,
+        ['--ar-faint' as string]: th.faint, ['--ar-good' as string]: th.good, ['--ar-warn' as string]: th.warn,
+        ['--ar-critical' as string]: th.critical, ['--ar-panel' as string]: th.panel, ['--ar-panel-border' as string]: th.panelBorder,
+      } as CSSProperties}>
+      <div className="ar-toolbar" style={{ background: th.panel, borderColor: th.panelBorder, boxShadow: `0 18px 60px ${alpha(th.shadow, 0.28)}` }}>
+        <div className="ar-brand">
+          <div className="ar-logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+              <polygon points="12 2 21 7 21 17 12 22 3 17 3 7" />
+              <polyline points="3 7 12 12 21 7" />
+              <line x1="12" y1="12" x2="12" y2="22" />
+            </svg>
           </div>
-          <div className="ar-provenance-full" style={{ fontSize: 10, color: th.faint }}>
-            {U('meta.inputOnly')} · {U('meta.generated')} {base.meta.generatedAt} · {U('meta.commit')} {base.meta.repo?.commit ?? '—'} · {U('meta.notRuntime')}
+          <div className="ar-title">
+            <div className="ar-kicker">ARCHRAY <span>/</span> <b>{L(graph.meta.name)}</b></div>
+            <div className="ar-subtitle">
+              {crumbs.length ? <>
+                <a onClick={() => setRoot(null)}>{U('common.root')}</a>
+                {crumbs.map((c) => <span key={c}> / <a onClick={() => setRoot(c)}>{L(idx.byId.get(c)?.name)}</a></span>)}
+              </> : `${graph.layers?.length ?? 0} ${U('layers.label')} · ${graph.nodes.length} ${U('common.nodes')} · ${graph.edges.length} ${U('common.edges')}${graph.flows?.length ? ` · ${graph.flows.length} ${U('lens.flow')}` : ''}`}
+            </div>
           </div>
-          <div className="ar-provenance-short" style={{ fontSize: 10, color: th.faint }}>
-            {U('meta.inputOnly')} · {U('meta.notRuntime')}
-          </div>
+          <span className={`ar-score-pill${health.score < 50 ? ' is-bad' : health.score < 75 ? ' is-warn' : ''}`} title={`${U('insight.score')} · ${health.estimated ? U('insight.estimated') : U('common.measured')}`} data-score-origin={health.origin}>
+            <Activity size={12} /> {health.estimated ? '≈' : ''}{health.score}<small>/100</small>
+          </span>
         </div>
-        {seg((['topology', 'health', 'replaceability'] as const).map((id) => ({ id, label: U(`lens.${id}`) })), lens, setLens)}
+        {lensSeg}
         {seg((['stack', 'iso', 'flat'] as const).map((id) => ({ id, label: U(`projection.${id}`) })), projection, setProjection)}
         {locales.length > 1 && seg(locales.map((l) => ({ id: l, label: l.startsWith('zh') ? '中' : l.split('-')[0]!.toUpperCase() })), locale, setLocale)}
         {availableLayers.length > 1 && (
@@ -334,20 +377,27 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
         )}
       </div>
 
-      <div className="ar-stage">
+      <div className="ar-stage" style={{ borderColor: th.panelBorder, background: `radial-gradient(circle at 50% 38%, ${alpha(th.accent, 0.08)}, transparent 58%), ${th.bg}` }}>
         <div className={selected ? 'ar-canvas ar-has-selection' : 'ar-canvas'}>
           {layout && (
-            <Scene camera={camera} onCamera={changeCamera} idx={idx} layout={layout} projection={projection} theme={th} locale={locale} lens={lens}
+            <Scene camera={camera} cameraEpoch={cameraEpoch} onCamera={changeCamera} idx={idx} layout={layout} projection={projection} theme={th} locale={locale} lens={lens}
               selected={selected} highlight={highlight} activeEdges={activeEdges} diff={diff}
               onSelect={setSelected}
               onOpen={(id) => { setRoot(id); setSelected(null); }} context={vis.context} motion={activeMotion} />
           )}
-          <div className="ar-zoom">
+          <div className="ar-zoom" onPointerDown={(e) => e.stopPropagation()}>
+            <span className="ar-zoom-hint">{U('camera.hint')}</span>
+            {camera.rotate ? <button title={U('camera.rotate')} onClick={() => changeCamera({ ...camera, rotate: 0 })}><RotateCcw size={15} /></button> : null}
             {btn('−', () => changeCamera({ ...camera, zoom: Math.max(0.1, camera.zoom / 1.3) }))}
             {btn('+', () => changeCamera({ ...camera, zoom: Math.min(20, camera.zoom * 1.3) }))}
+            <button title={U('camera.fullscreen')} onClick={toggleFullscreen}>{fullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}</button>
             {btn(U('common.fit'), () => { resetCamera(); setRoot(null); setSelected(null); })}
           </div>
         </div>
+
+        {(lens === 'health' || lens === 'replaceability') && (
+          <Insights kind={lens} graph={graph} idx={idx} theme={th} locale={locale} defaultLocale={defaultLocale} />
+        )}
 
         {selected && baseIdx.byId.get(selected) && (
           <Inspector idx={baseIdx} id={selected} theme={th} locale={locale} defaultLocale={defaultLocale} impact={impact!}
@@ -361,7 +411,7 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
         )}
       </div>
 
-      <div className="ar-footer">
+      <div className="ar-footer" style={{ background: th.panel, borderColor: th.panelBorder }}>
         {flow && (
           <div style={{ background: th.panel, border: `1px solid ${th.panelBorder}`, borderRadius: 10, padding: '6px 12px', fontSize: 13 }}>
             {step === 0 ? L(flow.name) : `${step}/${flow.steps.length} · ${L(flow.steps[step - 1]!.action)}`}
