@@ -58,7 +58,7 @@ Analyse once, then slice the view without re-analysing:
 node /path/to/ArchRay/cli/bin/archray.mjs build .archray/graph.json --layers frontend,data --no-open
 ```
 
-Layers are `client`, `edge`, `gateway`, `service`, `async`, `data`, `ai`, `external`, `platform`, `observability`; Chinese aliases such as `前端`, `数据`, `网关` work too. A graph may declare its own layer ids; those stay selectable and are saved by their own id. Selected layers stay visible and one-hop runtime neighbours are dimmed as cross-layer context; platform/tooling nodes stay hidden unless selected. Graphs with 25+ modules open at a readable zoom on wide screens; Fit returns to the whole graph. `/archray` accepts the same keywords.
+Layers are `client`, `edge`, `gateway`, `service`, `async`, `data`, `ai`, `external`, `platform`, `observability`; Chinese aliases such as `前端`, `数据`, `网关` work too. A graph may declare its own layer ids; those stay selectable and are saved by their own id. Selected layers stay visible and one-hop runtime neighbours are dimmed as cross-layer context; platform/tooling nodes stay hidden unless selected. Graphs with 25+ modules open at a readable zoom on wide screens (up to 4×; extremely large graphs may still need manual zoom); Fit returns to the whole graph. `/archray` accepts the same keywords.
 
 ## Styles and language
 

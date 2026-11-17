@@ -361,6 +361,7 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
 
   page = await open({ width: 1440, height: 900 }, '?theme=paper&projection=stack&locale=en', undefined, `file://${path.join(outDir, 'forty.html')}`);
   assert.ok((await page.locator('#archray-scene text').count()) >= 40, 'all 40 modules render');
+  assert.ok(Number(await page.locator('.ar-shell').getAttribute('data-zoom')) >= 1.5, '40 modules open at a readable zoom');
   assert.ok((await box(page, '.ar-canvas')).height > 500, '40-module canvas keeps height');
   assert.equal(await page.$eval('.ar-shell', (el) => getComputedStyle(el).backgroundColor), 'rgb(244, 246, 250)', 'light theme applies');
   assert.ok((await page.locator('#archray-scene').getAttribute('viewBox')), 'stack projection renders');

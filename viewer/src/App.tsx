@@ -108,7 +108,12 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
   const U = (k: UiKey) => ui(k, locale);
   const L = (x: Parameters<typeof t>[0]) => t(x, locale, defaultLocale);
   const showNotice = (code: string) => setNotices([code]);
-  const resetCamera = () => setCamera({ x: 0, y: 0, zoom: 1 });
+  const cameraTouched = useRef(false);
+  const changeCamera = (next: { x: number; y: number; zoom: number }) => {
+    cameraTouched.current = true;
+    setCamera(next);
+  };
+  const resetCamera = () => changeCamera({ x: 0, y: 0, zoom: 1 });
 
   const autoZoomed = useRef(false);
   const scen = base.scenarios?.find((s) => s.id === scenarioId) ?? null;
@@ -164,7 +169,7 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
   }, [flow, step, vis, idx]);
 
   useEffect(() => {
-    if (autoZoomed.current || v0.camera || !layout) return;
+    if (autoZoomed.current || cameraTouched.current || v0.camera || !layout) return;
     autoZoomed.current = true;
     if (base.nodes.length < 25 || window.innerWidth < 900 || (v0.layers?.length ?? 0) > 0 || v0.focus) return;
     const viewportWidth = Math.max(320, window.innerWidth - 80);
@@ -217,7 +222,7 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
       setLens(v.lens ?? 'topology');
       setRoot(v.focus ?? null);
       setScenarioId(v.scenario ?? null);
-      setCamera(v.camera ?? { x: 0, y: 0, zoom: 1 });
+      changeCamera(v.camera ?? { x: 0, y: 0, zoom: 1 });
       setExpanded(new Set(base.nodes.filter((n) => base.nodes.some((c) => c.parent === n.id) && !v.collapsed?.includes(n.id)).map((n) => n.id)));
       setSelected(null);
       setLayers(v.layers ?? []);
@@ -332,14 +337,14 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
       <div className="ar-stage">
         <div className={selected ? 'ar-canvas ar-has-selection' : 'ar-canvas'}>
           {layout && (
-            <Scene camera={camera} onCamera={setCamera} idx={idx} layout={layout} projection={projection} theme={th} locale={locale} lens={lens}
+            <Scene camera={camera} onCamera={changeCamera} idx={idx} layout={layout} projection={projection} theme={th} locale={locale} lens={lens}
               selected={selected} highlight={highlight} activeEdges={activeEdges} diff={diff}
               onSelect={setSelected}
               onOpen={(id) => { setRoot(id); setSelected(null); }} context={vis.context} motion={activeMotion} />
           )}
           <div className="ar-zoom">
-            {btn('−', () => setCamera((c) => ({ ...c, zoom: Math.max(0.1, c.zoom / 1.3) })))}
-            {btn('+', () => setCamera((c) => ({ ...c, zoom: Math.min(20, c.zoom * 1.3) })))}
+            {btn('−', () => changeCamera({ ...camera, zoom: Math.max(0.1, camera.zoom / 1.3) }))}
+            {btn('+', () => changeCamera({ ...camera, zoom: Math.min(20, camera.zoom * 1.3) }))}
             {btn(U('common.fit'), () => { resetCamera(); setRoot(null); setSelected(null); })}
           </div>
         </div>
