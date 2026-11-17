@@ -1,0 +1,367 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archray.dev/schema/archray.schema.json",
+  "title": "ArchRay Architecture Graph Schema",
+  "description": "Single source of truth contract for ArchRay AI cognitive decomposition and deterministic 2.5D isometric rendering.",
+  "type": "object",
+  "required": ["version", "meta", "layers", "nodes", "edges", "flows"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "meta": {
+      "type": "object",
+      "required": ["name", "description", "generatedAt"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "generatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "repoRoot": {
+          "type": "string"
+        },
+        "stats": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "totalFiles": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "totalLoc": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "healthScore": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            }
+          }
+        }
+      }
+    },
+    "layers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/ArchLayer"
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/ArchNode"
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ArchEdge"
+      }
+    },
+    "flows": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ArchFlow"
+      }
+    }
+  },
+  "$defs": {
+    "ArchNodeKind": {
+      "type": "string",
+      "enum": [
+        "client",
+        "gateway",
+        "service",
+        "worker",
+        "database",
+        "cache",
+        "queue",
+        "storage",
+        "external-api",
+        "ai-model"
+      ]
+    },
+    "ArchNodeStatus": {
+      "type": "string",
+      "enum": [
+        "healthy",
+        "bottleneck",
+        "high-complexity",
+        "planned",
+        "deprecated"
+      ]
+    },
+    "ArchEdgeProtocol": {
+      "type": "string",
+      "enum": [
+        "http",
+        "grpc",
+        "ws",
+        "amqp",
+        "sql",
+        "redis",
+        "ipc",
+        "llm-stream"
+      ]
+    },
+    "ArchLayer": {
+      "type": "object",
+      "required": ["id", "label", "order"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "color": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "ArchNodeMetrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "complexity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "coupling": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "loc": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "latencyMs": {
+          "type": "string"
+        },
+        "throughput": {
+          "type": "string"
+        }
+      }
+    },
+    "ArchNodeContracts": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "exposes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "consumes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ArchNode": {
+      "type": "object",
+      "required": [
+        "id",
+        "label",
+        "layerId",
+        "kind",
+        "status",
+        "description",
+        "techStack",
+        "sourcePaths"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "subtitle": {
+          "type": "string"
+        },
+        "layerId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "$ref": "#/$defs/ArchNodeKind"
+        },
+        "status": {
+          "$ref": "#/$defs/ArchNodeStatus"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "techStack": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sourcePaths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "metrics": {
+          "$ref": "#/$defs/ArchNodeMetrics"
+        },
+        "contracts": {
+          "$ref": "#/$defs/ArchNodeContracts"
+        },
+        "refactorNotes": {
+          "type": "string"
+        },
+        "children": {
+          "type": "object",
+          "required": ["nodes", "edges"],
+          "additionalProperties": false,
+          "properties": {
+            "nodes": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/ArchNode"
+              }
+            },
+            "edges": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/ArchEdge"
+              }
+            }
+          }
+        }
+      }
+    },
+    "ArchEdge": {
+      "type": "object",
+      "required": ["id", "source", "target"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string"
+        },
+        "protocol": {
+          "$ref": "#/$defs/ArchEdgeProtocol"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "bottleneck", "planned"]
+        },
+        "bandwidth": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        }
+      }
+    },
+    "ArchFlowStep": {
+      "type": "object",
+      "required": ["step", "from", "to", "action", "payload"],
+      "additionalProperties": false,
+      "properties": {
+        "step": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "from": {
+          "type": "string",
+          "minLength": 1
+        },
+        "to": {
+          "type": "string",
+          "minLength": 1
+        },
+        "edgeId": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string",
+          "minLength": 1
+        },
+        "payload": {
+          "type": "string"
+        },
+        "latencyMs": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "ArchFlow": {
+      "type": "object",
+      "required": ["id", "name", "description", "steps"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["core", "async", "evolution"]
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/ArchFlowStep"
+          }
+        }
+      }
+    }
+  }
+}

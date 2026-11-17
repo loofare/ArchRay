@@ -1,0 +1,29 @@
+{
+  "name": "archray",
+  "version": "1.0.0",
+  "description": "AI-driven living system architecture visual engine (AI Skill + zero-runtime-dependency 2.5D isometric interactive sandbox)",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "viewer"
+  ],
+  "bin": {
+    "archray": "./cli/bin/archray.mjs"
+  },
+  "scripts": {
+    "dev": "npm --workspace=viewer run dev",
+    "build:viewer": "npm --workspace=viewer run build",
+    "build": "npm run build:viewer",
+    "init:skill": "node ./cli/bin/archray.mjs init",
+    "self-analyze": "node ./cli/bin/archray.mjs build --input .archray/graph.json --output .archray/index.html"
+  },
+  "keywords": [
+    "architecture",
+    "visualization",
+    "isometric",
+    "ai-skill",
+    "elkjs",
+    "c4-model"
+  ],
+  "license": "MIT"
+}

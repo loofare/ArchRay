@@ -1,0 +1,867 @@
+{
+  "version": "1.0",
+  "meta": {
+    "name": "NexusAI Cloud",
+    "description": "Distributed Agentic RAG & Realtime Multi-Modal Inference Platform",
+    "generatedAt": "2026-11-17T03:00:00.000Z",
+    "repoRoot": "github.com/nexus-ai/nexus-cloud",
+    "stats": {
+      "totalFiles": 348,
+      "totalLoc": 42850,
+      "healthScore": 78
+    }
+  },
+  "layers": [
+    {
+      "id": "layer-edge",
+      "label": "Client & Edge Gateway Layer",
+      "order": 0,
+      "color": "#38BDF8",
+      "description": "Browser clients, edge semantic caching, and zero-trust API ingress."
+    },
+    {
+      "id": "layer-core",
+      "label": "Core Business & Orchestration Services",
+      "order": 1,
+      "color": "#818CF8",
+      "description": "Stateful agent orchestration, tenant billing, and tool-use routing."
+    },
+    {
+      "id": "layer-ai",
+      "label": "AI Cognitive & Async Compute Layer",
+      "order": 2,
+      "color": "#C084FC",
+      "description": "Speculative LLM inference, embedding pipelines, and async ingestion workers."
+    },
+    {
+      "id": "layer-data",
+      "label": "Polyglot Storage & Messaging Mesh",
+      "order": 3,
+      "color": "#34D399",
+      "description": "Vector/relational stores, ultra-fast session cache, event bus, and blob vault."
+    }
+  ],
+  "nodes": [
+    {
+      "id": "web-studio",
+      "label": "Nexus Studio SPA",
+      "subtitle": "Interactive Agent Workbench",
+      "layerId": "layer-edge",
+      "kind": "client",
+      "status": "healthy",
+      "description": "Multi-modal developer workspace supporting real-time SSE token streaming, canvas prompt chaining, and trace inspection.",
+      "techStack": ["React 19", "TypeScript", "WebSockets", "Tailwind"],
+      "sourcePaths": [
+        "apps/studio/src/App.tsx",
+        "apps/studio/src/hooks/useAgentStream.ts"
+      ],
+      "metrics": {
+        "complexity": 28,
+        "coupling": 22,
+        "loc": 6420,
+        "latencyMs": "14ms",
+        "throughput": "2.4k req/s"
+      },
+      "contracts": {
+        "exposes": ["UI Session State", "WS Stream Subscriber"],
+        "consumes": ["POST /v1/agent/run", "WSS /v1/stream/{sessionId}"]
+      }
+    },
+    {
+      "id": "edge-gateway",
+      "label": "Envoy Edge Gateway",
+      "subtitle": "Zero-Trust Ingress & Rate Limiter",
+      "layerId": "layer-edge",
+      "kind": "gateway",
+      "status": "healthy",
+      "description": "Terminates TLS, validates JWT/API keys, enforces per-tenant token bucket quotas, and routes WebSocket/HTTP2 traffic.",
+      "techStack": ["Envoy Proxy", "Rust WASM Filter", "OAuth2"],
+      "sourcePaths": [
+        "infra/gateway/envoy.yaml",
+        "services/auth-filter/src/lib.rs"
+      ],
+      "metrics": {
+        "complexity": 34,
+        "coupling": 45,
+        "loc": 3100,
+        "latencyMs": "3.2ms",
+        "throughput": "18k req/s"
+      },
+      "contracts": {
+        "exposes": ["HTTPS :443 /v1/*", "WSS :443 /v1/stream"],
+        "consumes": ["gRPC OrchestratorService", "Redis Quota Check"]
+      }
+    },
+    {
+      "id": "edge-semantic-cache",
+      "label": "Edge Semantic Cache",
+      "subtitle": "L1 Embedding Hit Accelerator",
+      "layerId": "layer-edge",
+      "kind": "cache",
+      "status": "planned",
+      "description": "Planned edge vector cache intercepting recurring user prompts via quantized cosine similarity before invoking heavyweight LLM workers.",
+      "techStack": ["Cloudflare Workers", "HNSW-Lite", "ONNX Quantized"],
+      "sourcePaths": [
+        "rfcs/0042-edge-semantic-cache.md",
+        "services/edge-cache/src/matcher.ts"
+      ],
+      "metrics": {
+        "complexity": 32,
+        "coupling": 18,
+        "loc": 980,
+        "latencyMs": "6ms",
+        "throughput": "12k req/s"
+      },
+      "contracts": {
+        "exposes": ["Edge Semantic Lookup"],
+        "consumes": ["Edge Gateway Pre-Filter", "Redis Vector Sync"]
+      },
+      "refactorNotes": "Target 35% cost reduction on repeated RAG FAQ queries by resolving >0.96 cosine hits at the edge."
+    },
+    {
+      "id": "core-orchestrator",
+      "label": "Agent Orchestrator",
+      "subtitle": "DAG Planner & Tool Router",
+      "layerId": "layer-core",
+      "kind": "service",
+      "status": "high-complexity",
+      "description": "Central ReAct/Plan-and-Execute state machine managing memory hydration, parallel tool execution, guardrails, and streaming synthesis.",
+      "techStack": ["Go 1.23", "gRPC", "Temporal SDK", "OpenTelemetry"],
+      "sourcePaths": [
+        "services/orchestrator/cmd/server/main.go",
+        "services/orchestrator/internal/planner/dag_engine.go",
+        "services/orchestrator/internal/memory/context_window.go"
+      ],
+      "metrics": {
+        "complexity": 84,
+        "coupling": 79,
+        "loc": 11240,
+        "latencyMs": "42ms",
+        "throughput": "4.2k req/s"
+      },
+      "contracts": {
+        "exposes": ["gRPC OrchestratorService.RunAgent", "SSE Token Stream"],
+        "consumes": ["Vector Recall", "LLM Router", "Session Cache", "Kafka Events"]
+      },
+      "refactorNotes": "High cyclomatic complexity in dag_engine.go (84). Split guardrail policy evaluator and tool-sandbox dispatcher into isolated domain packages.",
+      "children": {
+        "nodes": [
+          {
+            "id": "orch-ingress-adapter",
+            "label": "gRPC Stream Adapter",
+            "layerId": "layer-edge",
+            "kind": "gateway",
+            "status": "healthy",
+            "description": "Normalizes incoming client sessions and opens bidirectional gRPC/SSE token channels.",
+            "techStack": ["Go", "gRPC-Go"],
+            "sourcePaths": ["services/orchestrator/internal/transport/grpc_stream.go"],
+            "metrics": { "complexity": 24, "coupling": 30, "loc": 1420 }
+          },
+          {
+            "id": "orch-dag-planner",
+            "label": "ReAct DAG Planner",
+            "layerId": "layer-core",
+            "kind": "service",
+            "status": "high-complexity",
+            "description": "Compiles dynamic tool-execution graphs and manages retry/fallback branches on LLM tool calls.",
+            "techStack": ["Go", "State Machine"],
+            "sourcePaths": ["services/orchestrator/internal/planner/dag_engine.go"],
+            "metrics": { "complexity": 88, "coupling": 81, "loc": 4650 },
+            "refactorNotes": "Extract retry policy state machine out of planner loop."
+          },
+          {
+            "id": "orch-guardrail",
+            "label": "Policy & PII Guardrail",
+            "layerId": "layer-core",
+            "kind": "service",
+            "status": "healthy",
+            "description": "Runs low-latency regex and classifier checks for prompt injection and PII redaction.",
+            "techStack": ["Go", "Rust FFI"],
+            "sourcePaths": ["services/orchestrator/internal/guardrail/pii_scrubber.go"],
+            "metrics": { "complexity": 36, "coupling": 28, "loc": 1840 }
+          },
+          {
+            "id": "orch-memory-hydrator",
+            "label": "Context Memory Hydrator",
+            "layerId": "layer-data",
+            "kind": "cache",
+            "status": "bottleneck",
+            "description": "Fetches sliding window conversation turns and merges hybrid BM25 + dense retrieval chunks.",
+            "techStack": ["Go", "Redis Pipeline", "Qdrant Client"],
+            "sourcePaths": ["services/orchestrator/internal/memory/context_window.go"],
+            "metrics": { "complexity": 59, "coupling": 64, "loc": 3330 },
+            "refactorNotes": "Sequential chunk deduplication blocks P99 under 8k context payloads; parallelize rank fusion."
+          }
+        ],
+        "edges": [
+          {
+            "id": "sub-orch-1",
+            "source": "orch-ingress-adapter",
+            "target": "orch-guardrail",
+            "label": "Sanitize Prompt",
+            "protocol": "ipc",
+            "status": "active"
+          },
+          {
+            "id": "sub-orch-2",
+            "source": "orch-guardrail",
+            "target": "orch-memory-hydrator",
+            "label": "Hydrate Context",
+            "protocol": "ipc",
+            "status": "bottleneck"
+          },
+          {
+            "id": "sub-orch-3",
+            "source": "orch-memory-hydrator",
+            "target": "orch-dag-planner",
+            "label": "Build Execution Plan",
+            "protocol": "ipc",
+            "status": "active"
+          }
+        ]
+      }
+    },
+    {
+      "id": "billing-quota-svc",
+      "label": "Metering & Quota Service",
+      "subtitle": "Token Usage & Ledger Engine",
+      "layerId": "layer-core",
+      "kind": "service",
+      "status": "healthy",
+      "description": "Consumes asynchronous inference usage events, aggregates per-organization token credits, and writes immutable billing ledgers.",
+      "techStack": ["TypeScript", "Fastify", "Prisma"],
+      "sourcePaths": [
+        "services/billing/src/server.ts",
+        "services/billing/src/ledger/tokenAggregator.ts"
+      ],
+      "metrics": {
+        "complexity": 31,
+        "coupling": 34,
+        "loc": 4120,
+        "latencyMs": "11ms",
+        "throughput": "3.1k msg/s"
+      },
+      "contracts": {
+        "exposes": ["GET /internal/quota/{tenantId}"],
+        "consumes": ["Kafka topic: inference.usage.v1", "Postgres Billing DB"]
+      }
+    },
+    {
+      "id": "speculative-router",
+      "label": "Speculative Model Router",
+      "subtitle": "Adaptive Cost/Latency Arbiter",
+      "layerId": "layer-ai",
+      "kind": "gateway",
+      "status": "planned",
+      "description": "Planned intelligent router that classifies query difficulty to dispatch trivial turns to 8B edge models while escalating complex reasoning to frontier clusters.",
+      "techStack": ["Python", "ONNX Router", "vLLM Control"],
+      "sourcePaths": [
+        "rfcs/0045-speculative-routing.md",
+        "services/model-router/app/arbiter.py"
+      ],
+      "metrics": {
+        "complexity": 42,
+        "coupling": 30,
+        "loc": 1450,
+        "latencyMs": "8ms",
+        "throughput": "6k req/s"
+      },
+      "contracts": {
+        "exposes": ["gRPC RouteInference"],
+        "consumes": ["vLLM Cluster", "External Frontier APIs"]
+      },
+      "refactorNotes": "Reduces P95 inference cost by ~48% when paired with Edge Semantic Cache."
+    },
+    {
+      "id": "vllm-inference-cluster",
+      "label": "vLLM Inference Cluster",
+      "subtitle": "H100 Continuous Batching Pool",
+      "layerId": "layer-ai",
+      "kind": "ai-model",
+      "status": "healthy",
+      "description": "Hosts quantized Llama-3.3-70B & Qwen-2.5-Coder weights with PagedAttention KV-cache sharing and token-by-token gRPC streaming.",
+      "techStack": ["Python", "vLLM", "CUDA 12.6", "TensorRT-LLM"],
+      "sourcePaths": [
+        "services/inference/vllm_server.py",
+        "services/inference/kv_cache_manager.py"
+      ],
+      "metrics": {
+        "complexity": 52,
+        "coupling": 26,
+        "loc": 3890,
+        "latencyMs": "185ms TTFT",
+        "throughput": "14.5k tok/s"
+      },
+      "contracts": {
+        "exposes": ["gRPC StreamGenerate", "HTTP /v1/embeddings"],
+        "consumes": ["S3 Model Artifacts"]
+      }
+    },
+    {
+      "id": "rag-ingestion-worker",
+      "label": "RAG Ingestion Worker",
+      "subtitle": "AST Chunker & Embedding Pool",
+      "layerId": "layer-ai",
+      "kind": "worker",
+      "status": "bottleneck",
+      "description": "Pulls uploaded PDFs, repos, and docs from Kafka; performs OCR, AST-aware semantic chunking, and batch vectorization.",
+      "techStack": ["Python 3.12", "Tree-sitter", "Ray", "PyTorch"],
+      "sourcePaths": [
+        "services/rag-worker/worker.py",
+        "services/rag-worker/chunkers/ast_splitter.py",
+        "services/rag-worker/embedder/batch_client.py"
+      ],
+      "metrics": {
+        "complexity": 71,
+        "coupling": 58,
+        "loc": 5640,
+        "latencyMs": "1,420ms/doc",
+        "throughput": "280 docs/s"
+      },
+      "contracts": {
+        "exposes": ["Kafka Consumer: doc.ingest.v1"],
+        "consumes": ["S3 Raw Vault", "Qdrant Upsert", "vLLM Embeddings"]
+      },
+      "refactorNotes": "Synchronous PDF OCR step starves Ray worker threads during bulk repo imports. Offload OCR to dedicated GPU pre-processor.",
+      "children": {
+        "nodes": [
+          {
+            "id": "rag-kafka-poller",
+            "label": "Kafka Batch Poller",
+            "layerId": "layer-edge",
+            "kind": "queue",
+            "status": "healthy",
+            "description": "Consumes document ingestion jobs with backpressure-aware offset commits.",
+            "techStack": ["aiokafka", "Python"],
+            "sourcePaths": ["services/rag-worker/consumer/poller.py"],
+            "metrics": { "complexity": 27, "coupling": 24, "loc": 980 }
+          },
+          {
+            "id": "rag-ocr-parser",
+            "label": "PDF & Media OCR Parser",
+            "layerId": "layer-core",
+            "kind": "worker",
+            "status": "bottleneck",
+            "description": "Extracts layout-preserving Markdown and tables from multi-column PDFs.",
+            "techStack": ["PyMuPDF", "ONNX Layout"],
+            "sourcePaths": ["services/rag-worker/parsers/pdf_ocr.py"],
+            "metrics": { "complexity": 76, "coupling": 45, "loc": 2120 },
+            "refactorNotes": "CPU-bound OCR stalls asyncio event loop; move to isolated process pool."
+          },
+          {
+            "id": "rag-ast-chunker",
+            "label": "AST Semantic Chunker",
+            "layerId": "layer-ai",
+            "kind": "service",
+            "status": "healthy",
+            "description": "Splits codebases along function/class AST boundaries and Markdown headers.",
+            "techStack": ["Tree-sitter", "Tiktoken"],
+            "sourcePaths": ["services/rag-worker/chunkers/ast_splitter.py"],
+            "metrics": { "complexity": 49, "coupling": 32, "loc": 1460 }
+          },
+          {
+            "id": "rag-vector-upserter",
+            "label": "Hybrid Vector Upserter",
+            "layerId": "layer-data",
+            "kind": "database",
+            "status": "healthy",
+            "description": "Generates dense + sparse SPLADE vectors and streams idempotent upserts to Qdrant.",
+            "techStack": ["Qdrant AsyncClient", "gRPC"],
+            "sourcePaths": ["services/rag-worker/embedder/batch_client.py"],
+            "metrics": { "complexity": 35, "coupling": 38, "loc": 1080 }
+          }
+        ],
+        "edges": [
+          {
+            "id": "sub-rag-1",
+            "source": "rag-kafka-poller",
+            "target": "rag-ocr-parser",
+            "label": "Fetch & Decode",
+            "protocol": "ipc",
+            "status": "bottleneck"
+          },
+          {
+            "id": "sub-rag-2",
+            "source": "rag-ocr-parser",
+            "target": "rag-ast-chunker",
+            "label": "Structured Markdown",
+            "protocol": "ipc",
+            "status": "active"
+          },
+          {
+            "id": "sub-rag-3",
+            "source": "rag-ast-chunker",
+            "target": "rag-vector-upserter",
+            "label": "Chunk Batches",
+            "protocol": "grpc",
+            "status": "active"
+          }
+        ]
+      }
+    },
+    {
+      "id": "frontier-llm-bridge",
+      "label": "Frontier LLM Gateway",
+      "subtitle": "External Provider Failover",
+      "layerId": "layer-ai",
+      "kind": "external-api",
+      "status": "healthy",
+      "description": "Circuit-broken adapter connecting to external frontier models (Gemini / Claude / OpenAI) for complex reasoning fallback and tool-calling.",
+      "techStack": ["HTTP/2", "SSE", "Circuit Breaker"],
+      "sourcePaths": [
+        "services/llm-bridge/src/providers/failover.ts",
+        "services/llm-bridge/src/adapters/gemini.ts"
+      ],
+      "metrics": {
+        "complexity": 29,
+        "coupling": 21,
+        "loc": 1950,
+        "latencyMs": "310ms TTFT",
+        "throughput": "1.8k req/s"
+      },
+      "contracts": {
+        "exposes": ["Unified ChatCompletion Stream"],
+        "consumes": ["External HTTPS Provider APIs"]
+      }
+    },
+    {
+      "id": "redis-session-mesh",
+      "label": "Redis Cluster Cache",
+      "subtitle": "Session State & Rate Limits",
+      "layerId": "layer-data",
+      "kind": "cache",
+      "status": "healthy",
+      "description": "In-memory Redis 7 cluster storing short-term dialogue history, sliding-window rate counters, and distributed orchestrator locks.",
+      "techStack": ["Redis 7 Cluster", "Lua Scripts"],
+      "sourcePaths": [
+        "infra/redis/cluster.conf",
+        "packages/cache-sdk/src/rateLimiter.lua"
+      ],
+      "metrics": {
+        "complexity": 22,
+        "coupling": 62,
+        "loc": 860,
+        "latencyMs": "0.8ms",
+        "throughput": "95k ops/s"
+      },
+      "contracts": {
+        "exposes": ["RESP3 :6379"]
+      }
+    },
+    {
+      "id": "kafka-event-bus",
+      "label": "Kafka Event Mesh",
+      "subtitle": "Ingestion & Telemetry Stream",
+      "layerId": "layer-data",
+      "kind": "queue",
+      "status": "healthy",
+      "description": "Partitioned event backbone decoupling document ingestion pipelines, audit trails, and real-time token billing telemetry.",
+      "techStack": ["Apache Kafka", "Protobuf", "KRaft"],
+      "sourcePaths": [
+        "infra/kafka/topics.tf",
+        "packages/events/proto/usage_event.proto"
+      ],
+      "metrics": {
+        "complexity": 26,
+        "coupling": 55,
+        "loc": 1180,
+        "latencyMs": "4.5ms",
+        "throughput": "42k msg/s"
+      },
+      "contracts": {
+        "exposes": ["Topic: doc.ingest.v1", "Topic: inference.usage.v1"]
+      }
+    },
+    {
+      "id": "qdrant-pg-cluster",
+      "label": "Postgres + Qdrant Store",
+      "subtitle": "Hybrid Relational & Vector DB",
+      "layerId": "layer-data",
+      "kind": "database",
+      "status": "healthy",
+      "description": "Primary PostgreSQL 16 cluster for tenant metadata and billing ledgers paired with distributed Qdrant HNSW shards for billion-scale vector search.",
+      "techStack": ["PostgreSQL 16", "Qdrant", "pgBouncer"],
+      "sourcePaths": [
+        "infra/db/migrations/001_init.sql",
+        "services/retrieval/src/qdrant_shard_router.rs"
+      ],
+      "metrics": {
+        "complexity": 41,
+        "coupling": 68,
+        "loc": 2840,
+        "latencyMs": "12ms P95",
+        "throughput": "11k qps"
+      },
+      "contracts": {
+        "exposes": ["SQL :5432", "Qdrant gRPC :6334"]
+      }
+    },
+    {
+      "id": "s3-artifact-vault",
+      "label": "S3 Object Vault",
+      "subtitle": "Raw Docs, Checkpoints & LoRA",
+      "layerId": "layer-data",
+      "kind": "storage",
+      "status": "healthy",
+      "description": "Immutable object storage holding uploaded knowledge-base artifacts, parsed chunk snapshots, and fine-tuned LoRA adapter weights.",
+      "techStack": ["AWS S3 / MinIO", "Presigned URLs", "Parquet"],
+      "sourcePaths": [
+        "infra/storage/s3_buckets.tf",
+        "packages/storage/src/presign.ts"
+      ],
+      "metrics": {
+        "complexity": 18,
+        "coupling": 31,
+        "loc": 670,
+        "latencyMs": "28ms",
+        "throughput": "4.8 GB/s"
+      },
+      "contracts": {
+        "exposes": ["S3 PutObject / GetObject"]
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-studio-gateway",
+      "source": "web-studio",
+      "target": "edge-gateway",
+      "label": "WSS / HTTPS Stream",
+      "protocol": "ws",
+      "status": "active",
+      "bandwidth": "high"
+    },
+    {
+      "id": "e-gateway-edgecache",
+      "source": "edge-gateway",
+      "target": "edge-semantic-cache",
+      "label": "Semantic Pre-Check",
+      "protocol": "http",
+      "status": "planned",
+      "bandwidth": "high"
+    },
+    {
+      "id": "e-edgecache-orch",
+      "source": "edge-semantic-cache",
+      "target": "core-orchestrator",
+      "label": "Cache Miss Forward",
+      "protocol": "grpc",
+      "status": "planned",
+      "bandwidth": "medium"
+    },
+    {
+      "id": "e-gateway-orch",
+      "source": "edge-gateway",
+      "target": "core-orchestrator",
+      "label": "RunAgent gRPC",
+      "protocol": "grpc",
+      "status": "active",
+      "bandwidth": "high"
+    },
+    {
+      "id": "e-gateway-redis",
+      "source": "edge-gateway",
+      "target": "redis-session-mesh",
+      "label": "Token Bucket Quota",
+      "protocol": "redis",
+      "status": "active",
+      "bandwidth": "medium"
+    },
+    {
+      "id": "e-gateway-s3",
+      "source": "edge-gateway",
+      "target": "s3-artifact-vault",
+      "label": "Presigned Doc Upload",
+      "protocol": "http",
+      "status": "active",
+      "bandwidth": "medium"
+    },
+    {
+      "id": "e-orch-redis",
+      "source": "core-orchestrator",
+      "target": "redis-session-mesh",
+      "label": "Dialogue Memory",
+      "protocol": "redis",
+      "status": "active",
+      "bandwidth": "high"
+    },
+    {
+      "id": "e-orch-db",
+      "source": "core-orchestrator",
+      "target": "qdrant-pg-cluster",
+      "label": "Hybrid Vector Recall",
+      "protocol": "grpc",
+      "status": "active",
+      "bandwidth": "high"
+    },
+    {
+      "id": "e-orch-vllm",
+      "source": "core-orchestrator",
+      "target": "vllm-inference-cluster",
+      "label": "StreamGenerate",
+      "protocol": "llm-stream",
+      "status": "active",
+      "bandwidth": "high"
+    },
+    {
+      "id": "e-orch-router",
+      "source": "core-orchestrator",
+      "target": "speculative-router",
+      "label": "Adaptive Route",
+      "protocol": "grpc",
+      "status": "planned",
+      "bandwidth": "high"
+    },
+    {
+      "id": "e-router-vllm",
+      "source": "speculative-router",
+      "target": "vllm-inference-cluster",
+      "label": "Local GPU Tier",
+      "protocol": "llm-stream",
+      "status": "planned",
+      "bandwidth": "high"
+    },
+    {
+      "id": "e-router-frontier",
+      "source": "speculative-router",
+      "target": "frontier-llm-bridge",
+      "label": "Frontier Escalate",
+      "protocol": "http",
+      "status": "planned",
+      "bandwidth": "medium"
+    },
+    {
+      "id": "e-orch-frontier",
+      "source": "core-orchestrator",
+      "target": "frontier-llm-bridge",
+      "label": "Tool Reasoning Fallback",
+      "protocol": "llm-stream",
+      "status": "active",
+      "bandwidth": "medium"
+    },
+    {
+      "id": "e-orch-kafka",
+      "source": "core-orchestrator",
+      "target": "kafka-event-bus",
+      "label": "Emit Usage & Upload",
+      "protocol": "amqp",
+      "status": "active",
+      "bandwidth": "medium"
+    },
+    {
+      "id": "e-kafka-rag",
+      "source": "kafka-event-bus",
+      "target": "rag-ingestion-worker",
+      "label": "Consume doc.ingest.v1",
+      "protocol": "amqp",
+      "status": "bottleneck",
+      "bandwidth": "high"
+    },
+    {
+      "id": "e-kafka-billing",
+      "source": "kafka-event-bus",
+      "target": "billing-quota-svc",
+      "label": "Consume usage.v1",
+      "protocol": "amqp",
+      "status": "active",
+      "bandwidth": "medium"
+    },
+    {
+      "id": "e-billing-db",
+      "source": "billing-quota-svc",
+      "target": "qdrant-pg-cluster",
+      "label": "Commit Token Ledger",
+      "protocol": "sql",
+      "status": "active",
+      "bandwidth": "low"
+    },
+    {
+      "id": "e-rag-s3",
+      "source": "rag-ingestion-worker",
+      "target": "s3-artifact-vault",
+      "label": "Fetch Raw Artifact",
+      "protocol": "http",
+      "status": "active",
+      "bandwidth": "high"
+    },
+    {
+      "id": "e-rag-vllm",
+      "source": "rag-ingestion-worker",
+      "target": "vllm-inference-cluster",
+      "label": "Batch Embeddings",
+      "protocol": "http",
+      "status": "active",
+      "bandwidth": "high"
+    },
+    {
+      "id": "e-rag-db",
+      "source": "rag-ingestion-worker",
+      "target": "qdrant-pg-cluster",
+      "label": "Upsert HNSW Vectors",
+      "protocol": "grpc",
+      "status": "active",
+      "bandwidth": "high"
+    }
+  ],
+  "flows": [
+    {
+      "id": "flow-realtime-rag",
+      "name": "Realtime Agentic RAG Query",
+      "description": "End-to-end synchronous user prompt lifecycle from Studio SPA through zero-trust ingress, hybrid vector recall, and streaming H100 inference.",
+      "category": "core",
+      "steps": [
+        {
+          "step": 1,
+          "from": "web-studio",
+          "to": "edge-gateway",
+          "edgeId": "e-studio-gateway",
+          "action": "Open WSS Stream & Dispatch Prompt",
+          "payload": "{\"sessionId\":\"sess_94a1\",\"tenant\":\"acme-corp\",\"query\":\"Diagnose P99 spike in checkout-svc\",\"topK\":8}",
+          "latencyMs": 14
+        },
+        {
+          "step": 2,
+          "from": "edge-gateway",
+          "to": "redis-session-mesh",
+          "edgeId": "e-gateway-redis",
+          "action": "Verify Tenant JWT & Token Bucket",
+          "payload": "{\"key\":\"quota:acme-corp:tpm\",\"remaining\":48210,\"allowed\":true}",
+          "latencyMs": 2
+        },
+        {
+          "step": 3,
+          "from": "edge-gateway",
+          "to": "core-orchestrator",
+          "edgeId": "e-gateway-orch",
+          "action": "Invoke RunAgent gRPC Stream",
+          "payload": "{\"traceId\":\"tr_88f2c\",\"mode\":\"react-rag\",\"maxSteps\":6}",
+          "latencyMs": 5
+        },
+        {
+          "step": 4,
+          "from": "core-orchestrator",
+          "to": "qdrant-pg-cluster",
+          "edgeId": "e-orch-db",
+          "action": "Hybrid Dense + BM25 Vector Recall",
+          "payload": "{\"collection\":\"repo_arch_chunks\",\"hits\":8,\"topScore\":0.941}",
+          "latencyMs": 16
+        },
+        {
+          "step": 5,
+          "from": "core-orchestrator",
+          "to": "vllm-inference-cluster",
+          "edgeId": "e-orch-vllm",
+          "action": "StreamGenerate CoT + Answer Tokens",
+          "payload": "{\"model\":\"llama-3.3-70b-fp8\",\"promptTokens\":3420,\"stream\":\"chunk_delta...\"}",
+          "latencyMs": 185
+        },
+        {
+          "step": 6,
+          "from": "core-orchestrator",
+          "to": "kafka-event-bus",
+          "edgeId": "e-orch-kafka",
+          "action": "Publish Async Token Billing Telemetry",
+          "payload": "{\"topic\":\"inference.usage.v1\",\"promptTok\":3420,\"completionTok\":512}",
+          "latencyMs": 4
+        }
+      ]
+    },
+    {
+      "id": "flow-async-ingest",
+      "name": "Async Document & AST Indexing Pipeline",
+      "description": "Event-driven knowledge ingestion flow extracting raw artifacts from S3, running AST chunking and embedding generation, and committing HNSW shards.",
+      "category": "async",
+      "steps": [
+        {
+          "step": 1,
+          "from": "edge-gateway",
+          "to": "s3-artifact-vault",
+          "edgeId": "e-gateway-s3",
+          "action": "Upload Raw Bundle via Presigned URL",
+          "payload": "{\"bucket\":\"nexus-raw-docs\",\"key\":\"acme/arch-spec-v4.pdf\",\"sizeBytes\":14820400}",
+          "latencyMs": 48
+        },
+        {
+          "step": 2,
+          "from": "kafka-event-bus",
+          "to": "rag-ingestion-worker",
+          "edgeId": "e-kafka-rag",
+          "action": "Dispatch Ingestion Job from Kafka",
+          "payload": "{\"jobId\":\"ing_7721\",\"artifactUri\":\"s3://nexus-raw-docs/acme/arch-spec-v4.pdf\"}",
+          "latencyMs": 12
+        },
+        {
+          "step": 3,
+          "from": "rag-ingestion-worker",
+          "to": "s3-artifact-vault",
+          "edgeId": "e-rag-s3",
+          "action": "Stream Raw Document for OCR & AST Split",
+          "payload": "{\"chunksProduced\":184,\"parser\":\"ast_splitter+ocr\",\"bottleneckMs\":1120}",
+          "latencyMs": 1120
+        },
+        {
+          "step": 4,
+          "from": "rag-ingestion-worker",
+          "to": "vllm-inference-cluster",
+          "edgeId": "e-rag-vllm",
+          "action": "Compute Dense Embeddings Batch",
+          "payload": "{\"batchSize\":64,\"dimensions\":1024,\"model\":\"bge-m3-fp16\"}",
+          "latencyMs": 95
+        },
+        {
+          "step": 5,
+          "from": "rag-ingestion-worker",
+          "to": "qdrant-pg-cluster",
+          "edgeId": "e-rag-db",
+          "action": "Upsert HNSW Shards & Mark Ready",
+          "payload": "{\"collection\":\"repo_arch_chunks\",\"upserted\":184,\"status\":\"INDEXED\"}",
+          "latencyMs": 22
+        }
+      ]
+    },
+    {
+      "id": "flow-speculative-evolution",
+      "name": "Evolution: Edge Semantic Cache & Speculative Routing",
+      "description": "Planned architecture evolution path adding edge semantic pre-filtering and difficulty-aware speculative model arbitration.",
+      "category": "evolution",
+      "steps": [
+        {
+          "step": 1,
+          "from": "edge-gateway",
+          "to": "edge-semantic-cache",
+          "edgeId": "e-gateway-edgecache",
+          "action": "Compute Edge Cosine Similarity",
+          "payload": "{\"cosineSim\":0.89,\"threshold\":0.96,\"decision\":\"CACHE_MISS\"}",
+          "latencyMs": 6
+        },
+        {
+          "step": 2,
+          "from": "edge-semantic-cache",
+          "to": "core-orchestrator",
+          "edgeId": "e-edgecache-orch",
+          "action": "Forward Miss with Hydrated Intent Vector",
+          "payload": "{\"intentTag\":\"architecture-diff\",\"priority\":\"interactive\"}",
+          "latencyMs": 8
+        },
+        {
+          "step": 3,
+          "from": "core-orchestrator",
+          "to": "speculative-router",
+          "edgeId": "e-orch-router",
+          "action": "Score Reasoning Complexity",
+          "payload": "{\"difficultyScore\":0.82,\"tier\":\"frontier-escalation\"}",
+          "latencyMs": 7
+        },
+        {
+          "step": 4,
+          "from": "speculative-router",
+          "to": "frontier-llm-bridge",
+          "edgeId": "e-router-frontier",
+          "action": "Escalate Complex Graph Synthesis",
+          "payload": "{\"provider\":\"gemini-2.5-pro\",\"estimatedSavings\":\"48%_overall\"}",
+          "latencyMs": 290
+        }
+      ]
+    }
+  ]
+}
