@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import {
-  applyScenario, computeLayout, graphLocales, impactOf, indexGraph, negotiateLocale, replacementPrompt, t, ui,
+  parseView, applyScenario, computeLayout, graphLocales, impactOf, indexGraph, negotiateLocale, replacementPrompt, t, ui,
   validateGraph, visibleGraph, type ArchGraph, type PlanarLayout, type ProjectionId, type UiKey,
 } from '@archray/core';
 import { Scene, type Lens } from './Scene';
@@ -32,30 +32,55 @@ export default function App() {
   return <Viewer graph={graph} />;
 }
 
+/** View warnings are stored as `kind:field` codes so the viewer can localise them. */
+function noticeText(code: string, U: (k: UiKey) => string, locale: string): string {
+  const [kind, field] = code.split(':');
+  const fieldLabel = field ? ui(`field.${field}` as UiKey, locale) : '';
+  switch (kind) {
+    case 'invalid': return field === 'view' ? U('notice.invalidView') : `${U('notice.invalid')} · ${fieldLabel} · ${U('notice.usingDefault')}`;
+    case 'stale':
+      if (field === 'focus') return U('notice.staleFocus');
+      if (field === 'scenario') return U('notice.staleScenario');
+      if (field === 'locale') return U('notice.staleLocale');
+      return U('notice.staleCollapsed');
+    case 'reserved': return U('notice.reserved');
+    case 'layout': return U('notice.layoutFailed');
+    case 'png': return U('notice.pngFailed');
+    case 'import': return U('notice.importFailed');
+    default: return code;
+  }
+}
+
 function Viewer({ graph: base }: { graph: ArchGraph }) {
   const qs = Object.fromEntries(new URLSearchParams(location.search));
-  const v0: Record<string, unknown> = { ...(window.__ARCHRAY_VIEW__ ?? {}), ...qs };
+  const initial = useMemo(() => parseView({ ...(window.__ARCHRAY_VIEW__ ?? {}), ...qs }, base), [base]);
+  const v0 = initial.view;
+  const [notices, setNotices] = useState<string[]>(initial.warnings);
+  const [camera, setCamera] = useState(v0.camera ?? { x: 0, y: 0, zoom: 1 });
+  const [retry, setRetry] = useState(0);
+  const baseIdx = useMemo(() => indexGraph(base), [base]);
   const { locales, defaultLocale } = graphLocales(base);
-  const [locale, setLocale] = useState<string>((v0.locale as string) ?? negotiateLocale(locales, navigator.languages));
-  const [themeId, setThemeId] = useState<Theme['id']>((v0.theme as Theme['id']) ?? 'midnight');
-  const [projection, setProjection] = useState<ProjectionId>((v0.projection as ProjectionId) ?? 'stack');
-  const [lens, setLens] = useState<Lens>((v0.lens as Lens) ?? 'topology');
-  const [root, setRoot] = useState<string | null>((v0.focus as string) ?? null);
+  const [locale, setLocale] = useState<string>(v0.locale ?? negotiateLocale(locales, navigator.languages));
+  const [themeId, setThemeId] = useState<Theme['id']>(v0.theme ?? 'midnight');
+  const [projection, setProjection] = useState<ProjectionId>(v0.projection ?? 'flat');
+  const [lens, setLens] = useState<Lens>(v0.lens ?? 'topology');
+  const [root, setRoot] = useState<string | null>(v0.focus ?? null);
   const [expanded, setExpanded] = useState<Set<string>>(() => {
     const groups = base.nodes.filter((n) => base.nodes.some((c) => c.parent === n.id)).map((n) => n.id);
-    const collapsed = new Set((v0.collapsed as string[]) ?? []);
+    const collapsed = new Set(v0.collapsed ?? []);
     return new Set(groups.filter((g) => !collapsed.has(g)));
   });
   const [selected, setSelected] = useState<string | null>(null);
-  const [scenarioId, setScenarioId] = useState<string | null>((v0.scenario as string) ?? null);
+  const [scenarioId, setScenarioId] = useState<string | null>(v0.scenario ?? null);
   const [flowId, setFlowId] = useState<string | null>(null);
   const [step, setStep] = useState(0);
-  const [layout, setLayout] = useState<PlanarLayout | null>(null);
-  const svgWrap = useRef<HTMLDivElement>(null);
+  const [placed, setPlaced] = useState<{ idx: object; vis: object; layout: PlanarLayout } | null>(null);
 
   const th = THEMES[themeId];
   const U = (k: UiKey) => ui(k, locale);
   const L = (x: Parameters<typeof t>[0]) => t(x, locale, defaultLocale);
+  const showNotice = (code: string) => setNotices([code]);
+  const resetCamera = () => setCamera({ x: 0, y: 0, zoom: 1 });
 
   const scen = base.scenarios?.find((s) => s.id === scenarioId) ?? null;
   const { graph, diff } = useMemo(() => (scen ? applyScenario(base, scen) : { graph: base, diff: null }), [base, scen]);
@@ -64,9 +89,14 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
 
   useEffect(() => {
     let alive = true;
-    computeLayout(idx, vis, { locale, defaultLocale }).then((l) => alive && setLayout(l));
+    setPlaced(null);
+    computeLayout(idx, vis, { locale, defaultLocale })
+      .then((l) => { if (alive) setPlaced({ idx, vis, layout: l }); })
+      .catch(() => { if (alive) { setNotices(['layout:failed']); } });
     return () => { alive = false; };
-  }, [idx, vis, locale, defaultLocale]);
+  }, [idx, vis, locale, defaultLocale, retry]);
+  // Never draw a previous graph's geometry: scenario switches replace idx before the new layout resolves.
+  const layout = placed && placed.idx === idx && placed.vis === vis ? placed.layout : null;
 
   // flow playback → visible edges
   const flow = graph.flows?.find((f) => f.id === flowId) ?? null;
@@ -91,12 +121,16 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
       const a = vp(s.from), b = vp(s.to);
       if (a) fn.add(a);
       if (b) fn.add(b);
-      for (const e of vis.edges) if ((e.source === a && e.target === b) || (e.source === b && e.target === a)) ae.add(e.id);
+      for (const e of vis.edges) {
+        const member = s.edge ? e.members.find((m) => m.id === s.edge) : undefined;
+        // Match the declared direction, never just an id, so reverse pairs do not both light up.
+        if (member ? vp(member.source) === a && vp(member.target) === b : e.source === a && e.target === b) ae.add(e.id);
+      }
     }
     return { activeEdges: ae, flowNodes: fn };
   }, [flow, step, vis, idx]);
 
-  const impact = useMemo(() => (selected && idx.byId.has(selected) ? impactOf(idx, selected) : null), [idx, selected]);
+  const impact = useMemo(() => (selected && baseIdx.byId.has(selected) ? impactOf(baseIdx, selected) : null), [baseIdx, selected]);
   const highlight = useMemo(() => {
     if (flowNodes) return flowNodes;
     if (!selected || !impact) return null;
@@ -108,9 +142,14 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
   const crumbs: string[] = [];
   for (let c = root; c; c = idx.byId.get(c)?.parent ?? null) crumbs.unshift(c);
 
+  const names = (ids: Set<string>) => {
+    const text = [...ids].map((id) => L(baseIdx.byId.get(id)?.name ?? idx.byId.get(id)?.name) || id);
+    return text.join(', ') || '—';
+  };
+
   const saveView = () => {
     const view = {
-      $schema: '../schema/view.schema.json', viewVersion: '1', locale, theme: themeId, projection, lens,
+      camera, $schema: './view.schema.json', viewVersion: '1', locale, theme: themeId, projection, lens,
       ...(root ? { focus: root } : {}),
       collapsed: [...idx.children.keys()].filter((g): g is string => !!g && !expanded.has(g)),
       ...(scenarioId ? { scenario: scenarioId } : {}),
@@ -119,6 +158,26 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
     a.href = URL.createObjectURL(new Blob([JSON.stringify(view, null, 2)], { type: 'application/json' }));
     a.download = 'view.json';
     a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+
+  const importView = async (file: File | undefined) => {
+    if (!file) return;
+    try {
+      const { view: v, warnings } = parseView(JSON.parse(await file.text()), base);
+      setLocale(v.locale ?? defaultLocale);
+      setThemeId(v.theme ?? 'midnight');
+      setProjection(v.projection ?? 'flat');
+      setLens(v.lens ?? 'topology');
+      setRoot(v.focus ?? null);
+      setScenarioId(v.scenario ?? null);
+      setCamera(v.camera ?? { x: 0, y: 0, zoom: 1 });
+      setExpanded(new Set(base.nodes.filter((n) => base.nodes.some((c) => c.parent === n.id) && !v.collapsed?.includes(n.id)).map((n) => n.id)));
+      setSelected(null);
+      setFlowId(null);
+      setStep(0);
+      setNotices(warnings);
+    } catch { showNotice('import:failed'); }
   };
 
   const seg = <T extends string>(items: { id: T; label: string }[], cur: T, set: (v: T) => void) => (
@@ -131,18 +190,18 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
       ))}
     </div>
   );
+  const buttonStyle = (active = false): CSSProperties => ({
+    border: `1px solid ${active ? th.accent : th.panelBorder}`, background: active ? th.accent : th.panel,
+    color: active ? th.bg : th.text, borderRadius: 8, padding: '6px 10px', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit',
+  });
   const btn = (label: string, on: () => void, active = false) => (
-    <button onClick={on} style={{
-      border: `1px solid ${active ? th.accent : th.panelBorder}`, background: active ? th.accent : th.panel,
-      color: active ? th.bg : th.text, borderRadius: 8, padding: '6px 10px', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit',
-    }}>{label}</button>
+    <button onClick={on} style={buttonStyle(active)}>{label}</button>
   );
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', background: th.bg, color: th.text,
+    <div className="ar-shell" style={{ background: th.bg, color: th.text,
       backgroundImage: `radial-gradient(${th.bgDot} 1px, transparent 1px)`, backgroundSize: '22px 22px' }}>
-      {/* top bar */}
-      <div style={{ position: 'absolute', top: 14, left: 16, right: 16, display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', zIndex: 2 }}>
+      <div className="ar-toolbar">
         <div style={{ marginRight: 8 }}>
           <div style={{ fontSize: 17, fontWeight: 700 }}>{L(graph.meta.name)}</div>
           <div style={{ fontSize: 12, color: th.sub }}>
@@ -151,48 +210,78 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
               {crumbs.map((c) => <span key={c}> / <a style={{ color: th.accent, cursor: 'pointer' }} onClick={() => setRoot(c)}>{L(idx.byId.get(c)?.name)}</a></span>)}
             </> : `${graph.nodes.length} ${U('common.nodes')} · ${graph.edges.length} ${U('common.edges')}`}
           </div>
+          <div style={{ fontSize: 10, color: th.faint }}>
+            {U('meta.inputOnly')} · {U('meta.generated')} {base.meta.generatedAt} · {U('meta.commit')} {base.meta.repo?.commit ?? '—'} · {U('meta.notRuntime')}
+          </div>
         </div>
-        <div style={{ flex: 1 }} />
         {seg((['topology', 'health', 'replaceability'] as const).map((id) => ({ id, label: U(`lens.${id}`) })), lens, setLens)}
         {seg((['stack', 'iso', 'flat'] as const).map((id) => ({ id, label: U(`projection.${id}`) })), projection, setProjection)}
         {locales.length > 1 && seg(locales.map((l) => ({ id: l, label: l.startsWith('zh') ? '中' : l.split('-')[0]!.toUpperCase() })), locale, setLocale)}
         {btn(themeId === 'midnight' ? '☀' : '☾', () => setThemeId(themeId === 'midnight' ? 'paper' : 'midnight'))}
-        {btn('PNG', () => exportPng(th, `${L(graph.meta.name)}.png`))}
+        {btn('PNG', () => { exportPng(th, `${L(graph.meta.name)}.png`).catch(() => showNotice('png:failed')); })}
         {btn('view.json', saveView)}
-      </div>
-
-      {/* flows & scenarios */}
-      <div style={{ position: 'absolute', left: 16, bottom: 16, display: 'flex', gap: 8, flexWrap: 'wrap', zIndex: 2, maxWidth: '60%' }}>
-        {(graph.flows ?? []).map((f) => btn(`▶ ${L(f.name)}`, () => setFlowId(flowId === f.id ? null : f.id), flowId === f.id))}
-        {(base.scenarios ?? []).map((s) => btn(`⇄ ${L(s.name)}`, () => setScenarioId(scenarioId === s.id ? null : s.id), scenarioId === s.id))}
-      </div>
-      {flow && (
-        <div style={{ position: 'absolute', left: '50%', bottom: 16, transform: 'translateX(-50%)', zIndex: 2, background: th.panel,
-          border: `1px solid ${th.panelBorder}`, borderRadius: 10, padding: '8px 14px', fontSize: 13, backdropFilter: 'blur(8px)' }}>
-          {step === 0 ? L(flow.name) : `${step}/${flow.steps.length} · ${L(flow.steps[step - 1]!.action)}`}
-          {step > 0 && flow.steps[step - 1]!.latencyMs !== undefined && <span style={{ color: th.sub }}> · {flow.steps[step - 1]!.latencyMs}ms</span>}
-        </div>
-      )}
-
-      <div ref={svgWrap} style={{ position: 'absolute', inset: '70px 0 0 0', right: selected ? 380 : 0 }}>
-        {layout && (
-          <Scene idx={idx} layout={layout} projection={projection} theme={th} locale={locale} lens={lens}
-            selected={selected} highlight={highlight} activeEdges={activeEdges} diff={diff}
-            onSelect={setSelected}
-            onOpen={(id) => { setRoot(id); setSelected(null); }} />
+        {/* A button-styled label keeps the native file-input text out of the toolbar. */}
+        <label className="ar-file" style={{ ...buttonStyle(), display: 'inline-flex', alignItems: 'center' }}>
+          {U('common.importView')}
+          <input className="ar-file-input" aria-label={U('common.importView')} type="file" accept=".json"
+            onChange={(e) => { void importView(e.target.files?.[0]); e.target.value = ''; }} />
+        </label>
+        <select aria-label={U('common.findModule')} value={selected ?? ''} style={{ maxWidth: 160, minWidth: 110 }}
+          onChange={(e) => { setRoot(null); setSelected(e.target.value || null); resetCamera(); }}>
+          <option value="">{U('common.findModule')}</option>
+          {base.nodes.map((n) => <option key={n.id} value={n.id}>{L(n.name)}</option>)}
+        </select>
+        {diff && (
+          <div style={{ width: '100%', fontSize: 12 }}>
+            {U('diff.preview')} · {U('diff.added')}: {names(diff.added)} · {U('diff.removed')}: {names(diff.removed)} · {U('diff.changed')}: {names(diff.changed)}
+          </div>
+        )}
+        {notices.length > 0 && (
+          <div role="alert" style={{ width: '100%', fontSize: 12, color: th.warn }}>
+            {notices.map((n) => noticeText(n, U, locale)).join('; ')}
+            {notices.includes('layout:failed') && <> {btn(U('common.retry'), () => { setNotices([]); setRetry((r) => r + 1); })}</>}
+            {btn('×', () => setNotices([]))}
+          </div>
         )}
       </div>
 
-      {selected && idx.byId.get(selected) && (
-        <Inspector idx={idx} id={selected} theme={th} locale={locale} defaultLocale={defaultLocale} impact={impact!}
-          expanded={expanded.has(selected)}
-          onToggleExpand={() => setExpanded((s) => { const n = new Set(s); n.has(selected) ? n.delete(selected) : n.add(selected); return n; })}
-          onOpen={() => { setRoot(selected); setSelected(null); }}
-          onSelect={setSelected}
-          onScenario={(sid) => setScenarioId(sid)}
-          prompt={(opt) => replacementPrompt(idx, selected, opt, locale)}
-          onClose={() => setSelected(null)} />
-      )}
+      <div className="ar-stage">
+        <div className={selected ? 'ar-canvas ar-has-selection' : 'ar-canvas'}>
+          {layout && (
+            <Scene camera={camera} onCamera={setCamera} idx={idx} layout={layout} projection={projection} theme={th} locale={locale} lens={lens}
+              selected={selected} highlight={highlight} activeEdges={activeEdges} diff={diff}
+              onSelect={setSelected}
+              onOpen={(id) => { setRoot(id); setSelected(null); }} />
+          )}
+          <div className="ar-zoom">
+            {btn('−', () => setCamera((c) => ({ ...c, zoom: Math.max(0.1, c.zoom / 1.3) })))}
+            {btn('+', () => setCamera((c) => ({ ...c, zoom: Math.min(20, c.zoom * 1.3) })))}
+            {btn(U('common.fit'), () => { resetCamera(); setRoot(null); setSelected(null); })}
+          </div>
+        </div>
+
+        {selected && baseIdx.byId.get(selected) && (
+          <Inspector idx={baseIdx} id={selected} theme={th} locale={locale} defaultLocale={defaultLocale} impact={impact!}
+            expanded={expanded.has(selected)}
+            onToggleExpand={() => setExpanded((s) => { const n = new Set(s); n.has(selected) ? n.delete(selected) : n.add(selected); return n; })}
+            onOpen={() => { setRoot(selected); setSelected(null); }}
+            onSelect={setSelected}
+            onScenario={(sid) => { setScenarioId(sid); setRoot(null); resetCamera(); }}
+            prompt={(opt) => replacementPrompt(baseIdx, selected, opt, locale)}
+            onClose={() => setSelected(null)} />
+        )}
+      </div>
+
+      <div className="ar-footer">
+        {flow && (
+          <div style={{ background: th.panel, border: `1px solid ${th.panelBorder}`, borderRadius: 10, padding: '6px 12px', fontSize: 13 }}>
+            {step === 0 ? L(flow.name) : `${step}/${flow.steps.length} · ${L(flow.steps[step - 1]!.action)}`}
+            {step > 0 && flow.steps[step - 1]!.latencyMs !== undefined && <span style={{ color: th.sub }}> · {flow.steps[step - 1]!.latencyMs}ms</span>}
+          </div>
+        )}
+        {(graph.flows ?? []).map((f) => btn(`▶ ${L(f.name)}`, () => setFlowId(flowId === f.id ? null : f.id), flowId === f.id))}
+        {(base.scenarios ?? []).map((s) => btn(`⇄ ${L(s.name)}`, () => setScenarioId(scenarioId === s.id ? null : s.id), scenarioId === s.id))}
+      </div>
     </div>
   );
 }

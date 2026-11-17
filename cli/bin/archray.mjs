@@ -6,8 +6,21 @@ var __export = (target, all) => {
 };
 
 // cli/src/main.ts
-import { existsSync, readFileSync, mkdirSync, realpathSync, statSync, lstatSync, openSync, closeSync, writeFileSync, renameSync, unlinkSync, linkSync } from "node:fs";
-import { resolve, dirname } from "node:path";
+import {
+  closeSync,
+  existsSync,
+  linkSync,
+  lstatSync,
+  mkdirSync,
+  openSync,
+  readFileSync,
+  realpathSync,
+  renameSync,
+  statSync,
+  unlinkSync,
+  writeFileSync
+} from "node:fs";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
 
@@ -1495,8 +1508,8 @@ function Intersect(types, options) {
 }
 
 // node_modules/@sinclair/typebox/build/esm/type/ref/ref.mjs
-function Ref(...args2) {
-  const [$ref, options] = typeof args2[0] === "string" ? [args2[0], args2[1]] : [args2[0].$id, args2[1]];
+function Ref(...args) {
+  const [$ref, options] = typeof args[0] === "string" ? [args[0], args[1]] : [args[0].$id, args[1]];
   if (typeof $ref !== "string")
     throw new TypeBoxError("Ref: $ref must be a string");
   return CreateType({ [Kind]: "Ref", $ref }, options);
@@ -2148,78 +2161,78 @@ function RecordValue2(type) {
 }
 
 // node_modules/@sinclair/typebox/build/esm/type/instantiate/instantiate.mjs
-function FromConstructor2(args2, type) {
-  type.parameters = FromTypes(args2, type.parameters);
-  type.returns = FromType(args2, type.returns);
+function FromConstructor2(args, type) {
+  type.parameters = FromTypes(args, type.parameters);
+  type.returns = FromType(args, type.returns);
   return type;
 }
-function FromFunction2(args2, type) {
-  type.parameters = FromTypes(args2, type.parameters);
-  type.returns = FromType(args2, type.returns);
+function FromFunction2(args, type) {
+  type.parameters = FromTypes(args, type.parameters);
+  type.returns = FromType(args, type.returns);
   return type;
 }
-function FromIntersect5(args2, type) {
-  type.allOf = FromTypes(args2, type.allOf);
+function FromIntersect5(args, type) {
+  type.allOf = FromTypes(args, type.allOf);
   return type;
 }
-function FromUnion7(args2, type) {
-  type.anyOf = FromTypes(args2, type.anyOf);
+function FromUnion7(args, type) {
+  type.anyOf = FromTypes(args, type.anyOf);
   return type;
 }
-function FromTuple4(args2, type) {
+function FromTuple4(args, type) {
   if (IsUndefined(type.items))
     return type;
-  type.items = FromTypes(args2, type.items);
+  type.items = FromTypes(args, type.items);
   return type;
 }
-function FromArray5(args2, type) {
-  type.items = FromType(args2, type.items);
+function FromArray5(args, type) {
+  type.items = FromType(args, type.items);
   return type;
 }
-function FromAsyncIterator2(args2, type) {
-  type.items = FromType(args2, type.items);
+function FromAsyncIterator2(args, type) {
+  type.items = FromType(args, type.items);
   return type;
 }
-function FromIterator2(args2, type) {
-  type.items = FromType(args2, type.items);
+function FromIterator2(args, type) {
+  type.items = FromType(args, type.items);
   return type;
 }
-function FromPromise3(args2, type) {
-  type.item = FromType(args2, type.item);
+function FromPromise3(args, type) {
+  type.item = FromType(args, type.item);
   return type;
 }
-function FromObject2(args2, type) {
-  const mappedProperties = FromProperties11(args2, type.properties);
+function FromObject2(args, type) {
+  const mappedProperties = FromProperties11(args, type.properties);
   return { ...type, ...Object2(mappedProperties) };
 }
-function FromRecord2(args2, type) {
-  const mappedKey = FromType(args2, RecordKey2(type));
-  const mappedValue = FromType(args2, RecordValue2(type));
+function FromRecord2(args, type) {
+  const mappedKey = FromType(args, RecordKey2(type));
+  const mappedValue = FromType(args, RecordValue2(type));
   const result = Record(mappedKey, mappedValue);
   return { ...type, ...result };
 }
-function FromArgument(args2, argument) {
-  return argument.index in args2 ? args2[argument.index] : Unknown();
+function FromArgument(args, argument) {
+  return argument.index in args ? args[argument.index] : Unknown();
 }
-function FromProperty2(args2, type) {
+function FromProperty2(args, type) {
   const isReadonly = IsReadonly(type);
   const isOptional = IsOptional(type);
-  const mapped = FromType(args2, type);
+  const mapped = FromType(args, type);
   return isReadonly && isOptional ? ReadonlyOptional(mapped) : isReadonly && !isOptional ? Readonly(mapped) : !isReadonly && isOptional ? Optional(mapped) : mapped;
 }
-function FromProperties11(args2, properties) {
+function FromProperties11(args, properties) {
   return globalThis.Object.getOwnPropertyNames(properties).reduce((result, key) => {
-    return { ...result, [key]: FromProperty2(args2, properties[key]) };
+    return { ...result, [key]: FromProperty2(args, properties[key]) };
   }, {});
 }
-function FromTypes(args2, types) {
-  return types.map((type) => FromType(args2, type));
+function FromTypes(args, types) {
+  return types.map((type) => FromType(args, type));
 }
-function FromType(args2, type) {
-  return IsConstructor(type) ? FromConstructor2(args2, type) : IsFunction3(type) ? FromFunction2(args2, type) : IsIntersect(type) ? FromIntersect5(args2, type) : IsUnion(type) ? FromUnion7(args2, type) : IsTuple(type) ? FromTuple4(args2, type) : IsArray3(type) ? FromArray5(args2, type) : IsAsyncIterator3(type) ? FromAsyncIterator2(args2, type) : IsIterator3(type) ? FromIterator2(args2, type) : IsPromise2(type) ? FromPromise3(args2, type) : IsObject3(type) ? FromObject2(args2, type) : IsRecord(type) ? FromRecord2(args2, type) : IsArgument(type) ? FromArgument(args2, type) : type;
+function FromType(args, type) {
+  return IsConstructor(type) ? FromConstructor2(args, type) : IsFunction3(type) ? FromFunction2(args, type) : IsIntersect(type) ? FromIntersect5(args, type) : IsUnion(type) ? FromUnion7(args, type) : IsTuple(type) ? FromTuple4(args, type) : IsArray3(type) ? FromArray5(args, type) : IsAsyncIterator3(type) ? FromAsyncIterator2(args, type) : IsIterator3(type) ? FromIterator2(args, type) : IsPromise2(type) ? FromPromise3(args, type) : IsObject3(type) ? FromObject2(args, type) : IsRecord(type) ? FromRecord2(args, type) : IsArgument(type) ? FromArgument(args, type) : type;
 }
-function Instantiate(type, args2) {
-  return FromType(args2, CloneType(type));
+function Instantiate(type, args) {
+  return FromType(args, CloneType(type));
 }
 
 // node_modules/@sinclair/typebox/build/esm/type/integer/integer.mjs
@@ -3549,8 +3562,8 @@ function Visit5(schema, references, value) {
       return FromKind(schema_, references_, value);
   }
 }
-function Check(...args2) {
-  return args2.length === 3 ? Visit5(args2[0], args2[1], args2[2]) : Visit5(args2[0], [], args2[1]);
+function Check(...args) {
+  return args.length === 3 ? Visit5(args[0], args[1], args[2]) : Visit5(args[0], [], args[1]);
 }
 
 // node_modules/@sinclair/typebox/build/esm/errors/errors.mjs
@@ -4106,8 +4119,8 @@ function* Visit6(schema, references, path, value) {
       return yield* FromKind2(schema_, references_, path, value);
   }
 }
-function Errors(...args2) {
-  const iterator = args2.length === 3 ? Visit6(args2[0], args2[1], "", args2[2]) : Visit6(args2[0], [], "", args2[1]);
+function Errors(...args) {
+  const iterator = args.length === 3 ? Visit6(args[0], args[1], "", args[2]) : Visit6(args[0], [], "", args[1]);
   return new ValueErrorIterator(iterator);
 }
 
@@ -4150,8 +4163,8 @@ function AssertValue(schema, references, value) {
     return;
   throw new AssertError(Errors(schema, references, value));
 }
-function Assert(...args2) {
-  return args2.length === 3 ? AssertValue(args2[0], args2[1], args2[2]) : AssertValue(args2[0], [], args2[1]);
+function Assert(...args) {
+  return args.length === 3 ? AssertValue(args[0], args[1], args[2]) : AssertValue(args[0], [], args[1]);
 }
 
 // node_modules/@sinclair/typebox/build/esm/value/clone/clone.mjs
@@ -4592,9 +4605,9 @@ function Visit7(schema, references) {
 }
 var recursiveMaxDepth = 512;
 var recursiveDepth = 0;
-function Create2(...args2) {
+function Create2(...args) {
   recursiveDepth = 0;
-  return args2.length === 2 ? Visit7(args2[0], args2[1]) : Visit7(args2[0], []);
+  return args.length === 2 ? Visit7(args[0], args[1]) : Visit7(args[0], []);
 }
 
 // node_modules/@sinclair/typebox/build/esm/value/cast/cast.mjs
@@ -4797,8 +4810,8 @@ function Visit8(schema, references, value) {
       return Default(schema_, references_, value);
   }
 }
-function Cast(...args2) {
-  return args2.length === 3 ? Visit8(args2[0], args2[1], args2[2]) : Visit8(args2[0], [], args2[1]);
+function Cast(...args) {
+  return args.length === 3 ? Visit8(args[0], args[1], args[2]) : Visit8(args[0], [], args[1]);
 }
 
 // node_modules/@sinclair/typebox/build/esm/value/clean/clean.mjs
@@ -4919,8 +4932,8 @@ function Visit9(schema, references, value) {
       return value;
   }
 }
-function Clean(...args2) {
-  return args2.length === 3 ? Visit9(args2[0], args2[1], args2[2]) : Visit9(args2[0], [], args2[1]);
+function Clean(...args) {
+  return args.length === 3 ? Visit9(args[0], args[1], args[2]) : Visit9(args[0], [], args[1]);
 }
 
 // node_modules/@sinclair/typebox/build/esm/value/convert/convert.mjs
@@ -5131,8 +5144,8 @@ function Visit10(schema, references, value) {
       return Default2(value);
   }
 }
-function Convert(...args2) {
-  return args2.length === 3 ? Visit10(args2[0], args2[1], args2[2]) : Visit10(args2[0], [], args2[1]);
+function Convert(...args) {
+  return args.length === 3 ? Visit10(args[0], args[1], args[2]) : Visit10(args[0], [], args[1]);
 }
 
 // node_modules/@sinclair/typebox/build/esm/value/transform/decode.mjs
@@ -5567,8 +5580,8 @@ function HasTransform(schema, references) {
 }
 
 // node_modules/@sinclair/typebox/build/esm/value/decode/decode.mjs
-function Decode(...args2) {
-  const [schema, references, value] = args2.length === 3 ? [args2[0], args2[1], args2[2]] : [args2[0], [], args2[1]];
+function Decode(...args) {
+  const [schema, references, value] = args.length === 3 ? [args[0], args[1], args[2]] : [args[0], [], args[1]];
   if (!Check(schema, references, value))
     throw new TransformDecodeCheckError(schema, value, Errors(schema, references, value).First());
   return HasTransform(schema, references) ? TransformDecode(schema, references, value) : value;
@@ -5709,8 +5722,8 @@ function Visit14(schema, references, value) {
       return ValueOrDefault(schema_, value);
   }
 }
-function Default5(...args2) {
-  return args2.length === 3 ? Visit14(args2[0], args2[1], args2[2]) : Visit14(args2[0], [], args2[1]);
+function Default5(...args) {
+  return args.length === 3 ? Visit14(args[0], args[1], args[2]) : Visit14(args[0], [], args[1]);
 }
 
 // node_modules/@sinclair/typebox/build/esm/value/pointer/pointer.mjs
@@ -5995,8 +6008,8 @@ function Patch(current, edits) {
 }
 
 // node_modules/@sinclair/typebox/build/esm/value/encode/encode.mjs
-function Encode(...args2) {
-  const [schema, references, value] = args2.length === 3 ? [args2[0], args2[1], args2[2]] : [args2[0], [], args2[1]];
+function Encode(...args) {
+  const [schema, references, value] = args.length === 3 ? [args[0], args[1], args[2]] : [args[0], [], args[1]];
   const encoded = HasTransform(schema, references) ? TransformEncode(schema, references, value) : value;
   if (!Check(schema, references, encoded))
     throw new TransformEncodeCheckError(schema, encoded, Errors(schema, references, encoded).First());
@@ -6131,8 +6144,8 @@ function ParseValue(operations, type, references, value) {
     return operation(type, references, value2);
   }, value);
 }
-function Parse(...args2) {
-  const [operations, schema, references, value] = args2.length === 4 ? [args2[0], args2[1], args2[2], args2[3]] : args2.length === 3 ? IsArray2(args2[0]) ? [args2[0], args2[1], [], args2[2]] : [ParseDefault, args2[0], args2[1], args2[2]] : args2.length === 2 ? [ParseDefault, args2[0], [], args2[1]] : (() => {
+function Parse(...args) {
+  const [operations, schema, references, value] = args.length === 4 ? [args[0], args[1], args[2], args[3]] : args.length === 3 ? IsArray2(args[0]) ? [args[0], args[1], [], args[2]] : [ParseDefault, args[0], args[1], args[2]] : args.length === 2 ? [ParseDefault, args[0], [], args[1]] : (() => {
     throw new ParseError("Invalid Arguments");
   })();
   return ParseValue(operations, schema, references, value);
@@ -6364,15 +6377,15 @@ var ViewState = Open(Type.Object({
   $schema: Type.Optional(Type.String()),
   viewVersion: Type.Literal("1"),
   locale: Type.Optional(Type.String()),
-  theme: Type.Optional(Type.String()),
-  projection: Type.Optional(Type.String({ description: "flat | iso | stack" })),
-  lens: Type.Optional(Type.String({ description: "topology | health | replaceability | flow" })),
+  theme: Type.Optional(Type.Union([Type.Literal("midnight"), Type.Literal("paper")])),
+  projection: Type.Optional(Type.Union([Type.Literal("flat"), Type.Literal("iso"), Type.Literal("stack")])),
+  lens: Type.Optional(Type.Union([Type.Literal("topology"), Type.Literal("health"), Type.Literal("replaceability"), Type.Literal("flow")])),
   focus: Type.Optional(Id),
   collapsed: Type.Optional(Type.Array(Id)),
   hidden: Type.Optional(Type.Array(Id)),
   pinned: Type.Optional(Type.Record(Id, Type.Object({ x: Type.Number(), y: Type.Number() }), { description: "Manual position overrides in layout space." })),
   scenario: Type.Optional(Id),
-  camera: Type.Optional(Type.Object({ x: Type.Number(), y: Type.Number(), zoom: Type.Number() }))
+  camera: Type.Optional(Type.Object({ x: Type.Number(), y: Type.Number(), zoom: Type.Number({ minimum: 0.1, maximum: 20 }) }))
 }, { $id: "https://archray.dev/schema/v2/view.json", title: "ArchRay View State" }));
 
 // core/src/validate.ts
@@ -6534,6 +6547,7 @@ function migrateV1(v1, locale = "en") {
   rewrite(v1);
   const nodes = [];
   const edges = [];
+  const unmapped = [];
   const statusMap = (s) => {
     switch (s) {
       case "planned":
@@ -6554,6 +6568,8 @@ function migrateV1(v1, locale = "en") {
     for (const k of ["complexity", "coupling", "loc"]) {
       if (typeof n.metrics?.[k] === "number") metrics[k] = { value: n.metrics[k], origin: "estimated" };
     }
+    const extraMetrics = Object.keys(n.metrics ?? {}).filter((k) => !(k in metrics));
+    if (extraMetrics.length) unmapped.push(`node ${n.id}: metrics ${extraMetrics.join(", ")} kept only in extensions.migration.original`);
     const node = {
       id: n.id,
       name: n.label,
@@ -6576,23 +6592,31 @@ function migrateV1(v1, locale = "en") {
     for (const c of n.children?.nodes ?? []) convertNode(c, n.id);
     for (const e of n.children?.edges ?? []) edges.push(convertEdge(e));
   };
-  const convertEdge = (e) => ({
-    id: e.id,
-    source: e.source,
-    target: e.target,
-    ...e.label ? { label: e.label } : {},
-    ...e.protocol ? { protocol: e.protocol === "llm-stream" ? "llm" : e.protocol } : {},
-    lifecycle: e.status === "planned" ? "planned" : "active",
-    ...e.bandwidth ? { weight: e.bandwidth } : {}
-  });
+  const convertEdge = (e) => {
+    if (e.status === "bottleneck") unmapped.push(`edge ${e.id}: status "bottleneck" has no v2 lifecycle field; kept only in extensions.migration.original`);
+    return {
+      id: e.id,
+      source: e.source,
+      target: e.target,
+      ...e.label ? { label: e.label } : {},
+      ...e.protocol ? { protocol: e.protocol === "llm-stream" ? "llm" : e.protocol } : {},
+      lifecycle: e.status === "planned" ? "planned" : "active",
+      ...e.bandwidth ? { weight: e.bandwidth } : {}
+    };
+  };
   for (const n of v1.nodes ?? []) convertNode(n);
   for (const e of v1.edges ?? []) edges.push(convertEdge(e));
   const seen = /* @__PURE__ */ new Map();
   for (const n of nodes) seen.set(n.id, (seen.get(n.id) ?? 0) + 1);
   const stats = {};
   for (const [k, v] of Object.entries(v1.meta?.stats ?? {})) if (typeof v === "number") stats[k] = { value: v, origin: "estimated" };
+  const warnings = [
+    "Original fields preserved here; health and metrics converted as estimates, not verified measurements.",
+    ...unmapped.slice(0, 12),
+    ...unmapped.length > 12 ? [`...and ${unmapped.length - 12} more unmapped fields; see extensions.migration.original`] : []
+  ];
   return {
-    extensions: { migration: { sourceVersion: "1.0", original, warnings: ["Original fields preserved here; health and metrics converted as estimates, not verified measurements."] } },
+    extensions: { migration: { sourceVersion: "1.0", original, warnings } },
     schemaVersion: SCHEMA_VERSION,
     meta: {
       name: v1.meta?.name ?? "Untitled",
@@ -6618,130 +6642,229 @@ function migrateV1(v1, locale = "en") {
 
 // cli/src/main.ts
 var root = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
-var args = process.argv.slice(2);
-var command = args.shift();
-var flags = {};
-var positional = [];
-while (args.length) {
-  const a = args.shift();
-  if (a.startsWith("--")) {
-    const k = a.slice(2);
-    flags[k] = args[0] && !args[0].startsWith("--") ? args.shift() : true;
-  } else positional.push(a);
+var HELP = `ArchRay v2 (source trial)
+
+Usage: archray <command> [options]
+
+  validate [graph]          check a v2 graph (default .archray/graph.json)
+  build [graph] [options]   build a single-file HTML view
+  migrate <v1.json>         convert a v1 graph to v2 (original kept)
+  schema [graph|view]       print a JSON schema
+  init [options]            write .archray templates for your AI agent
+
+build options:
+  --input <file>            graph to render (default .archray/graph.json)
+  --output <file>           HTML output (default .archray/index.html)
+  --view <file>             view.json to embed (language, theme, projection, camera)
+  --no-open                 do not launch a browser
+  --force                   replace an existing output file
+
+init options:
+  --target <dir>            project directory (default .)
+  --agent <name>            none | claude | cursor | antigravity | all (default none)
+
+migrate / schema options:
+  --output <file>           write to a file instead of stdout / default path
+  --force                   replace an existing output file
+
+First run:
+  1. archray init
+  2. ask your agent to read .archray/SKILL.md and .archray/graph.schema.json,
+     inspect real source and write .archray/graph.json
+  3. archray validate .archray/graph.json
+  4. archray build .archray/graph.json --no-open
+     then open .archray/index.html in a browser
+`;
+function parseArgs(argv) {
+  const args = [...argv];
+  const command = args.shift();
+  const flags = {};
+  const positional = [];
+  while (args.length) {
+    const arg = args.shift();
+    if (arg.startsWith("--")) {
+      const key = arg.slice(2);
+      const next = args[0];
+      flags[key] = next && !next.startsWith("--") ? args.shift() : true;
+    } else {
+      positional.push(arg);
+    }
+  }
+  return { command, positional, flags };
 }
-var flag = (k, d) => typeof flags[k] === "string" ? flags[k] : d;
-var read = (p) => JSON.parse(readFileSync(p, "utf8"));
-function valid(g, view = false) {
-  const r = (view ? validateView : validateGraph)(g);
-  if (!r.ok) throw Error(r.errors.map((e) => `${e.path}: ${e.message}`).join("\n"));
-  return g;
+var flag = (args, key, fallback) => typeof args.flags[key] === "string" ? args.flags[key] : fallback;
+var has = (args, key) => args.flags[key] !== void 0;
+function readJson(path) {
+  if (!existsSync(path)) {
+    throw new Error(
+      `Cannot read ${path}: file not found.
+Run "archray init" and have your AI agent write the graph, or pass the correct path.`
+    );
+  }
+  try {
+    return JSON.parse(readFileSync(path, "utf8"));
+  } catch (e) {
+    throw new Error(`Cannot read ${path}: ${e.message}`);
+  }
 }
-function identity(p) {
-  const a = resolve(p);
-  if (existsSync(a)) return realpathSync(a);
-  return resolve(identity(dirname(a)), a.slice(dirname(a).length + 1));
+function assertValid(value, view = false) {
+  const result = view ? validateView(value) : validateGraph(value);
+  if (!result.ok) throw new Error(result.errors.map((e) => `${e.path}: ${e.message}`).join("\n"));
+  return value;
 }
-function guard(p, input) {
-  if (input && (identity(p) === identity(input) || existsSync(p) && existsSync(input) && statSync(p).ino === statSync(input).ino && statSync(p).dev === statSync(input).dev)) throw Error("Input and output must be different files");
+function identity(path) {
+  const absolute = resolve(path);
+  if (existsSync(absolute)) return realpathSync(absolute);
+  return resolve(identity(dirname(absolute)), absolute.slice(dirname(absolute).length + 1));
+}
+function guard(path, input, args) {
+  const sameAlias = input && (identity(path) === identity(input) || existsSync(path) && existsSync(input) && statSync(path).ino === statSync(input).ino && statSync(path).dev === statSync(input).dev);
+  if (sameAlias) throw new Error(`Refusing to write output over its input: ${path}.
+Choose a different --output.`);
   let present = false;
   try {
-    const s = lstatSync(p);
+    const stat = lstatSync(path);
     present = true;
-    if (s.isSymbolicLink()) throw Error(`Refusing symbolic-link output: ${p}`);
+    if (stat.isSymbolicLink()) throw new Error(`Refusing to write through a symbolic link: ${path}.
+Choose a real file path.`);
   } catch (e) {
     if (e.code !== "ENOENT") throw e;
   }
-  if (present && !flags.force) throw Error(`File exists: ${p}; use --force to replace it`);
+  if (present && !has(args, "force")) {
+    throw new Error(`${path} already exists.
+Re-run with --force to replace it, or choose another --output.`);
+  }
 }
-function write(p, data, input) {
-  p = resolve(p);
-  guard(p, input);
-  mkdirSync(dirname(p), { recursive: true });
-  const tmp = `${p}.tmp-${process.pid}-${Math.random().toString(36).slice(2)}`;
+function writeOutput(path, data, args, input) {
+  const target = resolve(path);
+  guard(target, input, args);
+  mkdirSync(dirname(target), { recursive: true });
+  const temp = `${target}.tmp-${process.pid}-${Math.random().toString(36).slice(2)}`;
   try {
-    const fd = openSync(tmp, "wx");
+    const fd = openSync(temp, "wx");
     try {
       writeFileSync(fd, data);
     } finally {
       closeSync(fd);
     }
-    if (flags.force) {
-      guard(p, input);
-      renameSync(tmp, p);
+    if (has(args, "force")) {
+      guard(target, input, args);
+      renameSync(temp, target);
     } else {
-      linkSync(tmp, p);
-      unlinkSync(tmp);
+      linkSync(temp, target);
+      unlinkSync(temp);
     }
   } finally {
-    if (existsSync(tmp)) unlinkSync(tmp);
+    if (existsSync(temp)) unlinkSync(temp);
   }
-  console.log(p);
+  console.log(target);
 }
-var json = (g) => JSON.stringify(g, null, 2) + "\n";
-try {
-  switch (command) {
+var json = (value) => JSON.stringify(value, null, 2) + "\n";
+function cmdValidate(args) {
+  const path = args.positional[0] ?? ".archray/graph.json";
+  assertValid(readJson(path));
+  console.log(`Valid v2 graph: ${path}`);
+}
+function cmdSchema(args) {
+  const kind = args.positional[0] === "view" ? "view" : "graph";
+  const data = readFileSync(resolve(root, `schema/${kind}.schema.json`), "utf8");
+  if (has(args, "output")) writeOutput(flag(args, "output", ""), data, args);
+  else process.stdout.write(data);
+}
+function cmdInit(args) {
+  const target = resolve(flag(args, "target", "."));
+  const agent = flag(args, "agent", "none");
+  if (!["none", "claude", "cursor", "antigravity", "all"].includes(agent)) {
+    throw new Error(`Unknown --agent value: ${agent}. Use none, claude, cursor, antigravity or all.`);
+  }
+  const files = [
+    ["schema/graph.schema.json", ".archray/graph.schema.json"],
+    ["schema/view.schema.json", ".archray/view.schema.json"],
+    ["skill/SKILL.md", ".archray/SKILL.md"]
+  ];
+  const integrations = [
+    ["claude", ".claude/skills/archray/SKILL.md"],
+    ["cursor", ".cursor/rules/archray.mdc"],
+    ["antigravity", ".agent/skills/archray/SKILL.md"]
+  ];
+  for (const [id, destination] of integrations) {
+    if (agent === id || agent === "all") files.push(["skill/SKILL.md", destination]);
+  }
+  const planned = files.map(([source, destination]) => ({ path: resolve(target, destination), data: readFileSync(resolve(root, source), "utf8") }));
+  for (const file of planned) guard(file.path, void 0, args);
+  for (const file of planned) writeOutput(file.path, file.data, args);
+}
+function cmdMigrate(args) {
+  const path = args.positional[0];
+  if (!path) {
+    throw new Error("migrate needs a v1 graph file.\nExample: archray migrate old.graph.json --output .archray/graph.v2.json");
+  }
+  const graph = assertValid(migrateV1(readJson(path)));
+  writeOutput(flag(args, "output", ".archray/graph.v2.json"), json(graph), args, path);
+}
+function cmdBuild(args) {
+  const input = flag(args, "input", args.positional[0] ?? ".archray/graph.json");
+  const output = flag(args, "output", ".archray/index.html");
+  guard(output, input, args);
+  const graph = assertValid(readJson(input));
+  const viewPath = has(args, "view") ? flag(args, "view", "") : void 0;
+  const view = viewPath ? assertValid(readJson(viewPath), true) : void 0;
+  if (viewPath && identity(output) === identity(viewPath)) {
+    throw new Error(`Refusing to write output over the view input: ${output}.
+Choose a different --output.`);
+  }
+  const viewerPath = resolve(root, "viewer/dist/viewer.html");
+  if (!existsSync(viewerPath)) {
+    throw new Error(`Viewer build not found: ${viewerPath}.
+Run "npm run build" in the ArchRay checkout first.`);
+  }
+  let html = readFileSync(viewerPath, "utf8");
+  const embed = (value) => JSON.stringify(value).replace(/</g, "\\u003c").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
+  const name = graph.meta.name;
+  const title = typeof name === "string" ? name : Object.values(name)[0] ?? "ArchRay";
+  const escapedTitle = String(title).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  html = html.replace(/<title>[\s\S]*?<\/title>/i, () => `<title>${escapedTitle} \u2014 ArchRay</title>`);
+  html = html.replace("</head>", () => `<script>window.__ARCHRAY_DATA__=${embed(graph)};${view ? `window.__ARCHRAY_VIEW__=${embed(view)};` : ""}</script></head>`);
+  writeOutput(output, html, args, input);
+  if (!has(args, "no-open")) openInBrowser(resolve(output));
+}
+function openInBrowser(path) {
+  const opener = process.platform === "darwin" ? "open" : process.platform === "win32" ? "explorer" : "xdg-open";
+  const child = spawn(opener, [path], { stdio: "ignore", detached: true });
+  child.on("error", (e) => console.error(`Open manually: ${path} (${e.message})`));
+  child.unref();
+}
+function main(argv) {
+  const args = parseArgs(argv);
+  switch (args.command) {
     case void 0:
     case "help":
     case "--help":
     case "-h":
-      console.log("ArchRay v2 (source trial)\nvalidate [graph]\nbuild [graph] [--input graph] [--output .archray/index.html] [--view view.json] [--no-open] [--force]\nmigrate <v1.json> [--output .archray/graph.v2.json] [--force]\nschema [graph|view] [--output file] [--force]\ninit [--target directory] [--agent claude|cursor|antigravity|all] [--force]");
+      process.stdout.write(HELP);
       break;
-    case "validate": {
-      const p = positional[0] ?? ".archray/graph.json";
-      valid(read(p));
-      console.log(`Valid v2 graph: ${p}`);
+    case "validate":
+      cmdValidate(args);
       break;
-    }
-    case "schema": {
-      const p = resolve(root, `schema/${positional[0] === "view" ? "view" : "graph"}.schema.json`);
-      const data = readFileSync(p, "utf8");
-      if (flags.output) write(flag("output", ""), data);
-      else process.stdout.write(data);
+    case "schema":
+      cmdSchema(args);
       break;
-    }
-    case "init": {
-      const target = resolve(flag("target", "."));
-      const files = [["schema/graph.schema.json", ".archray/graph.schema.json"], ["schema/view.schema.json", ".archray/view.schema.json"], ["skill/SKILL.md", ".archray/SKILL.md"]];
-      const agent = flag("agent", "none");
-      if (!["none", "claude", "cursor", "antigravity", "all"].includes(agent)) throw Error("Unknown agent");
-      for (const [a, d] of [["claude", ".claude/skills/archray/SKILL.md"], ["cursor", ".cursor/rules/archray.mdc"], ["antigravity", ".agent/skills/archray/SKILL.md"]]) if (agent === a || agent === "all") files.push(["skill/SKILL.md", d]);
-      const planned = files.map(([src, dst]) => ({ path: resolve(target, dst), data: readFileSync(resolve(root, src), "utf8") }));
-      for (const f of planned) guard(f.path);
-      for (const f of planned) write(f.path, f.data);
+    case "init":
+      cmdInit(args);
       break;
-    }
-    case "migrate": {
-      const p = positional[0];
-      if (!p) throw Error("migrate requires a v1 file");
-      const g = migrateV1(read(p));
-      valid(g);
-      write(flag("output", ".archray/graph.v2.json"), json(g), p);
+    case "migrate":
+      cmdMigrate(args);
       break;
-    }
-    case "build": {
-      const p = flag("input", positional[0] ?? ".archray/graph.json");
-      const out = flag("output", ".archray/index.html");
-      guard(out, p);
-      const g = valid(read(p));
-      const view = flags.view ? valid(read(flag("view", "")), true) : void 0;
-      if (flags.view && identity(out) === identity(flag("view", ""))) throw Error("Output must differ from view input");
-      let html = readFileSync(resolve(root, "viewer/dist/viewer.html"), "utf8");
-      const safe = (v) => JSON.stringify(v).replace(/</g, "\\u003c").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
-      const title = typeof g.meta.name === "string" ? g.meta.name : Object.values(g.meta.name)[0];
-      const escaped = String(title).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-      html = html.replace(/<title>[\s\S]*?<\/title>/i, () => `<title>${escaped} \u2014 ArchRay</title>`);
-      html = html.replace("</head>", () => `<script>window.__ARCHRAY_DATA__=${safe(g)};${view ? `window.__ARCHRAY_VIEW__=${safe(view)};` : ""}</script></head>`);
-      write(out, html, p);
-      if (!flags["no-open"]) {
-        const c = spawn(process.platform === "darwin" ? "open" : process.platform === "win32" ? "explorer" : "xdg-open", [resolve(out)], { stdio: "ignore", detached: true });
-        c.on("error", (e) => console.error(`Open manually: ${out} (${e.message})`));
-        c.unref();
-      }
+    case "build":
+      cmdBuild(args);
       break;
-    }
     default:
-      throw Error(`Unknown command: ${command}`);
+      throw new Error(`Unknown command: ${args.command}.
+Run "archray help" to see available commands.`);
   }
+}
+try {
+  main(process.argv.slice(2));
 } catch (e) {
   console.error(e.message);
   process.exitCode = 1;

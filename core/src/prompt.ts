@@ -15,6 +15,8 @@ export function replacementPrompt(idx: GraphIndex, nodeId: string, option: Alter
   const lines = [
     zh ? `# ArchRay 迁移任务：${L(n.name)}${option ? ` → ${L(option.name)}` : ''}` : `# ArchRay migration task: ${L(n.name)}${option ? ` → ${L(option.name)}` : ''}`,
     '',
+    `- generatedAt: ${idx.graph.meta.generatedAt}; commit: ${idx.graph.meta.repo?.commit ?? 'unknown'}`,
+    zh ? '依据仅限输入图；源码路径及依赖须复核，遗漏与动态依赖未知，候选不是现有源码。' : 'Evidence is limited to the input graph; verify source paths and dependencies. Missing/dynamic dependencies are unknown; candidates are not existing source.',
     `- id: \`${n.id}\`  kind: \`${n.kind}\``,
     n.techStack?.length ? `- ${zh ? '当前技术栈' : 'Current stack'}: ${n.techStack.join(', ')}` : '',
     n.description ? `- ${zh ? '职责' : 'Responsibility'}: ${L(n.description)}` : '',
@@ -41,8 +43,8 @@ export function replacementPrompt(idx: GraphIndex, nodeId: string, option: Alter
     '',
     `## ${zh ? '请求' : 'Request'}`,
     zh
-      ? '请阅读上述源码，在保持契约不变的前提下给出分步迁移计划（含回滚方案），然后实施第一步并更新 .archray/graph.json。'
-      : 'Read the files above, produce a step-by-step migration plan (with rollback) that preserves the listed contracts, implement step 1, then update .archray/graph.json.'
+      ? '请先复核源码及图中事实，说明评价目标、依据与未知，评估保持现状；给出保持契约的迁移、回滚及验证计划。等待用户另行授权实施。'
+      : 'Review source and graph facts first; state the goal, evidence and unknowns, including keeping the current implementation. Propose migration, rollback and verification plans preserving contracts. Wait for separate user authorization to implement.'
   );
   return lines.filter((l) => l !== '').join('\n').replace(/\n## /g, '\n\n## ');
 }

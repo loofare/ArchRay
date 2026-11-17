@@ -19,7 +19,7 @@
     "build:viewer": "npm --workspace=viewer run build",
     "build:cli": "node --import tsx scripts/build-cli.ts",
     "build": "npm run gen:schema && npm run build:viewer && npm run build:cli",
-    "self-analyze": "node cli/bin/archray.mjs build .archray/graph.json --no-open"
+    "self-analyze": "node scripts/self-analyze.mjs"
   },
   "keywords": [
     "architecture",

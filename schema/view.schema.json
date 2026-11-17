@@ -18,15 +18,52 @@
       "type": "string"
     },
     "theme": {
-      "type": "string"
+      "anyOf": [
+        {
+          "const": "midnight",
+          "type": "string"
+        },
+        {
+          "const": "paper",
+          "type": "string"
+        }
+      ]
     },
     "projection": {
-      "description": "flat | iso | stack",
-      "type": "string"
+      "anyOf": [
+        {
+          "const": "flat",
+          "type": "string"
+        },
+        {
+          "const": "iso",
+          "type": "string"
+        },
+        {
+          "const": "stack",
+          "type": "string"
+        }
+      ]
     },
     "lens": {
-      "description": "topology | health | replaceability | flow",
-      "type": "string"
+      "anyOf": [
+        {
+          "const": "topology",
+          "type": "string"
+        },
+        {
+          "const": "health",
+          "type": "string"
+        },
+        {
+          "const": "replaceability",
+          "type": "string"
+        },
+        {
+          "const": "flow",
+          "type": "string"
+        }
+      ]
     },
     "focus": {
       "minLength": 1,
@@ -94,6 +131,8 @@
           "type": "number"
         },
         "zoom": {
+          "minimum": 0.1,
+          "maximum": 20,
           "type": "number"
         }
       }

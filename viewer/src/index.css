@@ -10,3 +10,20 @@ html, body, #root { width: 100%; height: 100%; margin: 0; overflow: hidden; font
 .ar-flow { animation: ar-dash .8s linear infinite; }
 .ar-pulse { animation: ar-pulse 2.4s ease-in-out infinite; }
 .ar-scroll::-webkit-scrollbar { width: 6px } .ar-scroll::-webkit-scrollbar-thumb { background: #33415580; border-radius: 3px }
+
+.ar-shell { position: relative; display: flex; flex-direction: column; width: 100%; height: 100%; }
+.ar-toolbar { flex: 0 0 auto; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 14px 16px 8px; max-height: 45vh; overflow-y: auto; z-index: 2; }
+.ar-stage { position: relative; flex: 1 1 auto; min-height: 0; }
+.ar-canvas { position: absolute; inset: 0; }
+.ar-canvas.ar-has-selection { right: 380px; }
+.ar-footer { flex: 0 0 auto; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 8px 16px 12px; max-height: 22vh; overflow-y: auto; z-index: 2; }
+.ar-inspector { position: absolute; top: 8px; right: 8px; bottom: 8px; width: 360px; z-index: 3; box-sizing: border-box; overflow-y: auto; overflow-wrap: anywhere; }
+.ar-zoom { position: absolute; right: 12px; bottom: 12px; display: flex; gap: 6px; z-index: 2; }
+.ar-file { position: relative; }
+.ar-file-input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; clip-path: inset(50%); }
+.ar-file:focus-within { outline: 2px solid #38bdf8; outline-offset: 2px; }
+@media (max-width: 767px) {
+  .ar-toolbar { max-height: 47vh; }
+  .ar-canvas.ar-has-selection { right: 0; }
+  .ar-inspector { top: 8px; left: 8px; right: 8px; bottom: 8px; width: auto; }
+}

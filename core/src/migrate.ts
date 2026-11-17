@@ -19,6 +19,8 @@ export function migrateV1(v1: any, locale = 'en'): ArchGraph {
   rewrite(v1);
   const nodes: ArchNode[] = [];
   const edges: ArchEdge[] = [];
+  /** Facts v2 cannot represent, listed explicitly instead of being dropped silently. */
+  const unmapped: string[] = [];
 
   const statusMap = (s: string): { lifecycle: Lifecycle; level: HealthLevel; finding?: string } => {
     switch (s) {
@@ -36,6 +38,8 @@ export function migrateV1(v1: any, locale = 'en'): ArchGraph {
     for (const k of ['complexity', 'coupling', 'loc'] as const) {
       if (typeof n.metrics?.[k] === 'number') metrics[k] = { value: n.metrics[k], origin: 'estimated' };
     }
+    const extraMetrics = Object.keys(n.metrics ?? {}).filter((k) => !(k in metrics));
+    if (extraMetrics.length) unmapped.push(`node ${n.id}: metrics ${extraMetrics.join(', ')} kept only in extensions.migration.original`);
     const node: ArchNode = {
       id: n.id,
       name: n.label,
@@ -60,15 +64,18 @@ export function migrateV1(v1: any, locale = 'en'): ArchGraph {
     for (const c of n.children?.nodes ?? []) convertNode(c, n.id);
     for (const e of n.children?.edges ?? []) edges.push(convertEdge(e));
   };
-  const convertEdge = (e: any): ArchEdge => ({
-    id: e.id,
-    source: e.source,
-    target: e.target,
-    ...(e.label ? { label: e.label } : {}),
-    ...(e.protocol ? { protocol: e.protocol === 'llm-stream' ? 'llm' : e.protocol } : {}),
-    lifecycle: e.status === 'planned' ? 'planned' : 'active',
-    ...(e.bandwidth ? { weight: e.bandwidth } : {}),
-  });
+  const convertEdge = (e: any): ArchEdge => {
+    if (e.status === 'bottleneck') unmapped.push(`edge ${e.id}: status "bottleneck" has no v2 lifecycle field; kept only in extensions.migration.original`);
+    return {
+      id: e.id,
+      source: e.source,
+      target: e.target,
+      ...(e.label ? { label: e.label } : {}),
+      ...(e.protocol ? { protocol: e.protocol === 'llm-stream' ? 'llm' : e.protocol } : {}),
+      lifecycle: e.status === 'planned' ? 'planned' : 'active',
+      ...(e.bandwidth ? { weight: e.bandwidth } : {}),
+    };
+  };
 
   for (const n of v1.nodes ?? []) convertNode(n);
   for (const e of v1.edges ?? []) edges.push(convertEdge(e));
@@ -80,8 +87,13 @@ export function migrateV1(v1: any, locale = 'en'): ArchGraph {
   const stats: Record<string, { value: number; origin: 'estimated' }> = {};
   for (const [k, v] of Object.entries(v1.meta?.stats ?? {})) if (typeof v === 'number') stats[k] = { value: v, origin: 'estimated' };
 
+  const warnings = [
+    'Original fields preserved here; health and metrics converted as estimates, not verified measurements.',
+    ...unmapped.slice(0, 12),
+    ...(unmapped.length > 12 ? [`...and ${unmapped.length - 12} more unmapped fields; see extensions.migration.original`] : []),
+  ];
   return {
-    extensions: { migration: { sourceVersion:'1.0', original, warnings:['Original fields preserved here; health and metrics converted as estimates, not verified measurements.'] } },
+    extensions: { migration: { sourceVersion:'1.0', original, warnings } },
     schemaVersion: SCHEMA_VERSION,
     meta: {
       name: v1.meta?.name ?? 'Untitled',

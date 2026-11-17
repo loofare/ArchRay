@@ -216,15 +216,15 @@ export const ViewState = Open(Type.Object({
   $schema: Type.Optional(Type.String()),
   viewVersion: Type.Literal('1'),
   locale: Type.Optional(Type.String()),
-  theme: Type.Optional(Type.String()),
-  projection: Type.Optional(Type.String({ description: 'flat | iso | stack' })),
-  lens: Type.Optional(Type.String({ description: 'topology | health | replaceability | flow' })),
+  theme: Type.Optional(Type.Union([Type.Literal('midnight'),Type.Literal('paper')])),
+  projection: Type.Optional(Type.Union([Type.Literal('flat'),Type.Literal('iso'),Type.Literal('stack')])),
+  lens: Type.Optional(Type.Union([Type.Literal('topology'),Type.Literal('health'),Type.Literal('replaceability'),Type.Literal('flow')])),
   focus: Type.Optional(Id),
   collapsed: Type.Optional(Type.Array(Id)),
   hidden: Type.Optional(Type.Array(Id)),
   pinned: Type.Optional(Type.Record(Id, Type.Object({ x: Type.Number(), y: Type.Number() }), { description: 'Manual position overrides in layout space.' })),
   scenario: Type.Optional(Id),
-  camera: Type.Optional(Type.Object({ x: Type.Number(), y: Type.Number(), zoom: Type.Number() })),
+  camera: Type.Optional(Type.Object({ x: Type.Number(), y: Type.Number(), zoom: Type.Number({minimum:0.1,maximum:20}) })),
 }, { $id: 'https://archray.dev/schema/v2/view.json', title: 'ArchRay View State' }));
 
 /* ---------------------------------------------------------------- types */

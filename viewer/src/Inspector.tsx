@@ -27,8 +27,10 @@ export function Inspector(p: Props) {
   const spec = kindSpec(n.kind);
   const Icon = spec.icon;
   const [copied, setCopied] = useState<string | null>(null);
+  const [fallback, setFallback] = useState('');
   const copy = async (key: string, opt: AlternativeOption | null) => {
-    await navigator.clipboard.writeText(p.prompt(opt));
+    const text = p.prompt(opt);
+    try { await navigator.clipboard.writeText(text); } catch { setFallback(text); return; }
     setCopied(key);
     setTimeout(() => setCopied(null), 1500);
   };
@@ -55,7 +57,7 @@ export function Inspector(p: Props) {
   const repColor = alt?.replaceability === 'high' ? th.good : alt?.replaceability === 'medium' ? th.warn : th.critical;
 
   return (
-    <div className="ar-scroll" style={{ position: 'absolute', top: 70, right: 12, bottom: 12, width: 360, overflowY: 'auto', zIndex: 3,
+    <div className="ar-scroll ar-inspector" style={{
       background: th.panel, border: `1px solid ${th.panelBorder}`, borderRadius: 14, padding: 18, backdropFilter: 'blur(12px)', fontSize: 13, lineHeight: 1.55 }}>
       <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
         <div style={{ width: 40, height: 40, borderRadius: 10, background: alpha(spec.hue, 0.15), display: 'grid', placeItems: 'center' }}>
@@ -67,6 +69,11 @@ export function Inspector(p: Props) {
         </div>
         <button onClick={p.onClose} style={{ background: 'none', border: 0, color: th.sub, fontSize: 18, cursor: 'pointer' }}>×</button>
       </div>
+      {fallback && <div role="alert" style={{ borderLeft: `3px solid ${th.warn}`, paddingLeft: 10, marginTop: 8 }}>
+        <div>{U('inspector.copyFallback')}</div>
+        <textarea aria-label={U('inspector.promptText')} readOnly value={fallback} style={{ width: '100%', minHeight: 220, marginTop: 6 }} />
+      </div>}
+      <p style={{ color: th.sub, fontSize: 12 }}>{U('inspector.evidence')}</p>
       {n.description && <p style={{ color: th.sub, margin: '12px 0 0' }}>{L(n.description)}</p>}
       {kids.length > 0 && <div style={{ marginTop: 12 }}>
         {small(U('inspector.children'), p.onOpen, true)}
@@ -110,6 +117,10 @@ export function Inspector(p: Props) {
             {(o.effort || o.risk) && <div style={{ fontSize: 11, color: th.faint, marginTop: 4 }}>
               {o.effort && `${U('inspector.effort')}: ${o.effort}`}{o.effort && o.risk && ' · '}{o.risk && `${U('inspector.risk')}: ${o.risk}`}
             </div>}
+            {o.references?.length ? <div style={{ marginTop: 6, fontSize: 12 }}>
+              <span style={{ color: th.faint }}>{U('inspector.references')}: </span>
+              {o.references.map((r) => <a key={r} href={r} target="_blank" rel="noreferrer" style={{ color: th.accent, marginRight: 8, overflowWrap: 'anywhere' }}>{r}</a>)}
+            </div> : null}
             <div style={{ marginTop: 8 }}>
               {o.scenario && small(U('inspector.preview'), () => p.onScenario(o.scenario!), true)}
               {small(copied === o.id ? U('inspector.copied') : U('inspector.copyPrompt'), () => copy(o.id, o))}

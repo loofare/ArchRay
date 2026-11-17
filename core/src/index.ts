@@ -6,3 +6,4 @@ export * from './layout';
 export * from './projection';
 export * from './migrate';
 export * from './prompt';
+export * from './view';

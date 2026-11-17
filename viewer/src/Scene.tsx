@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import {
   t, measureText, makeProjection, projectBox, projectedBounds, projectPolyline,
   type ArchNode, type GraphIndex, type PlanarLayout, type ProjectionId, type Pt, type ScenarioDiff,
@@ -9,6 +9,8 @@ import { alpha, LAYER_FALLBACK, type Theme } from './theme';
 export type Lens = 'topology' | 'health' | 'replaceability' | 'flow';
 
 export interface SceneProps {
+  camera: {x:number;y:number;zoom:number};
+  onCamera(c:{x:number;y:number;zoom:number}):void;
   idx: GraphIndex;
   layout: PlanarLayout;
   projection: ProjectionId;
@@ -45,6 +47,7 @@ function fit(text: string, size: number, width: number, maxLines = 1): string[] 
 }
 
 export function Scene(p: SceneProps) {
+  const drag=useRef<{x:number;y:number;cx:number;cy:number}|null>(null);
   const { idx, layout, theme: th, locale } = p;
   const def = idx.graph.meta.defaultLocale ?? idx.graph.meta.locales[0] ?? 'en';
   const L = (x: Parameters<typeof t>[0]) => t(x, locale, def);
@@ -93,8 +96,8 @@ export function Scene(p: SceneProps) {
   };
 
   return (
-    <svg id="archray-scene" viewBox={`${vb.x} ${vb.y} ${vb.w} ${vb.h}`} width="100%" height="100%"
-      style={{ fontFamily: 'var(--ar-font)' }} onClick={() => p.onSelect(null)}>
+    <svg id="archray-scene" onWheel={e=>{p.onCamera({...p.camera,zoom:Math.max(.1,Math.min(20,p.camera.zoom*(e.deltaY<0?1.15:1/1.15)))});}} onPointerDown={e=>{if(e.target!==e.currentTarget)return;drag.current={x:e.clientX,y:e.clientY,cx:p.camera.x,cy:p.camera.y};e.currentTarget.setPointerCapture(e.pointerId);}} onPointerMove={e=>{const d=drag.current;if(!d)return;const r=e.currentTarget.getBoundingClientRect();p.onCamera({...p.camera,x:d.cx-(e.clientX-d.x)*vb.w/r.width/p.camera.zoom,y:d.cy-(e.clientY-d.y)*vb.h/r.height/p.camera.zoom});}} onPointerUp={()=>{drag.current=null;}} viewBox={`${vb.x+p.camera.x+vb.w*(1-1/p.camera.zoom)/2} ${vb.y+p.camera.y+vb.h*(1-1/p.camera.zoom)/2} ${vb.w/p.camera.zoom} ${vb.h/p.camera.zoom}`} width="100%" height="100%"
+      style={{touchAction:'none', fontFamily: 'var(--ar-font)' }} onClick={() => p.onSelect(null)}>
       <defs>
         <marker id="ar-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
           <path d="M0,1 L9,5 L0,9 z" fill={th.edge} />
@@ -118,7 +121,8 @@ export function Scene(p: SceneProps) {
 
       {/* groups */}
       {layout.groups.map((g) => {
-        const n = idx.byId.get(g.id)!;
+        const n = idx.byId.get(g.id);
+        if (!n) return null;
         return (
           <g key={g.id} opacity={dim(g.id) ? 0.3 : 1} style={{ cursor: 'pointer' }}
             onClick={(e) => { e.stopPropagation(); p.onSelect(g.id); }}>
@@ -152,7 +156,8 @@ export function Scene(p: SceneProps) {
 
       {/* nodes */}
       {layout.nodes.map((ln) => {
-        const n = idx.byId.get(ln.id)!;
+        const n = idx.byId.get(ln.id);
+        if (!n) return null;
         const spec = kindSpec(n.kind);
         const Icon = spec.icon;
         const sel = p.selected === n.id;
