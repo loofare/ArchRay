@@ -24,6 +24,8 @@ try {
   mkdirSync(project);
 
   run('sh', [join(pkg, 'install.sh'), project, 'claude']);
+  assert.ok(existsSync(join(pkg, 'README.en.md')), 'package carries the English README');
+  assert.ok(existsSync(join(pkg, 'docs/host-compatibility.md')), 'package carries the host matrix');
   assert.ok(existsSync(join(project, '.archray/tool/cli/bin/archray.mjs')), 'install vendors the CLI');
   assert.ok(existsSync(join(project, '.archray/tech.json')), 'install copies the knowledge base');
   assert.ok(existsSync(join(project, '.claude/commands/archray.md')), 'install writes slash commands');

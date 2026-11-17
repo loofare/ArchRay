@@ -2,6 +2,8 @@
 
 日期：2026-11-17。M5.1 记录安装位置、调用方式与实际验证边界。文件存在不等于宿主已加载；未实际启动的宿主明确标注。
 
+> 版本边界：v0.3.0 发布包的安装器只支持 Claude/Cursor/Antigravity；Pi/Codex 布局已进入源码，随 v0.4.0 发布。
+
 | 宿主 | 安装参数 | 写入位置 | 调用方式 | 本轮验证 |
 |---|---|---|---|---|
 | Claude Code | `--agent claude` | `.claude/skills/archray/SKILL.md` + `.claude/commands/archray.md`、`archray/*.md` | `/archray`、`/archray:frontend` | 文件布局与命令格式；本机未安装 Claude Code，未实际加载 |

@@ -10,7 +10,12 @@ ArchRay 是 **AI 优先的架构可视化工具**：安装一次，之后在 AI 
 
 > 请把 ArchRay 安装到当前仓库并开始使用：从 https://github.com/loofare/ArchRay/releases/tag/v0.3.0 下载 `archray-0.3.0.tgz`，解压后运行 `./archray-0.3.0/install.sh . claude`；然后按 `.archray/SKILL.md` 生成 `.archray/graph.json`，构建 HTML，并告诉我 `/archray` 怎么用。
 
-安装后新开一个 AI 会话，输入 `/archray`。用 Cursor、Antigravity、Pi 或 Codex 时，把命令里的 `claude` 换成 `cursor`、`antigravity`、`pi` 或 `codex`。
+安装后新开一个 AI 会话：
+
+- **Claude Code / Cursor / Antigravity / Pi**：输入 `/archray`。Pi 的预设是 `/archray-frontend` 等，也可用 `/skill:archray`。
+- **Codex**：输入 `$archray` 或 `/skills`，没有 `/archray` 斜杠命令。
+
+用 Cursor、Antigravity、Pi 或 Codex 时，把安装命令里的 `claude` 换成对应值。**v0.3.0 发布包只带 Claude/Cursor/Antigravity 布局；Pi/Codex 需要 v0.4.0 或源码安装。**
 
 ## 快速开始（在 AI 里）
 
@@ -124,6 +129,9 @@ rm -rf /path/to/your-repo/.claude/skills/archray /path/to/your-repo/.archray
 # .archray/tool 在 .archray 内，自带 CLI 也会一起删除
 # Cursor: .cursor/commands/archray*.md 和 .cursor/rules/archray.mdc
 # Antigravity: .agent/commands/archray*.md 和 .agent/skills/archray
+# Pi: .pi/prompts/archray.md、.pi/prompts/archray-*.md 和 .agents/skills/archray
+# Codex: .agents/skills/archray（与 Pi 共用；只删 ArchRay 目录，不要删其他工具）
+# 删除前确认 .pi/prompts 和 .agents/skills 没有其他工具的同名文件
 ```
 
 `archray version` 打印包版本；`archray doctor` 检查 viewer 模板、schema、Skill、命令和知识库。安装后的命令使用相对路径 `.archray/tool/cli/bin/archray.mjs`，所以下载包删除或仓库移动后仍可用。

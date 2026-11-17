@@ -10,7 +10,12 @@ Copy this to an AI that can run commands:
 
 > Install ArchRay in this repository and start using it: download `archray-0.3.0.tgz` from https://github.com/loofare/ArchRay/releases/tag/v0.3.0, extract it, run `./archray-0.3.0/install.sh . claude`, then follow `.archray/SKILL.md` to generate `.archray/graph.json`, build the HTML, and show me how to use `/archray`.
 
-Open a new AI session and type `/archray`. For Cursor, Antigravity, Pi or Codex, replace `claude` with `cursor`, `antigravity`, `pi` or `codex`.
+Open a new AI session:
+
+- **Claude Code / Cursor / Antigravity / Pi**: type `/archray`. Pi presets are `/archray-frontend` etc.; `/skill:archray` also works.
+- **Codex**: type `$archray` or `/skills`; there is no `/archray` slash command.
+
+For Cursor, Antigravity, Pi or Codex, replace `claude` with the matching value in the install command. **The v0.3.0 release only carries Claude/Cursor/Antigravity layouts; Pi/Codex need v0.4.0 or a source install.**
 
 ## Quick start (in your AI)
 
@@ -124,6 +129,9 @@ rm -rf /path/to/your-repo/.claude/skills/archray /path/to/your-repo/.archray
 # .archray/tool is inside .archray, so the vendored CLI is removed too
 # Cursor: .cursor/commands/archray*.md and .cursor/rules/archray.mdc
 # Antigravity: .agent/commands/archray*.md and .agent/skills/archray
+# Pi: .pi/prompts/archray.md, .pi/prompts/archray-*.md and .agents/skills/archray
+# Codex: .agents/skills/archray (shared with Pi; delete only the ArchRay directory)
+# Check .pi/prompts and .agents/skills for other tools before deleting
 ```
 
 `archray version` prints the bundle version; `archray doctor` checks the viewer template, schemas, skill, commands and knowledge base. Installed commands use the relative `.archray/tool/cli/bin/archray.mjs`, so they keep working after the download is removed or the repository moves.

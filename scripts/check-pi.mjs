@@ -41,7 +41,7 @@ try {
   });
 
   const names = new Set(commands.map((command) => command.name));
-  for (const name of ['archray', 'archray-frontend', 'archray-data', 'skill:archray']) {
+  for (const name of ['archray', 'archray-backend', 'archray-data', 'archray-frontend', 'archray-full', 'archray-network', 'archray-security', 'skill:archray']) {
     if (!names.has(name)) throw new Error(`Pi did not discover ${name}`);
   }
   console.log(`Pi host check passed (${commands.filter((c) => c.name.startsWith('archray') || c.name === 'skill:archray').length} commands)`);
