@@ -69,15 +69,9 @@ p-limit 没有 client/edge/security 层，`frontend`、`network`、`security` �
 - 整图 PNG 2x 有内容；录屏引导可用；`file://` 离线可开；320px 无横向溢出。
 - 图中 Node/JavaScript/TypeScript 品牌图标正常，未知 `yocto-queue` 回退到队列图标。
 
-## 发布决定
+## 发布决定（最终）
 
-**暂不发布 v0.3.0 的公开 Release。** 先处理：
-
-1. T1（文案）与 T2（预设回退）——直接影响首次使用，修复成本低。
-2. T4（安装位置）——决定 A 或 B；这是“装完能用”的核心，不建议带缺口发布。
-3. T3（层名优先级）——产品决策，建议改成图名优先；T5/T6 可写入已知限制。
-
-修复后重跑本试用（至少 T1/T2/T4 的复现路径），按门禁送代码审计复审，PASS 后再创建 GitHub Release。
+首轮试用后曾暂缓发布。T1–T4 已修复，R3/R4 的安装器问题（符号链接、失败重装、gitignore 换行、ignore 链接、替换失败回滚）也已修复；**R5 复审 PASS，P0/P1/P2 = 0**。结论：**v0.3.0 为发布候选**，剩余动作是创建 GitHub Release 并上传 `archray-0.3.0.tgz`；T5（全栈预设对库项目）与 T6（320px 层名发现性）写入 Release Notes 作为已知限制。
 
 ## 复现材料
 
