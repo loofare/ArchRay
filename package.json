@@ -1,10 +1,11 @@
 {
   "name": "archray",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "description": "AI-driven living system architecture visual engine (AI Skill + zero-runtime-dependency 2.5D isometric interactive sandbox)",
   "private": true,
   "type": "module",
   "workspaces": [
+    "core",
     "viewer"
   ],
   "bin": {
@@ -12,10 +13,13 @@
   },
   "scripts": {
     "dev": "npm --workspace=viewer run dev",
+    "test": "npm --workspace=core run test",
+    "typecheck": "npm --workspace=core run typecheck && npm --workspace=viewer run typecheck",
+    "gen:schema": "tsx scripts/gen-schema.ts",
     "build:viewer": "npm --workspace=viewer run build",
-    "build": "npm run build:viewer",
-    "init:skill": "node ./cli/bin/archray.mjs init",
-    "self-analyze": "node ./cli/bin/archray.mjs build --input .archray/graph.json --output .archray/index.html"
+    "build:cli": "tsx scripts/build-cli.ts",
+    "build": "npm run gen:schema && npm run build:viewer && npm run build:cli",
+    "self-analyze": "node ./cli/dist/archray.mjs build .archray/graph.json --no-open"
   },
   "keywords": [
     "architecture",
@@ -25,5 +29,9 @@
     "elkjs",
     "c4-model"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "esbuild": "^0.25.0"
+  }
 }

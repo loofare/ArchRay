@@ -1,0 +1,2187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archray.dev/schema/v2/graph.json",
+  "title": "ArchRay Graph v2",
+  "description": "Semantic architecture graph produced by an AI agent (and archray scan) and rendered by the ArchRay engine. Contains NO coordinates.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "meta",
+    "nodes",
+    "edges"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "2.0",
+      "type": "string"
+    },
+    "meta": {
+      "type": "object",
+      "required": [
+        "name",
+        "locales",
+        "generatedAt"
+      ],
+      "properties": {
+        "name": {
+          "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+              "type": "object",
+              "patternProperties": {
+                "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        },
+        "description": {
+          "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+              "type": "object",
+              "patternProperties": {
+                "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        },
+        "locales": {
+          "minItems": 1,
+          "description": "Locales present in this graph. First = default if defaultLocale omitted.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "defaultLocale": {
+          "type": "string"
+        },
+        "generatedAt": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "generator": {
+          "description": "e.g. \"claude-code/archray-skill@2\"",
+          "type": "string"
+        },
+        "repo": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            },
+            "commit": {
+              "type": "string"
+            },
+            "root": {
+              "type": "string"
+            }
+          }
+        },
+        "stats": {
+          "type": "object",
+          "patternProperties": {
+            "^(.*)$": {
+              "type": "object",
+              "required": [
+                "value",
+                "origin"
+              ],
+              "properties": {
+                "value": {
+                  "type": "number"
+                },
+                "unit": {
+                  "type": "string"
+                },
+                "origin": {
+                  "description": "measured = produced by a tool (archray scan, cloc...). estimated = AI judgement.",
+                  "anyOf": [
+                    {
+                      "const": "measured",
+                      "type": "string"
+                    },
+                    {
+                      "const": "estimated",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "layers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "order"
+        ],
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+            "description": "Stable kebab/slug id. Never translated.",
+            "type": "string"
+          },
+          "name": {
+            "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                "type": "object",
+                "patternProperties": {
+                  "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          },
+          "order": {
+            "minimum": 0,
+            "description": "0 = user-facing / top",
+            "type": "integer"
+          },
+          "description": {
+            "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                "type": "object",
+                "patternProperties": {
+                  "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          },
+          "color": {
+            "pattern": "^#[0-9A-Fa-f]{6}$",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "nodes": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "kind"
+        ],
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+            "description": "Stable kebab/slug id. Never translated.",
+            "type": "string"
+          },
+          "name": {
+            "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                "type": "object",
+                "patternProperties": {
+                  "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          },
+          "kind": {
+            "minLength": 1,
+            "description": "Open. Known: client, cli, gateway, service, worker, function, library, module, database, cache, queue, storage, search, external-api, ai-model, config, group",
+            "type": "string"
+          },
+          "parent": {
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+            "description": "Stable kebab/slug id. Never translated.",
+            "type": "string"
+          },
+          "layer": {
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+            "description": "Stable kebab/slug id. Never translated.",
+            "type": "string"
+          },
+          "summary": {
+            "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                "type": "object",
+                "patternProperties": {
+                  "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          },
+          "description": {
+            "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                "type": "object",
+                "patternProperties": {
+                  "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          },
+          "lifecycle": {
+            "description": "Does it exist? Orthogonal to health.",
+            "anyOf": [
+              {
+                "const": "active",
+                "type": "string"
+              },
+              {
+                "const": "planned",
+                "type": "string"
+              },
+              {
+                "const": "deprecated",
+                "type": "string"
+              }
+            ]
+          },
+          "health": {
+            "type": "object",
+            "required": [
+              "level"
+            ],
+            "properties": {
+              "level": {
+                "anyOf": [
+                  {
+                    "const": "good",
+                    "type": "string"
+                  },
+                  {
+                    "const": "warn",
+                    "type": "string"
+                  },
+                  {
+                    "const": "critical",
+                    "type": "string"
+                  },
+                  {
+                    "const": "unknown",
+                    "type": "string"
+                  }
+                ]
+              },
+              "findings": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "type",
+                    "severity",
+                    "text"
+                  ],
+                  "properties": {
+                    "type": {
+                      "description": "bottleneck | complexity | coupling | security | dead-code | ... (open)",
+                      "type": "string"
+                    },
+                    "severity": {
+                      "anyOf": [
+                        {
+                          "const": "info",
+                          "type": "string"
+                        },
+                        {
+                          "const": "warn",
+                          "type": "string"
+                        },
+                        {
+                          "const": "critical",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "text": {
+                      "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                          "type": "object",
+                          "patternProperties": {
+                            "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "evidence": {
+                      "description": "Repo-relative paths (optionally path:line).",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "techStack": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sourcePaths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "metrics": {
+            "type": "object",
+            "patternProperties": {
+              "^(.*)$": {
+                "type": "object",
+                "required": [
+                  "value",
+                  "origin"
+                ],
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  },
+                  "unit": {
+                    "type": "string"
+                  },
+                  "origin": {
+                    "description": "measured = produced by a tool (archray scan, cloc...). estimated = AI judgement.",
+                    "anyOf": [
+                      {
+                        "const": "measured",
+                        "type": "string"
+                      },
+                      {
+                        "const": "estimated",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "contracts": {
+            "type": "object",
+            "properties": {
+              "exposes": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "consumes": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "alternatives": {
+            "type": "object",
+            "required": [
+              "replaceability",
+              "options"
+            ],
+            "properties": {
+              "replaceability": {
+                "anyOf": [
+                  {
+                    "const": "low",
+                    "type": "string"
+                  },
+                  {
+                    "const": "medium",
+                    "type": "string"
+                  },
+                  {
+                    "const": "high",
+                    "type": "string"
+                  }
+                ]
+              },
+              "rationale": {
+                "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                    "type": "object",
+                    "patternProperties": {
+                      "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                ]
+              },
+              "lockIn": {
+                "description": "What couples this node to its current implementation.",
+                "type": "array",
+                "items": {
+                  "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                      "type": "object",
+                      "patternProperties": {
+                        "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "options": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "name",
+                    "type",
+                    "summary"
+                  ],
+                  "properties": {
+                    "id": {
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+                      "description": "Stable kebab/slug id. Never translated.",
+                      "type": "string"
+                    },
+                    "name": {
+                      "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                          "type": "object",
+                          "patternProperties": {
+                            "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "type": {
+                      "description": "drop-in: same contract swap; managed: SaaS/cloud service; re-architect: change shape; remove: delete it.",
+                      "anyOf": [
+                        {
+                          "const": "drop-in",
+                          "type": "string"
+                        },
+                        {
+                          "const": "managed",
+                          "type": "string"
+                        },
+                        {
+                          "const": "re-architect",
+                          "type": "string"
+                        },
+                        {
+                          "const": "remove",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "summary": {
+                      "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                          "type": "object",
+                          "patternProperties": {
+                            "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "pros": {
+                      "type": "array",
+                      "items": {
+                        "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                            "type": "object",
+                            "patternProperties": {
+                              "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "cons": {
+                      "type": "array",
+                      "items": {
+                        "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                            "type": "object",
+                            "patternProperties": {
+                              "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "effort": {
+                      "anyOf": [
+                        {
+                          "const": "S",
+                          "type": "string"
+                        },
+                        {
+                          "const": "M",
+                          "type": "string"
+                        },
+                        {
+                          "const": "L",
+                          "type": "string"
+                        },
+                        {
+                          "const": "XL",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "risk": {
+                      "anyOf": [
+                        {
+                          "const": "low",
+                          "type": "string"
+                        },
+                        {
+                          "const": "medium",
+                          "type": "string"
+                        },
+                        {
+                          "const": "high",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "techStack": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "scenario": {
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+                      "description": "Stable kebab/slug id. Never translated.",
+                      "type": "string"
+                    },
+                    "references": {
+                      "type": "array",
+                      "items": {
+                        "description": "URL",
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "extensions": {
+            "type": "object",
+            "patternProperties": {
+              "^(.*)$": {}
+            }
+          }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "source",
+          "target"
+        ],
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+            "description": "Stable kebab/slug id. Never translated.",
+            "type": "string"
+          },
+          "source": {
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+            "description": "Stable kebab/slug id. Never translated.",
+            "type": "string"
+          },
+          "target": {
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+            "description": "Stable kebab/slug id. Never translated.",
+            "type": "string"
+          },
+          "label": {
+            "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                "type": "object",
+                "patternProperties": {
+                  "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          },
+          "protocol": {
+            "description": "Open. Known: http, grpc, graphql, ws, sse, amqp, kafka, sql, redis, ipc, import, fs, llm, event",
+            "type": "string"
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "const": "sync",
+                "type": "string"
+              },
+              {
+                "const": "async",
+                "type": "string"
+              }
+            ]
+          },
+          "lifecycle": {
+            "description": "Does it exist? Orthogonal to health.",
+            "anyOf": [
+              {
+                "const": "active",
+                "type": "string"
+              },
+              {
+                "const": "planned",
+                "type": "string"
+              },
+              {
+                "const": "deprecated",
+                "type": "string"
+              }
+            ]
+          },
+          "weight": {
+            "anyOf": [
+              {
+                "const": "low",
+                "type": "string"
+              },
+              {
+                "const": "medium",
+                "type": "string"
+              },
+              {
+                "const": "high",
+                "type": "string"
+              }
+            ]
+          },
+          "extensions": {
+            "type": "object",
+            "patternProperties": {
+              "^(.*)$": {}
+            }
+          }
+        }
+      }
+    },
+    "flows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "steps"
+        ],
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+            "description": "Stable kebab/slug id. Never translated.",
+            "type": "string"
+          },
+          "name": {
+            "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                "type": "object",
+                "patternProperties": {
+                  "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          },
+          "description": {
+            "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                "type": "object",
+                "patternProperties": {
+                  "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          },
+          "category": {
+            "description": "core | async | ops | ... (open)",
+            "type": "string"
+          },
+          "steps": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "from",
+                "to",
+                "action"
+              ],
+              "properties": {
+                "from": {
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+                  "description": "Stable kebab/slug id. Never translated.",
+                  "type": "string"
+                },
+                "to": {
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+                  "description": "Stable kebab/slug id. Never translated.",
+                  "type": "string"
+                },
+                "edge": {
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+                  "description": "Stable kebab/slug id. Never translated.",
+                  "type": "string"
+                },
+                "action": {
+                  "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                      "type": "object",
+                      "patternProperties": {
+                        "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "payload": {
+                  "type": "string"
+                },
+                "latencyMs": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "scenarios": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "patch"
+        ],
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+            "description": "Stable kebab/slug id. Never translated.",
+            "type": "string"
+          },
+          "name": {
+            "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                "type": "object",
+                "patternProperties": {
+                  "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          },
+          "description": {
+            "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                "type": "object",
+                "patternProperties": {
+                  "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          },
+          "kind": {
+            "anyOf": [
+              {
+                "const": "replacement",
+                "type": "string"
+              },
+              {
+                "const": "evolution",
+                "type": "string"
+              },
+              {
+                "const": "removal",
+                "type": "string"
+              }
+            ]
+          },
+          "patch": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "op",
+                    "node"
+                  ],
+                  "properties": {
+                    "op": {
+                      "const": "addNode",
+                      "type": "string"
+                    },
+                    "node": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "name",
+                        "kind"
+                      ],
+                      "properties": {
+                        "id": {
+                          "minLength": 1,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+                          "description": "Stable kebab/slug id. Never translated.",
+                          "type": "string"
+                        },
+                        "name": {
+                          "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                              "type": "object",
+                              "patternProperties": {
+                                "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "kind": {
+                          "minLength": 1,
+                          "description": "Open. Known: client, cli, gateway, service, worker, function, library, module, database, cache, queue, storage, search, external-api, ai-model, config, group",
+                          "type": "string"
+                        },
+                        "parent": {
+                          "minLength": 1,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+                          "description": "Stable kebab/slug id. Never translated.",
+                          "type": "string"
+                        },
+                        "layer": {
+                          "minLength": 1,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+                          "description": "Stable kebab/slug id. Never translated.",
+                          "type": "string"
+                        },
+                        "summary": {
+                          "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                              "type": "object",
+                              "patternProperties": {
+                                "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "description": {
+                          "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                              "type": "object",
+                              "patternProperties": {
+                                "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "lifecycle": {
+                          "description": "Does it exist? Orthogonal to health.",
+                          "anyOf": [
+                            {
+                              "const": "active",
+                              "type": "string"
+                            },
+                            {
+                              "const": "planned",
+                              "type": "string"
+                            },
+                            {
+                              "const": "deprecated",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "health": {
+                          "type": "object",
+                          "required": [
+                            "level"
+                          ],
+                          "properties": {
+                            "level": {
+                              "anyOf": [
+                                {
+                                  "const": "good",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "warn",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "critical",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "unknown",
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "findings": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "required": [
+                                  "type",
+                                  "severity",
+                                  "text"
+                                ],
+                                "properties": {
+                                  "type": {
+                                    "description": "bottleneck | complexity | coupling | security | dead-code | ... (open)",
+                                    "type": "string"
+                                  },
+                                  "severity": {
+                                    "anyOf": [
+                                      {
+                                        "const": "info",
+                                        "type": "string"
+                                      },
+                                      {
+                                        "const": "warn",
+                                        "type": "string"
+                                      },
+                                      {
+                                        "const": "critical",
+                                        "type": "string"
+                                      }
+                                    ]
+                                  },
+                                  "text": {
+                                    "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                                        "type": "object",
+                                        "patternProperties": {
+                                          "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                                            "type": "string"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "evidence": {
+                                    "description": "Repo-relative paths (optionally path:line).",
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "techStack": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "sourcePaths": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "tags": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "metrics": {
+                          "type": "object",
+                          "patternProperties": {
+                            "^(.*)$": {
+                              "type": "object",
+                              "required": [
+                                "value",
+                                "origin"
+                              ],
+                              "properties": {
+                                "value": {
+                                  "type": "number"
+                                },
+                                "unit": {
+                                  "type": "string"
+                                },
+                                "origin": {
+                                  "description": "measured = produced by a tool (archray scan, cloc...). estimated = AI judgement.",
+                                  "anyOf": [
+                                    {
+                                      "const": "measured",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "const": "estimated",
+                                      "type": "string"
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "contracts": {
+                          "type": "object",
+                          "properties": {
+                            "exposes": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "consumes": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        },
+                        "alternatives": {
+                          "type": "object",
+                          "required": [
+                            "replaceability",
+                            "options"
+                          ],
+                          "properties": {
+                            "replaceability": {
+                              "anyOf": [
+                                {
+                                  "const": "low",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "medium",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "high",
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "rationale": {
+                              "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            "lockIn": {
+                              "description": "What couples this node to its current implementation.",
+                              "type": "array",
+                              "items": {
+                                "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                                    "type": "object",
+                                    "patternProperties": {
+                                      "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "options": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "required": [
+                                  "id",
+                                  "name",
+                                  "type",
+                                  "summary"
+                                ],
+                                "properties": {
+                                  "id": {
+                                    "minLength": 1,
+                                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+                                    "description": "Stable kebab/slug id. Never translated.",
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                                        "type": "object",
+                                        "patternProperties": {
+                                          "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                                            "type": "string"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "type": {
+                                    "description": "drop-in: same contract swap; managed: SaaS/cloud service; re-architect: change shape; remove: delete it.",
+                                    "anyOf": [
+                                      {
+                                        "const": "drop-in",
+                                        "type": "string"
+                                      },
+                                      {
+                                        "const": "managed",
+                                        "type": "string"
+                                      },
+                                      {
+                                        "const": "re-architect",
+                                        "type": "string"
+                                      },
+                                      {
+                                        "const": "remove",
+                                        "type": "string"
+                                      }
+                                    ]
+                                  },
+                                  "summary": {
+                                    "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                                        "type": "object",
+                                        "patternProperties": {
+                                          "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                                            "type": "string"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "pros": {
+                                    "type": "array",
+                                    "items": {
+                                      "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                                      "anyOf": [
+                                        {
+                                          "type": "string"
+                                        },
+                                        {
+                                          "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                                          "type": "object",
+                                          "patternProperties": {
+                                            "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                                              "type": "string"
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "cons": {
+                                    "type": "array",
+                                    "items": {
+                                      "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                                      "anyOf": [
+                                        {
+                                          "type": "string"
+                                        },
+                                        {
+                                          "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                                          "type": "object",
+                                          "patternProperties": {
+                                            "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                                              "type": "string"
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "effort": {
+                                    "anyOf": [
+                                      {
+                                        "const": "S",
+                                        "type": "string"
+                                      },
+                                      {
+                                        "const": "M",
+                                        "type": "string"
+                                      },
+                                      {
+                                        "const": "L",
+                                        "type": "string"
+                                      },
+                                      {
+                                        "const": "XL",
+                                        "type": "string"
+                                      }
+                                    ]
+                                  },
+                                  "risk": {
+                                    "anyOf": [
+                                      {
+                                        "const": "low",
+                                        "type": "string"
+                                      },
+                                      {
+                                        "const": "medium",
+                                        "type": "string"
+                                      },
+                                      {
+                                        "const": "high",
+                                        "type": "string"
+                                      }
+                                    ]
+                                  },
+                                  "techStack": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "scenario": {
+                                    "minLength": 1,
+                                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+                                    "description": "Stable kebab/slug id. Never translated.",
+                                    "type": "string"
+                                  },
+                                  "references": {
+                                    "type": "array",
+                                    "items": {
+                                      "description": "URL",
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "extensions": {
+                          "type": "object",
+                          "patternProperties": {
+                            "^(.*)$": {}
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "op",
+                    "id"
+                  ],
+                  "properties": {
+                    "op": {
+                      "const": "removeNode",
+                      "type": "string"
+                    },
+                    "id": {
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+                      "description": "Stable kebab/slug id. Never translated.",
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "op",
+                    "id",
+                    "set"
+                  ],
+                  "properties": {
+                    "op": {
+                      "const": "updateNode",
+                      "type": "string"
+                    },
+                    "id": {
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+                      "description": "Stable kebab/slug id. Never translated.",
+                      "type": "string"
+                    },
+                    "set": {
+                      "type": "object",
+                      "patternProperties": {
+                        "^(.*)$": {}
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "op",
+                    "id",
+                    "with"
+                  ],
+                  "properties": {
+                    "op": {
+                      "const": "replaceNode",
+                      "type": "string"
+                    },
+                    "id": {
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+                      "description": "Stable kebab/slug id. Never translated.",
+                      "type": "string"
+                    },
+                    "with": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "name",
+                        "kind"
+                      ],
+                      "properties": {
+                        "id": {
+                          "minLength": 1,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+                          "description": "Stable kebab/slug id. Never translated.",
+                          "type": "string"
+                        },
+                        "name": {
+                          "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                              "type": "object",
+                              "patternProperties": {
+                                "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "kind": {
+                          "minLength": 1,
+                          "description": "Open. Known: client, cli, gateway, service, worker, function, library, module, database, cache, queue, storage, search, external-api, ai-model, config, group",
+                          "type": "string"
+                        },
+                        "parent": {
+                          "minLength": 1,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+                          "description": "Stable kebab/slug id. Never translated.",
+                          "type": "string"
+                        },
+                        "layer": {
+                          "minLength": 1,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+                          "description": "Stable kebab/slug id. Never translated.",
+                          "type": "string"
+                        },
+                        "summary": {
+                          "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                              "type": "object",
+                              "patternProperties": {
+                                "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "description": {
+                          "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                              "type": "object",
+                              "patternProperties": {
+                                "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "lifecycle": {
+                          "description": "Does it exist? Orthogonal to health.",
+                          "anyOf": [
+                            {
+                              "const": "active",
+                              "type": "string"
+                            },
+                            {
+                              "const": "planned",
+                              "type": "string"
+                            },
+                            {
+                              "const": "deprecated",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "health": {
+                          "type": "object",
+                          "required": [
+                            "level"
+                          ],
+                          "properties": {
+                            "level": {
+                              "anyOf": [
+                                {
+                                  "const": "good",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "warn",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "critical",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "unknown",
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "findings": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "required": [
+                                  "type",
+                                  "severity",
+                                  "text"
+                                ],
+                                "properties": {
+                                  "type": {
+                                    "description": "bottleneck | complexity | coupling | security | dead-code | ... (open)",
+                                    "type": "string"
+                                  },
+                                  "severity": {
+                                    "anyOf": [
+                                      {
+                                        "const": "info",
+                                        "type": "string"
+                                      },
+                                      {
+                                        "const": "warn",
+                                        "type": "string"
+                                      },
+                                      {
+                                        "const": "critical",
+                                        "type": "string"
+                                      }
+                                    ]
+                                  },
+                                  "text": {
+                                    "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                                        "type": "object",
+                                        "patternProperties": {
+                                          "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                                            "type": "string"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "evidence": {
+                                    "description": "Repo-relative paths (optionally path:line).",
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "techStack": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "sourcePaths": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "tags": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "metrics": {
+                          "type": "object",
+                          "patternProperties": {
+                            "^(.*)$": {
+                              "type": "object",
+                              "required": [
+                                "value",
+                                "origin"
+                              ],
+                              "properties": {
+                                "value": {
+                                  "type": "number"
+                                },
+                                "unit": {
+                                  "type": "string"
+                                },
+                                "origin": {
+                                  "description": "measured = produced by a tool (archray scan, cloc...). estimated = AI judgement.",
+                                  "anyOf": [
+                                    {
+                                      "const": "measured",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "const": "estimated",
+                                      "type": "string"
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "contracts": {
+                          "type": "object",
+                          "properties": {
+                            "exposes": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "consumes": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        },
+                        "alternatives": {
+                          "type": "object",
+                          "required": [
+                            "replaceability",
+                            "options"
+                          ],
+                          "properties": {
+                            "replaceability": {
+                              "anyOf": [
+                                {
+                                  "const": "low",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "medium",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "high",
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "rationale": {
+                              "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            "lockIn": {
+                              "description": "What couples this node to its current implementation.",
+                              "type": "array",
+                              "items": {
+                                "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                                    "type": "object",
+                                    "patternProperties": {
+                                      "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "options": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "required": [
+                                  "id",
+                                  "name",
+                                  "type",
+                                  "summary"
+                                ],
+                                "properties": {
+                                  "id": {
+                                    "minLength": 1,
+                                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+                                    "description": "Stable kebab/slug id. Never translated.",
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                                        "type": "object",
+                                        "patternProperties": {
+                                          "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                                            "type": "string"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "type": {
+                                    "description": "drop-in: same contract swap; managed: SaaS/cloud service; re-architect: change shape; remove: delete it.",
+                                    "anyOf": [
+                                      {
+                                        "const": "drop-in",
+                                        "type": "string"
+                                      },
+                                      {
+                                        "const": "managed",
+                                        "type": "string"
+                                      },
+                                      {
+                                        "const": "re-architect",
+                                        "type": "string"
+                                      },
+                                      {
+                                        "const": "remove",
+                                        "type": "string"
+                                      }
+                                    ]
+                                  },
+                                  "summary": {
+                                    "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                                        "type": "object",
+                                        "patternProperties": {
+                                          "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                                            "type": "string"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "pros": {
+                                    "type": "array",
+                                    "items": {
+                                      "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                                      "anyOf": [
+                                        {
+                                          "type": "string"
+                                        },
+                                        {
+                                          "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                                          "type": "object",
+                                          "patternProperties": {
+                                            "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                                              "type": "string"
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "cons": {
+                                    "type": "array",
+                                    "items": {
+                                      "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                                      "anyOf": [
+                                        {
+                                          "type": "string"
+                                        },
+                                        {
+                                          "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                                          "type": "object",
+                                          "patternProperties": {
+                                            "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                                              "type": "string"
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "effort": {
+                                    "anyOf": [
+                                      {
+                                        "const": "S",
+                                        "type": "string"
+                                      },
+                                      {
+                                        "const": "M",
+                                        "type": "string"
+                                      },
+                                      {
+                                        "const": "L",
+                                        "type": "string"
+                                      },
+                                      {
+                                        "const": "XL",
+                                        "type": "string"
+                                      }
+                                    ]
+                                  },
+                                  "risk": {
+                                    "anyOf": [
+                                      {
+                                        "const": "low",
+                                        "type": "string"
+                                      },
+                                      {
+                                        "const": "medium",
+                                        "type": "string"
+                                      },
+                                      {
+                                        "const": "high",
+                                        "type": "string"
+                                      }
+                                    ]
+                                  },
+                                  "techStack": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "scenario": {
+                                    "minLength": 1,
+                                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+                                    "description": "Stable kebab/slug id. Never translated.",
+                                    "type": "string"
+                                  },
+                                  "references": {
+                                    "type": "array",
+                                    "items": {
+                                      "description": "URL",
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "extensions": {
+                          "type": "object",
+                          "patternProperties": {
+                            "^(.*)$": {}
+                          }
+                        }
+                      }
+                    },
+                    "description": {
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "op",
+                    "edge"
+                  ],
+                  "properties": {
+                    "op": {
+                      "const": "addEdge",
+                      "type": "string"
+                    },
+                    "edge": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "source",
+                        "target"
+                      ],
+                      "properties": {
+                        "id": {
+                          "minLength": 1,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+                          "description": "Stable kebab/slug id. Never translated.",
+                          "type": "string"
+                        },
+                        "source": {
+                          "minLength": 1,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+                          "description": "Stable kebab/slug id. Never translated.",
+                          "type": "string"
+                        },
+                        "target": {
+                          "minLength": 1,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+                          "description": "Stable kebab/slug id. Never translated.",
+                          "type": "string"
+                        },
+                        "label": {
+                          "description": "Plain string (in meta.defaultLocale) or per-locale map.",
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "description": "Map of BCP-47 locale -> text, e.g. { \"zh-CN\": \"订单服务\", \"en\": \"Order Service\" }",
+                              "type": "object",
+                              "patternProperties": {
+                                "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "protocol": {
+                          "description": "Open. Known: http, grpc, graphql, ws, sse, amqp, kafka, sql, redis, ipc, import, fs, llm, event",
+                          "type": "string"
+                        },
+                        "mode": {
+                          "anyOf": [
+                            {
+                              "const": "sync",
+                              "type": "string"
+                            },
+                            {
+                              "const": "async",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "lifecycle": {
+                          "description": "Does it exist? Orthogonal to health.",
+                          "anyOf": [
+                            {
+                              "const": "active",
+                              "type": "string"
+                            },
+                            {
+                              "const": "planned",
+                              "type": "string"
+                            },
+                            {
+                              "const": "deprecated",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "weight": {
+                          "anyOf": [
+                            {
+                              "const": "low",
+                              "type": "string"
+                            },
+                            {
+                              "const": "medium",
+                              "type": "string"
+                            },
+                            {
+                              "const": "high",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "extensions": {
+                          "type": "object",
+                          "patternProperties": {
+                            "^(.*)$": {}
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "op",
+                    "id"
+                  ],
+                  "properties": {
+                    "op": {
+                      "const": "removeEdge",
+                      "type": "string"
+                    },
+                    "id": {
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+                      "description": "Stable kebab/slug id. Never translated.",
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "extensions": {
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {}
+      }
+    }
+  }
+}

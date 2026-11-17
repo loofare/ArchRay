@@ -1,0 +1,915 @@
+{
+  "$schema": "../schema/graph.schema.json",
+  "schemaVersion": "2.0",
+  "meta": {
+    "name": {
+      "zh-CN": "鲜集电商平台",
+      "en": "FreshMart Commerce"
+    },
+    "description": {
+      "zh-CN": "示例：模块化单体 + 异步任务 + AI 推荐",
+      "en": "Sample: modular monolith + async jobs + AI recs"
+    },
+    "locales": [
+      "zh-CN",
+      "en"
+    ],
+    "defaultLocale": "zh-CN",
+    "generatedAt": "2026-11-17T04:00:00Z",
+    "generator": "hand-written fixture"
+  },
+  "layers": [
+    {
+      "id": "edge",
+      "name": {
+        "zh-CN": "接入层",
+        "en": "Edge & Clients"
+      },
+      "order": 0,
+      "color": "#38BDF8"
+    },
+    {
+      "id": "app",
+      "name": {
+        "zh-CN": "应用服务层",
+        "en": "Application Services"
+      },
+      "order": 1,
+      "color": "#818CF8"
+    },
+    {
+      "id": "async",
+      "name": {
+        "zh-CN": "异步与智能层",
+        "en": "Async & AI"
+      },
+      "order": 2,
+      "color": "#C084FC"
+    },
+    {
+      "id": "data",
+      "name": {
+        "zh-CN": "数据层",
+        "en": "Data & Storage"
+      },
+      "order": 3,
+      "color": "#34D399"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "web",
+      "name": {
+        "zh-CN": "Web 控制台",
+        "en": "Web Console"
+      },
+      "kind": "client",
+      "layer": "edge",
+      "summary": {
+        "zh-CN": "面向商家的管理后台",
+        "en": "Merchant dashboard"
+      },
+      "health": {
+        "level": "good"
+      },
+      "techStack": [
+        "Next.js 14",
+        "React"
+      ],
+      "sourcePaths": [
+        "apps/web/src/app/layout.tsx"
+      ],
+      "metrics": {
+        "loc": {
+          "value": 18400,
+          "origin": "measured"
+        }
+      }
+    },
+    {
+      "id": "mobile",
+      "name": {
+        "zh-CN": "移动端 App",
+        "en": "Mobile App"
+      },
+      "kind": "client",
+      "layer": "edge",
+      "summary": {
+        "zh-CN": "顾客下单",
+        "en": "Customer ordering"
+      },
+      "health": {
+        "level": "good"
+      },
+      "techStack": [
+        "React Native"
+      ],
+      "sourcePaths": [
+        "apps/mobile/App.tsx"
+      ]
+    },
+    {
+      "id": "gateway",
+      "name": {
+        "zh-CN": "API 网关",
+        "en": "API Gateway"
+      },
+      "kind": "gateway",
+      "layer": "edge",
+      "health": {
+        "level": "good"
+      },
+      "techStack": [
+        "Kong"
+      ],
+      "sourcePaths": [
+        "infra/kong/kong.yml"
+      ],
+      "alternatives": {
+        "replaceability": "high",
+        "rationale": {
+          "zh-CN": "只做路由和鉴权透传，配置即代码，迁移成本低",
+          "en": "Routing + auth passthrough only; config-as-code"
+        },
+        "options": [
+          {
+            "id": "apisix",
+            "name": "Apache APISIX",
+            "type": "drop-in",
+            "summary": {
+              "zh-CN": "同类开源网关，性能更高，插件生态活跃",
+              "en": "Similar OSS gateway, faster, active plugins"
+            },
+            "effort": "S",
+            "risk": "low",
+            "pros": [
+              {
+                "zh-CN": "动态配置无需重启",
+                "en": "Hot reload config"
+              }
+            ],
+            "cons": [
+              {
+                "zh-CN": "团队需学习新插件体系",
+                "en": "New plugin model"
+              }
+            ]
+          },
+          {
+            "id": "aws-apigw",
+            "name": "AWS API Gateway",
+            "type": "managed",
+            "summary": {
+              "zh-CN": "托管网关，免运维",
+              "en": "Managed, zero ops"
+            },
+            "effort": "M",
+            "risk": "medium",
+            "cons": [
+              {
+                "zh-CN": "云厂商锁定",
+                "en": "Vendor lock-in"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "backend",
+      "name": {
+        "zh-CN": "后端单体",
+        "en": "Backend Monolith"
+      },
+      "kind": "group",
+      "layer": "app",
+      "summary": {
+        "zh-CN": "按领域拆分的模块化单体",
+        "en": "Modular monolith by domain"
+      },
+      "health": {
+        "level": "good"
+      },
+      "techStack": [
+        "NestJS",
+        "TypeScript"
+      ],
+      "sourcePaths": [
+        "apps/api/src/main.ts"
+      ]
+    },
+    {
+      "id": "auth",
+      "name": {
+        "zh-CN": "认证授权",
+        "en": "Auth"
+      },
+      "kind": "module",
+      "parent": "backend",
+      "health": {
+        "level": "good"
+      },
+      "techStack": [
+        "Passport",
+        "JWT"
+      ],
+      "sourcePaths": [
+        "apps/api/src/auth/auth.module.ts"
+      ],
+      "alternatives": {
+        "replaceability": "high",
+        "rationale": {
+          "zh-CN": "标准 OIDC 流程，自研价值低",
+          "en": "Standard OIDC; little value in custom code"
+        },
+        "lockIn": [
+          {
+            "zh-CN": "用户表与会话表结构耦合",
+            "en": "Coupled to user/session tables"
+          }
+        ],
+        "options": [
+          {
+            "id": "clerk",
+            "name": "Clerk",
+            "type": "managed",
+            "summary": {
+              "zh-CN": "托管身份服务，含多因子与社交登录",
+              "en": "Hosted identity with MFA & social login"
+            },
+            "effort": "M",
+            "risk": "medium",
+            "scenario": "swap-auth"
+          },
+          {
+            "id": "keycloak",
+            "name": "Keycloak",
+            "type": "drop-in",
+            "summary": {
+              "zh-CN": "自托管开源 IAM",
+              "en": "Self-hosted OSS IAM"
+            },
+            "effort": "L",
+            "risk": "medium"
+          }
+        ]
+      }
+    },
+    {
+      "id": "order",
+      "name": {
+        "zh-CN": "订单服务",
+        "en": "Order Service"
+      },
+      "kind": "module",
+      "parent": "backend",
+      "health": {
+        "level": "critical",
+        "findings": [
+          {
+            "type": "complexity",
+            "severity": "critical",
+            "text": {
+              "zh-CN": "order.service.ts 6200 行，同步调用库存与支付",
+              "en": "6.2k LOC; sync calls to stock & payment"
+            },
+            "evidence": [
+              "apps/api/src/order/order.service.ts"
+            ]
+          }
+        ]
+      },
+      "techStack": [
+        "NestJS",
+        "TypeORM"
+      ],
+      "sourcePaths": [
+        "apps/api/src/order/order.service.ts"
+      ],
+      "metrics": {
+        "loc": {
+          "value": 6200,
+          "origin": "measured"
+        },
+        "complexity": {
+          "value": 78,
+          "origin": "estimated"
+        }
+      },
+      "alternatives": {
+        "replaceability": "low",
+        "rationale": {
+          "zh-CN": "核心业务逻辑，承载差异化竞争力",
+          "en": "Core domain logic; differentiating"
+        },
+        "options": [
+          {
+            "id": "split-order",
+            "name": {
+              "zh-CN": "拆分为独立订单微服务",
+              "en": "Extract as microservice"
+            },
+            "type": "re-architect",
+            "summary": {
+              "zh-CN": "以事件驱动解耦库存与支付",
+              "en": "Decouple stock/payment via events"
+            },
+            "effort": "XL",
+            "risk": "high"
+          }
+        ]
+      }
+    },
+    {
+      "id": "payment",
+      "name": {
+        "zh-CN": "支付适配",
+        "en": "Payment Adapter"
+      },
+      "kind": "module",
+      "parent": "backend",
+      "health": {
+        "level": "good"
+      },
+      "techStack": [
+        "Stripe SDK"
+      ],
+      "sourcePaths": [
+        "apps/api/src/payment/stripe.adapter.ts"
+      ],
+      "alternatives": {
+        "replaceability": "medium",
+        "options": [
+          {
+            "id": "adyen",
+            "name": "Adyen",
+            "type": "drop-in",
+            "summary": {
+              "zh-CN": "更适合跨境多币种",
+              "en": "Better for cross-border"
+            },
+            "effort": "M",
+            "risk": "medium"
+          }
+        ]
+      }
+    },
+    {
+      "id": "catalog",
+      "name": {
+        "zh-CN": "商品目录",
+        "en": "Catalog"
+      },
+      "kind": "module",
+      "parent": "backend",
+      "health": {
+        "level": "good"
+      },
+      "techStack": [
+        "NestJS"
+      ],
+      "sourcePaths": [
+        "apps/api/src/catalog/catalog.service.ts"
+      ]
+    },
+    {
+      "id": "notify",
+      "name": {
+        "zh-CN": "通知中心",
+        "en": "Notifications"
+      },
+      "kind": "worker",
+      "layer": "async",
+      "health": {
+        "level": "good"
+      },
+      "techStack": [
+        "BullMQ"
+      ],
+      "sourcePaths": [
+        "apps/worker/src/notify.processor.ts"
+      ],
+      "alternatives": {
+        "replaceability": "high",
+        "options": [
+          {
+            "id": "novu",
+            "name": "Novu",
+            "type": "managed",
+            "summary": {
+              "zh-CN": "开源通知基础设施，多渠道统一",
+              "en": "Unified multi-channel notifications"
+            },
+            "effort": "S",
+            "risk": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "recommend",
+      "name": {
+        "zh-CN": "推荐引擎",
+        "en": "Recommender"
+      },
+      "kind": "ai-model",
+      "layer": "async",
+      "health": {
+        "level": "warn",
+        "findings": [
+          {
+            "type": "bottleneck",
+            "severity": "warn",
+            "text": {
+              "zh-CN": "每次请求实时生成向量，无缓存",
+              "en": "Embeds on every request, no cache"
+            }
+          }
+        ]
+      },
+      "techStack": [
+        "Python",
+        "OpenAI Embeddings"
+      ],
+      "sourcePaths": [
+        "services/recommend/main.py"
+      ],
+      "alternatives": {
+        "replaceability": "medium",
+        "options": [
+          {
+            "id": "pgvector",
+            "name": {
+              "zh-CN": "pgvector 本地向量检索",
+              "en": "pgvector local retrieval"
+            },
+            "type": "re-architect",
+            "summary": {
+              "zh-CN": "去掉外部向量库，降低成本",
+              "en": "Drop external vector DB"
+            },
+            "effort": "M",
+            "risk": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "search-idx",
+      "name": {
+        "zh-CN": "搜索索引器",
+        "en": "Search Indexer"
+      },
+      "kind": "worker",
+      "layer": "async",
+      "health": {
+        "level": "good"
+      },
+      "techStack": [
+        "Node.js"
+      ],
+      "sourcePaths": [
+        "apps/worker/src/index.processor.ts"
+      ]
+    },
+    {
+      "id": "pg",
+      "name": {
+        "zh-CN": "PostgreSQL",
+        "en": "PostgreSQL"
+      },
+      "kind": "database",
+      "layer": "data",
+      "health": {
+        "level": "good"
+      },
+      "techStack": [
+        "Postgres 16"
+      ],
+      "sourcePaths": [
+        "infra/db/schema.prisma"
+      ],
+      "alternatives": {
+        "replaceability": "low",
+        "rationale": {
+          "zh-CN": "所有领域数据的事实来源",
+          "en": "System of record"
+        }
+      }
+    },
+    {
+      "id": "redis",
+      "name": {
+        "zh-CN": "Redis",
+        "en": "Redis"
+      },
+      "kind": "cache",
+      "layer": "data",
+      "health": {
+        "level": "good"
+      },
+      "techStack": [
+        "Redis 7"
+      ],
+      "sourcePaths": [
+        "infra/docker-compose.yml"
+      ],
+      "alternatives": {
+        "replaceability": "high",
+        "options": [
+          {
+            "id": "valkey",
+            "name": "Valkey",
+            "type": "drop-in",
+            "summary": {
+              "zh-CN": "协议兼容的开源分支，许可证友好",
+              "en": "Protocol-compatible OSS fork"
+            },
+            "effort": "S",
+            "risk": "low"
+          },
+          {
+            "id": "dragonfly",
+            "name": "Dragonfly",
+            "type": "drop-in",
+            "summary": {
+              "zh-CN": "多线程，单机吞吐更高",
+              "en": "Multi-threaded, higher throughput"
+            },
+            "effort": "S",
+            "risk": "medium"
+          }
+        ]
+      }
+    },
+    {
+      "id": "es",
+      "name": {
+        "zh-CN": "Elasticsearch",
+        "en": "Elasticsearch"
+      },
+      "kind": "search",
+      "layer": "data",
+      "health": {
+        "level": "warn",
+        "findings": [
+          {
+            "type": "cost",
+            "severity": "warn",
+            "text": {
+              "zh-CN": "3 节点集群利用率不足 15%",
+              "en": "3-node cluster <15% utilised"
+            }
+          }
+        ]
+      },
+      "techStack": [
+        "ES 8"
+      ],
+      "sourcePaths": [
+        "infra/es/mappings.json"
+      ],
+      "alternatives": {
+        "replaceability": "medium",
+        "options": [
+          {
+            "id": "meili",
+            "name": "Meilisearch",
+            "type": "drop-in",
+            "summary": {
+              "zh-CN": "轻量、开箱即用的中文检索",
+              "en": "Lightweight search"
+            },
+            "effort": "M",
+            "risk": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "s3",
+      "name": {
+        "zh-CN": "对象存储",
+        "en": "Object Storage"
+      },
+      "kind": "storage",
+      "layer": "data",
+      "health": {
+        "level": "good"
+      },
+      "techStack": [
+        "S3"
+      ],
+      "sourcePaths": [
+        "apps/api/src/common/storage.ts"
+      ]
+    },
+    {
+      "id": "stripe",
+      "name": {
+        "zh-CN": "Stripe",
+        "en": "Stripe"
+      },
+      "kind": "external-api",
+      "layer": "async",
+      "health": {
+        "level": "good"
+      },
+      "techStack": [
+        "REST"
+      ],
+      "sourcePaths": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "web-gateway",
+      "source": "web",
+      "target": "gateway",
+      "protocol": "http",
+      "mode": "sync",
+      "label": {
+        "zh-CN": "REST 调用",
+        "en": "REST"
+      }
+    },
+    {
+      "id": "mobile-gateway",
+      "source": "mobile",
+      "target": "gateway",
+      "protocol": "http",
+      "mode": "sync",
+      "label": {
+        "zh-CN": "REST 调用",
+        "en": "REST"
+      }
+    },
+    {
+      "id": "gateway-auth",
+      "source": "gateway",
+      "target": "auth",
+      "protocol": "http",
+      "mode": "sync",
+      "label": {
+        "zh-CN": "鉴权",
+        "en": "Authn"
+      }
+    },
+    {
+      "id": "gateway-order",
+      "source": "gateway",
+      "target": "order",
+      "protocol": "http",
+      "mode": "sync",
+      "label": {
+        "zh-CN": "下单",
+        "en": "Place order"
+      }
+    },
+    {
+      "id": "gateway-catalog",
+      "source": "gateway",
+      "target": "catalog",
+      "protocol": "http",
+      "mode": "sync",
+      "label": {
+        "zh-CN": "浏览",
+        "en": "Browse"
+      }
+    },
+    {
+      "id": "order-payment",
+      "source": "order",
+      "target": "payment",
+      "protocol": "ipc",
+      "mode": "sync",
+      "label": {
+        "zh-CN": "扣款",
+        "en": "Charge"
+      }
+    },
+    {
+      "id": "order-catalog",
+      "source": "order",
+      "target": "catalog",
+      "protocol": "ipc",
+      "mode": "sync",
+      "label": {
+        "zh-CN": "查库存",
+        "en": "Stock"
+      }
+    },
+    {
+      "id": "payment-stripe",
+      "source": "payment",
+      "target": "stripe",
+      "protocol": "http",
+      "mode": "sync",
+      "label": {
+        "zh-CN": "支付 API",
+        "en": "Payment API"
+      }
+    },
+    {
+      "id": "order-notify",
+      "source": "order",
+      "target": "notify",
+      "protocol": "redis",
+      "mode": "async",
+      "label": {
+        "zh-CN": "订单事件",
+        "en": "Order events"
+      }
+    },
+    {
+      "id": "catalog-search-idx",
+      "source": "catalog",
+      "target": "search-idx",
+      "protocol": "redis",
+      "mode": "async",
+      "label": {
+        "zh-CN": "商品变更",
+        "en": "Product changed"
+      }
+    },
+    {
+      "id": "gateway-recommend",
+      "source": "gateway",
+      "target": "recommend",
+      "protocol": "http",
+      "mode": "sync",
+      "label": {
+        "zh-CN": "推荐",
+        "en": "Recommend"
+      }
+    },
+    {
+      "id": "auth-pg",
+      "source": "auth",
+      "target": "pg",
+      "protocol": "sql",
+      "mode": "sync"
+    },
+    {
+      "id": "order-pg",
+      "source": "order",
+      "target": "pg",
+      "protocol": "sql",
+      "mode": "sync"
+    },
+    {
+      "id": "catalog-pg",
+      "source": "catalog",
+      "target": "pg",
+      "protocol": "sql",
+      "mode": "sync"
+    },
+    {
+      "id": "auth-redis",
+      "source": "auth",
+      "target": "redis",
+      "protocol": "redis",
+      "mode": "sync",
+      "label": {
+        "zh-CN": "会话",
+        "en": "Sessions"
+      }
+    },
+    {
+      "id": "search-idx-es",
+      "source": "search-idx",
+      "target": "es",
+      "protocol": "http",
+      "mode": "sync"
+    },
+    {
+      "id": "catalog-s3",
+      "source": "catalog",
+      "target": "s3",
+      "protocol": "http",
+      "mode": "sync",
+      "label": {
+        "zh-CN": "图片",
+        "en": "Images"
+      }
+    },
+    {
+      "id": "recommend-pg",
+      "source": "recommend",
+      "target": "pg",
+      "protocol": "sql",
+      "mode": "sync",
+      "label": {
+        "zh-CN": "向量",
+        "en": "Vectors"
+      }
+    },
+    {
+      "id": "notify-redis",
+      "source": "notify",
+      "target": "redis",
+      "protocol": "redis",
+      "mode": "async",
+      "label": {
+        "zh-CN": "队列",
+        "en": "Queue"
+      }
+    }
+  ],
+  "flows": [
+    {
+      "id": "checkout",
+      "name": {
+        "zh-CN": "下单支付",
+        "en": "Checkout"
+      },
+      "category": "core",
+      "steps": [
+        {
+          "from": "mobile",
+          "to": "gateway",
+          "edge": "mobile-gateway",
+          "action": {
+            "zh-CN": "提交订单",
+            "en": "Submit order"
+          },
+          "payload": "POST /orders"
+        },
+        {
+          "from": "gateway",
+          "to": "order",
+          "edge": "gateway-order",
+          "action": {
+            "zh-CN": "转发并鉴权",
+            "en": "Forward with JWT"
+          }
+        },
+        {
+          "from": "order",
+          "to": "catalog",
+          "edge": "order-catalog",
+          "action": {
+            "zh-CN": "锁定库存",
+            "en": "Reserve stock"
+          }
+        },
+        {
+          "from": "order",
+          "to": "payment",
+          "edge": "order-payment",
+          "action": {
+            "zh-CN": "发起扣款",
+            "en": "Charge"
+          }
+        },
+        {
+          "from": "payment",
+          "to": "stripe",
+          "edge": "payment-stripe",
+          "action": {
+            "zh-CN": "调用 Stripe",
+            "en": "Call Stripe"
+          },
+          "latencyMs": 420
+        },
+        {
+          "from": "order",
+          "to": "notify",
+          "edge": "order-notify",
+          "action": {
+            "zh-CN": "发布订单事件",
+            "en": "Emit OrderPaid"
+          }
+        }
+      ]
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "swap-auth",
+      "name": {
+        "zh-CN": "认证迁移到 Clerk",
+        "en": "Move auth to Clerk"
+      },
+      "kind": "replacement",
+      "patch": [
+        {
+          "op": "replaceNode",
+          "id": "auth",
+          "with": {
+            "id": "clerk",
+            "name": "Clerk",
+            "kind": "external-api",
+            "layer": "async",
+            "techStack": [
+              "Clerk"
+            ],
+            "health": {
+              "level": "good"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

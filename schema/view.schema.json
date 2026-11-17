@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archray.dev/schema/v2/view.json",
+  "title": "ArchRay View State",
+  "type": "object",
+  "required": [
+    "viewVersion"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "viewVersion": {
+      "const": "1",
+      "type": "string"
+    },
+    "locale": {
+      "type": "string"
+    },
+    "theme": {
+      "type": "string"
+    },
+    "projection": {
+      "description": "flat | iso | stack",
+      "type": "string"
+    },
+    "lens": {
+      "description": "topology | health | replaceability | flow",
+      "type": "string"
+    },
+    "focus": {
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+      "description": "Stable kebab/slug id. Never translated.",
+      "type": "string"
+    },
+    "collapsed": {
+      "type": "array",
+      "items": {
+        "minLength": 1,
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+        "description": "Stable kebab/slug id. Never translated.",
+        "type": "string"
+      }
+    },
+    "hidden": {
+      "type": "array",
+      "items": {
+        "minLength": 1,
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+        "description": "Stable kebab/slug id. Never translated.",
+        "type": "string"
+      }
+    },
+    "pinned": {
+      "description": "Manual position overrides in layout space.",
+      "type": "object",
+      "patternProperties": {
+        "^[A-Za-z0-9][A-Za-z0-9._:/-]*$": {
+          "type": "object",
+          "required": [
+            "x",
+            "y"
+          ],
+          "properties": {
+            "x": {
+              "type": "number"
+            },
+            "y": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "scenario": {
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+      "description": "Stable kebab/slug id. Never translated.",
+      "type": "string"
+    },
+    "camera": {
+      "type": "object",
+      "required": [
+        "x",
+        "y",
+        "zoom"
+      ],
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "zoom": {
+          "type": "number"
+        }
+      }
+    }
+  }
+}
