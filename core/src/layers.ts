@@ -194,6 +194,22 @@ export function parseGraphLayers(graph: ArchGraph, input: string | string[] | un
   return { layers, unknown };
 }
 
+/**
+ * Canonical category of a graph layer (e.g. `infra` with name Platform -> platform).
+ * Selection still uses the graph's stable id; this is only for semantic policies.
+ */
+export function graphLayerCategory(graph: ArchGraph, raw: string | undefined): string | undefined {
+  if (!raw) return undefined;
+  const layer = graph.layers?.find((l) => l.id === raw);
+  if (layer) {
+    const byId = canonicalLayer(layer.id);
+    if (byId) return byId;
+    const byName = canonicalLayer(t(layer.name, 'en', 'en')) ?? canonicalLayer(t(layer.name, 'zh-CN', 'en'));
+    if (byName) return byName;
+  }
+  return canonicalLayer(raw) ?? raw;
+}
+
 /** Compatibility helper: the graph layer key for a raw layer id. */
 export function canonicalLayerOf(graph: ArchGraph, raw: string | undefined): string | undefined {
   return graphLayerKey(graph, raw);

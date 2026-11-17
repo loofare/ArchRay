@@ -1,5 +1,5 @@
 import { validateGraph } from './validate';
-import { graphLayerKey, resolveGraphLayer } from './layers';
+import { graphLayerCategory, graphLayerKey, resolveGraphLayer } from './layers';
 import type { ArchEdge, ArchGraph, ArchNode, Scenario } from './schema';
 
 export interface GraphIndex {
@@ -174,7 +174,7 @@ function filterLayers(idx: GraphIndex, base: VisibleGraph, selected: Set<string>
   const context = new Set<string>();
   const addContext = (id: string) => {
     // Platform/tooling nodes are dev concerns; keep them hidden unless explicitly selected.
-    if (graphLayerKey(idx.graph, layerOf(idx, id)) !== 'platform') context.add(id);
+    if (graphLayerCategory(idx.graph, layerOf(idx, id)) !== 'platform') context.add(id);
   };
   for (const e of idx.graph.edges) {
     if (selected.has(e.source) && !selected.has(e.target)) addContext(e.target);

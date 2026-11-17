@@ -253,6 +253,39 @@ describe('custom and collapsed layer edges', () => {
   });
 });
 
+it('recognises custom or namespaced platform layers for context exclusion', () => {
+  for (const platformId of ['infra', 'platform/build']) {
+    const graph: ArchGraph = {
+      schemaVersion: '2.0',
+      meta: { name: 'custom-platform', locales: ['en'], generatedAt: '2026-11-17T00:00:00Z' },
+      layers: [
+        { id: 'client', name: 'Client', order: 0 },
+        { id: platformId, name: 'Platform', order: 1 },
+      ],
+      nodes: [
+        { id: 'ui', name: 'UI', kind: 'client', layer: 'client' },
+        { id: 'tool', name: 'Tooling', kind: 'config', layer: platformId },
+      ],
+      edges: [{ id: 'ui-tool', source: 'ui', target: 'tool' }],
+    };
+    expect(visibleGraph(indexGraph(graph), { layers: ['client'] }).context.size).toBe(0);
+    const platform = visibleGraph(indexGraph(graph), { layers: ['platform'] });
+    expect(platform.nodes.map((n) => n.id).sort()).toEqual(['tool', 'ui']);
+  }
+
+  const business: ArchGraph = {
+    schemaVersion: '2.0',
+    meta: { name: 'business', locales: ['en'], generatedAt: '2026-11-17T00:00:00Z' },
+    layers: [{ id: 'client', name: 'Client', order: 0 }, { id: 'biz', name: 'Business', order: 1 }],
+    nodes: [
+      { id: 'ui', name: 'UI', kind: 'client', layer: 'client' },
+      { id: 'tool', name: 'Business tool', kind: 'service', layer: 'biz' },
+    ],
+    edges: [{ id: 'ui-tool', source: 'ui', target: 'tool' }],
+  };
+  expect(visibleGraph(indexGraph(business), { layers: ['client'] }).context).toEqual(new Set(['tool']));
+});
+
 it('does not pull platform/tooling nodes into layer context', () => {
   const graph: ArchGraph = {
     schemaVersion: '2.0',
