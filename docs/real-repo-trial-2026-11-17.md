@@ -121,4 +121,4 @@ R4 复审在安装器上又发现两项 P2：
 - **ignore 链接**：`.archray/.gitignore` 为符号链接时曾被跟随写入项目外文件；现在与 `.archray`、`.archray/tool` 一起在安装前拒绝符号链接（含悬空链接）。
 - **替换失败回滚**：模板/命令先写入、tool 替换失败时只恢复旧 tool，会留下“新模板 + 旧工具”。现在安装前对每个模板/命令/ignore 做快照，失败时按逆序恢复；包级回归用注入 rename 失败验证模板、工具与哨兵全部还原且无暂存残留。
 
-正常安装、无 force 失败、tool/ignore 链接、gitignore 换行、移动下载包等复测继续通过。待 R5 复审。
+正常安装、无 force 失败、tool/ignore 链接、gitignore 换行、移动下载包等复测继续通过。R5 复审 **PASS**（P0/P1/P2 = 0）。
