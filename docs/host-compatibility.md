@@ -1,8 +1,8 @@
 # AI 宿主兼容性 / Host compatibility
 
-日期：2026-11-17。M5.1 记录安装位置、调用方式与实际验证边界。文件存在不等于宿主已加载；未实际启动的宿主明确标注。
+日期：2026-11-18。本文件记录安装位置、调用方式与实际验证边界。文件存在不等于宿主已加载；未实际启动的宿主明确标注。
 
-> 版本边界：v0.4.0 发布包包含 Claude/Cursor/Antigravity/Pi/Codex 布局；v0.3.0 旧包只支持前三者。
+
 
 | 宿主 | 安装参数 | 写入位置 | 调用方式 | 本轮验证 |
 |---|---|---|---|---|
@@ -11,7 +11,6 @@
 | Antigravity | `--agent antigravity` | `.agent/skills/archray/SKILL.md` + `.agent/commands/archray*.md` | `/archray`、`/archray-frontend` | 文件布局；宿主未安装，未实际加载 |
 | Pi | `--agent pi` | `.agents/skills/archray/SKILL.md` + `.pi/prompts/archray.md`、`archray-*.md` | `/archray`、`/archray-frontend`、`/skill:archray` | **实际验证**：`pi --mode rpc get_commands` 列出全部七个 prompt 与 `skill:archray` |
 | Codex | `--agent codex` | `.agents/skills/archray/SKILL.md` | `$archray` 或 `/skills` | 官方文档确认 `.agents/skills` 与显式技能调用；本机未安装 Codex CLI，未实际加载 |
-| Managed host | 通过托管 Skill（M5.5） | Managed host 管理的 Skill 目录 / SkillHub | Skill 调用 | 项目内 `.agents/skills` 不作为 Managed host 斜杠命令的保证；M5.5 处理托管包 |
 
 ## 已实测：Pi
 
@@ -62,5 +61,4 @@ Pi 首次打开项目时会要求信任项目文件；信任后 `/archray` 可�
 
 - Claude Code / Cursor / Antigravity 的真实斜杠加载与参数传递。
 - Codex 的 `$archray` / `/skills` 实际调用。
-- Managed host 托管 Skill 的安装与调用（M5.5）。
 - 各宿主的权限模型、工具批准和网络策略差异。

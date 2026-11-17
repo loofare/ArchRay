@@ -44,7 +44,7 @@ Then in your AI:
 /archray 前端,数据
 ```
 
-Claude Code gets `/archray` plus `/archray:frontend`, `:backend`, `:data`, `:network`, `:security`, `:full`. Cursor and Antigravity get flat `archray-*.md` commands. Pi uses `/archray`, `/archray-frontend` and `/skill:archray`; Codex reads `.agents/skills` and uses `$archray` or `/skills`. Install with `--agent claude|cursor|antigravity|pi|codex`. See the [host compatibility matrix](docs/host-compatibility.md); Managed host uses a managed Skill (same document).
+Claude Code gets `/archray` plus `/archray:frontend`, `:backend`, `:data`, `:network`, `:security`, `:full`. Cursor and Antigravity get flat `archray-*.md` commands. Pi uses `/archray`, `/archray-frontend` and `/skill:archray`; Codex reads `.agents/skills` and uses `$archray` or `/skills`. Install with `--agent claude|cursor|antigravity|pi|codex`. See the [host compatibility matrix](docs/host-compatibility.md).
 
 The AI inspects real source, writes `.archray/graph.json`, then builds `.archray/index.html`. `init` writes templates and commands only; the graph comes from that analysis. Candidates may be empty; keeping the current implementation is valid. ArchRay does not scan source or verify graph claims.
 
@@ -108,12 +108,13 @@ node /path/to/ArchRay/cli/bin/archray.mjs schema view
 node /path/to/ArchRay/cli/bin/archray.mjs build .archray/graph.json --view .archray/view.json --no-open
 ```
 
-v1 migration preserves original evidence under `extensions.migration`, scopes local IDs and refuses ambiguous references. Original files are not overwritten. From the tool checkout, `npm run self-analyze` converts the retained v1 graph in a temporary directory and builds `.archray/self-legacy.html`. It is a legacy demo labelled in the title as not current-source analysis, not a scan of this checkout. The tracked `.archray/graph.json` and `.archray/index.html` are that retained initial baseline, not a description of the current checkout.
+v1 migration preserves original evidence under `extensions.migration`, scopes local IDs and refuses ambiguous references. Original files are not overwritten; migration is a format upgrade, not an analysis of the current checkout.
 
 Scenarios are target previews; base graph facts remain the basis for impact and prompts. Deletion cascades subtrees, incident edges and flow steps; replacement reparents children and maps flow endpoints. The original input remains unchanged. Prompts request review, migration, rollback and verification plans; implementation requires separate authorization. Clipboard failure exposes selectable text. PNG exports the current camera or the full visible graph.
 
 No npm release, scan, SaaS, Playground, automatic refactoring, replacement catalog, timeline/watch or poster editor is included.
 
+Brand names and trademarks belong to their owners. Icons come from Iconify `logos` (CC0) and are used only for identification, without implying affiliation or endorsement. See [NOTICE](NOTICE). See the [changelog](docs/changelog.md) for features and version changes. [MIT](LICENSE).
 
 ## Upgrade and uninstall
 

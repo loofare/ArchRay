@@ -8,7 +8,6 @@ import {
 const load = (p: string) => JSON.parse(readFileSync(new URL(p, import.meta.url), 'utf8'));
 const fresh = load('../../examples/freshmart.graph.json') as ArchGraph;
 const v1demo = load('../../examples/v1-demo-system.json');
-const v1self = load('../../.archray/graph.json');
 
 function stress(n: number): ArchGraph {
   const layers = [0, 1, 2, 3].map((i) => ({ id: `l${i}`, name: { 'zh-CN': `第${i}层 测试层级名称` }, order: i }));
@@ -34,7 +33,7 @@ describe('contract', () => {
     expect(validateGraph(v1demo).errors[0]!.message).toMatch(/migrate/);
   });
   it('migrates v1 graphs into valid v2', () => {
-    for (const g of [v1demo, v1self]) {
+    for (const g of [v1demo]) {
       const r = validateGraph(migrateV1(g));
       expect(r.errors).toEqual([]);
     }

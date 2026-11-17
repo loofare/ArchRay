@@ -44,7 +44,7 @@ node /path/to/ArchRay/cli/bin/archray.mjs init --target /path/to/your-repo --age
 /archray 前端,数据
 ```
 
-Claude Code 会得到 `/archray` 以及 `/archray:frontend`、`:backend`、`:data`、`:network`、`:security`、`:full`。Cursor 和 Antigravity 使用扁平的 `archray-*.md` 命令。Pi 使用 `/archray`、`/archray-frontend` 和 `/skill:archray`；Codex 通过 `.agents/skills` 使用 `$archray` 或 `/skills`。安装时分别用 `--agent claude|cursor|antigravity|pi|codex`。完整矩阵见[宿主兼容性](docs/host-compatibility.md)。Managed host 使用托管 Skill，见同一文档。
+Claude Code 会得到 `/archray` 以及 `/archray:frontend`、`:backend`、`:data`、`:network`、`:security`、`:full`。Cursor 和 Antigravity 使用扁平的 `archray-*.md` 命令。Pi 使用 `/archray`、`/archray-frontend` 和 `/skill:archray`；Codex 通过 `.agents/skills` 使用 `$archray` 或 `/skills`。安装时分别用 `--agent claude|cursor|antigravity|pi|codex`。完整矩阵见[宿主兼容性](docs/host-compatibility.md)。
 
 AI 会检查真实源码，写入 `.archray/graph.json`，再构建 `.archray/index.html`。`init` 只写模板和命令；图来自这次分析。候选可以为空，保持现状也是有效选择。ArchRay 不自行扫描源码，也不验证图中的声明。
 
@@ -108,12 +108,13 @@ node /path/to/ArchRay/cli/bin/archray.mjs schema view
 node /path/to/ArchRay/cli/bin/archray.mjs build .archray/graph.json --view .archray/view.json --no-open
 ```
 
-v1 迁移把原始证据保存在 `extensions.migration` 下，给局部 ID 加作用域，并拒绝歧义引用。原文件不会被覆盖。在工具仓库里，`npm run self-analyze` 会在临时目录转换保留的 v1 图，并构建 `.archray/self-legacy.html`。它是标题明确标注“非当前源码分析”的旧版演示，不是对本仓库的扫描。仓库里跟踪的 `.archray/graph.json` 和 `.archray/index.html` 就是这份 v1 基线，不代表当前检出。
+v1 迁移把原始证据保存在 `extensions.migration` 下，给局部 ID 加作用域，并拒绝歧义引用。原文件不会被覆盖；迁移只做格式升级，不代表对当前仓库的分析。
 
 方案是目标状态预览；当前图事实仍是影响分析和提示词的基础。删除会级联子树、相关边和流程步骤；替换会重挂子节点并映射流程端点。原始输入不变。提示词只要求复核、迁移、回滚和验证计划；实施需要另行授权。剪贴板失败会显示可选文本。PNG 可导出当前相机或完整可见图。
 
 不包含 npm 正式发布、scan、SaaS、Playground、自动重构、替代目录、时间线/watch 或海报编辑器。
 
+品牌名称与商标归各所有者；图标来自 Iconify `logos`（CC0），仅用于识别，不表示关联或背书。详见 [NOTICE](NOTICE)。功能与版本变化见[变更记录](docs/changelog.md)。[MIT](LICENSE)。
 
 ## 升级与卸载
 

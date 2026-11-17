@@ -5,10 +5,8 @@ npm-debug.log*
 .vite/
 viewer/dist/
 
-# Generated self-analysis artifact
-.archray/self.html
-.archray/self-legacy.html
-.archray/browser-check/
+# Local ArchRay artifacts
+.archray/
 
 # Release artifacts
 dist/

@@ -15,7 +15,7 @@ const RULES = [
   { name: 'windows home', re: /[A-Z]:\\\\Users\\\\[^\\\s]+/g },
   { name: 'api key', re: /\b(?:sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}|xox[baprs]-[A-Za-z0-9-]{10,})\b/g },
   { name: 'private key', re: /-----BEGIN [A-Z ]*PRIVATE KEY-----/g },
-  { name: 'session session url', re: /session:\/\/session\/[0-9a-f-]{8,}/g },
+  { name: 'session url', re: /\b[a-z][a-z0-9+.-]*:\/\/session\/[0-9a-f-]{8,}/gi },
   { name: 'session id field', re: /\b(?:session_id|bot_id)["']?\s*[:=]\s*["'][0-9a-f-]{20,}["']/gi },
   { name: 'local preview', re: /\b127\.0\.0\.1:\d{2,5}\b|\blocalhost:(?!5173)\d{2,5}\b/g },
 ];

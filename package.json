@@ -19,7 +19,6 @@
     "build:viewer": "npm --workspace=viewer run build",
     "build:cli": "node --import tsx scripts/build-cli.ts",
     "build": "npm run gen:schema && npm run gen:brands && npm run gen:knowledge && npm run build:viewer && npm run build:cli",
-    "self-analyze": "node scripts/self-analyze.mjs",
     "gen:brands": "node scripts/gen-brands.mjs",
     "check:sensitive": "node scripts/check-sensitive.mjs",
     "gen:knowledge": "node scripts/gen-knowledge.mjs",
