@@ -1,26 +1,62 @@
 # ArchRay
 
-ArchRay helps developers using AI in their own repositories understand modules, dependencies and source evidence, compare optional alternatives, and prepare migration plans. This is a **source trial**, not an npm release or runtime monitor.
+ArchRay is an **AI-first architecture visualiser**: install it once, then type `/archray` inside your AI assistant. It reads your repository, records evidence, and builds a layered, interactive single-file HTML view that you can explore, share and export.
 
-Acquire and build the tool (Node 20+):
+## Quick start (in your AI)
+
+1. Get the tool and build it once (Node 20+):
 
 ```sh
 git clone https://github.com/loofare/ArchRay.git
 cd ArchRay
-# To reproduce a reviewed delivery, check out its recorded commit.
-npm ci
-npm run build
-npm test
-npm run typecheck
+npm ci && npm run build
 ```
 
-From your target repository, use the absolute path to this tool:
+2. In the repository you want to map, install the skill and slash commands:
 
 ```sh
-node /path/to/ArchRay/cli/bin/archray.mjs init
+node /path/to/ArchRay/cli/bin/archray.mjs init --agent claude
+# claude | cursor | antigravity | all
 ```
 
-Ask your coding agent to read `.archray/SKILL.md` and `.archray/graph.schema.json`, inspect real source and generate `.archray/graph.json` with current facts, source paths and uncertainties. `init` writes templates only; the graph comes from that analysis. Candidates may be empty; keeping the current implementation is valid. ArchRay does not scan source or verify graph claims.
+3. In your AI:
+
+```text
+/archray
+/archray 前端,数据
+```
+
+Claude Code gets `/archray` plus `/archray:frontend`, `:backend`, `:data`, `:network`, `:security`, `:full`. Cursor and Antigravity get flat `archray-*.md` commands. Hosts without slash commands can read `.archray/SKILL.md` and use the same layer keywords.
+
+The AI inspects real source, writes `.archray/graph.json`, then builds `.archray/index.html`. `init` writes templates and commands only; the graph comes from that analysis. Candidates may be empty; keeping the current implementation is valid. ArchRay does not scan source or verify graph claims.
+
+## Layers
+
+Analyse once, then slice the view without re-analysing:
+
+```sh
+node /path/to/ArchRay/cli/bin/archray.mjs build .archray/graph.json --layers frontend,data --no-open
+```
+
+Layers are `client`, `edge`, `gateway`, `service`, `async`, `data`, `ai`, `external`, `platform`, `observability`; Chinese aliases such as `前端`, `数据`, `网关` work too. Selected layers stay visible and one-hop neighbours are dimmed as cross-layer context. `/archray` accepts the same keywords.
+
+## Styles and language
+
+Choose at build time, or switch style inside the HTML:
+
+```sh
+node /path/to/ArchRay/cli/bin/archray.mjs build .archray/graph.json --style blueprint --lang en --no-open
+```
+
+Styles: `tech` (default), `blueprint`, `glass`, `paper`. Language uses the graph's locales; a missing locale is reported and falls back instead of inventing text. Known technologies (Postgres, React, Kubernetes, AWS, Stripe, …) get a brand mark on the node; unknown ones fall back to a generic component icon.
+
+## What the HTML gives you
+
+The single HTML embeds the viewer, the graph and operating-system fonts, so it opens offline, including over `file://`. It defaults to flat and also offers stack/iso, module selection, drill-down, fold/expand, zoom controls, wheel zoom, background drag and Fit. Details show full descriptions and source paths; narrow screens use a closable overlay.
+
+Flow highlighting follows declared directed edges, not observed traffic. Save `view.json`, then import it or embed it with `--view` to restore language, style, projection, lens, focus, collapsed groups, layers, camera and scenario. Invalid or stale view values fall back with warnings. Export the current view as PNG; choosing an image size or recording a walkthrough happens inside the HTML in a later release.
+
+## Under the hood (CLI)
 
 ```sh
 node /path/to/ArchRay/cli/bin/archray.mjs validate .archray/graph.json
@@ -34,24 +70,6 @@ If a command stops, the message names the next step:
 - `over its input` or `symbolic link` — choose a separate real output path; these are refused even with `--force`.
 - `Cannot read ... file not found` — run `archray init`, then have your agent write `.archray/graph.json`.
 - `...: <path>: <reason>` — invalid graph fields; fix the graph, not the viewer.
-
-Install slash commands into your agent (Claude Code example; Cursor and Antigravity use flat `archray-*.md` files):
-
-```sh
-node /path/to/ArchRay/cli/bin/archray.mjs init --agent claude
-# /archray, /archray:frontend, /archray:backend, /archray:data,
-# /archray:network, /archray:security, /archray:full
-```
-
-Analyse once, then slice the view without re-analysing:
-
-```sh
-node /path/to/ArchRay/cli/bin/archray.mjs build .archray/graph.json --layers frontend,data --no-open
-```
-
-Layers are `client`, `edge`, `gateway`, `service`, `async`, `data`, `ai`, `external`, `platform`, `observability`; Chinese aliases such as `前端`, `数据`, `网关` work too. Selected layers stay visible and one-hop neighbours are dimmed as cross-layer context.
-
-Run `archray help` for every command and option.
 
 The compiled CLI uses Node built-ins only. The HTML embeds the viewer, fonts supplied by the operating system, and graph data. Browsing that artifact does not require an ArchRay service; dependency installation and your AI agent may use the network.
 

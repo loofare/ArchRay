@@ -66,7 +66,21 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
   assert.ok(toolbar0.y + toolbar0.height <= canvas0.y + 1, 'toolbar does not overlap the canvas');
   assert.equal(await page.locator('#archray-scene g').count() > 0, true, 'scene draws content');
 
-  await page.selectOption('select[aria-label]', 'order');
+  // Styles and brand icons
+  await page.selectOption('.ar-style', 'blueprint');
+  await page.waitForTimeout(400);
+  assert.equal(await page.$eval('.ar-shell', (el) => getComputedStyle(el).backgroundColor), 'rgb(8, 26, 51)', 'blueprint style applies');
+  await page.screenshot({ path: path.join(shots, 'style-blueprint.png') });
+  await page.selectOption('.ar-style', 'glass');
+  await page.waitForTimeout(400);
+  assert.equal(await page.$eval('.ar-shell', (el) => getComputedStyle(el).backgroundColor), 'rgb(238, 243, 251)', 'glass style applies');
+  await page.screenshot({ path: path.join(shots, 'style-glass.png') });
+  await page.selectOption('.ar-style', 'midnight');
+  await page.waitForTimeout(300);
+  assert.ok((await page.locator('[data-brand="postgresql"]').count()) >= 1, 'PostgreSQL brand icon renders');
+  assert.ok((await page.locator('[data-brand]').count()) >= 5, 'known tech gets brand marks');
+
+  await page.selectOption('.ar-find', 'order');
   await page.waitForTimeout(400);
   const inspector = await box(page, '.ar-inspector');
   assert.ok(inspector && inspector.x > 700 && inspector.width <= 380, `inspector on the right: ${JSON.stringify(inspector)}`);
@@ -97,7 +111,7 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
       value: { writeText: () => Promise.reject(new Error('clipboard blocked for this check')) },
     });
   });
-  await denied.selectOption('select[aria-label]', 'order');
+  await denied.selectOption('.ar-find', 'order');
   await denied.waitForTimeout(400);
   await denied.locator('.ar-inspector button:has-text("Copy AI prompt")').first().click();
   await denied.waitForTimeout(400);
@@ -231,7 +245,7 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
     const canvas = await box(page, '.ar-canvas');
     assert.ok(canvas.width >= w - 1 && canvas.height > 120, `${w}px canvas usable: ${JSON.stringify(canvas)}`);
 
-    await page.selectOption('select[aria-label]', 'order');
+    await page.selectOption('.ar-find', 'order');
     await page.waitForTimeout(400);
     const ins = await box(page, '.ar-inspector');
     assert.ok(ins.x >= 0 && ins.y >= 0 && ins.x + ins.width <= w + 1 && ins.y + ins.height <= h + 1, `${w}px inspector inside viewport: ${JSON.stringify(ins)}`);

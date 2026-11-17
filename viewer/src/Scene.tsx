@@ -5,6 +5,7 @@ import {
 } from '@archray/core';
 import { kindSpec, kindLabel } from './kinds';
 import { alpha, LAYER_FALLBACK, type Theme } from './theme';
+import { brandFor, BrandGlyph } from './brands';
 
 export type Lens = 'topology' | 'health' | 'replaceability' | 'flow';
 
@@ -161,12 +162,13 @@ export function Scene(p: SceneProps) {
         if (!n) return null;
         const spec = kindSpec(n.kind);
         const Icon = spec.icon;
+        const title = L(n.name);
+        const brand = brandFor(...(n.techStack ?? []), title);
         const sel = p.selected === n.id;
         const st = status(n);
         const planned = n.lifecycle === 'planned' || p.diff?.added.has(n.id);
         const deprecated = n.lifecycle === 'deprecated' || p.diff?.removed.has(n.id);
         const hasKids = idx.children.get(n.id)?.length;
-        const title = L(n.name);
         const sub = L(n.summary) || kindLabel(n.kind, locale);
         const tw = ln.w - 62;
         return (
@@ -177,8 +179,12 @@ export function Scene(p: SceneProps) {
             {slab(ln, th.nodeTop, alpha(st, 0.55), sel ? th.accent : planned ? th.planned : th.nodeStroke, sel ? 2.2 : 1.1, planned ? '6 4' : undefined)}
             {onPlane({ x: ln.x, y: ln.y }, <>
               <rect x={0} y={0} width={4} height={ln.h} rx={2} fill={st} />
-              <rect x={14} y={(ln.h - 34) / 2} width={34} height={34} rx={9} fill={alpha(spec.hue, 0.14)} />
-              <Icon x={21} y={(ln.h - 20) / 2} width={20} height={20} color={spec.hue} strokeWidth={2} />
+              <rect x={14} y={(ln.h - 34) / 2} width={34} height={34} rx={9}
+                fill={brand ? (brand.dark ? '#0F172A' : 'rgba(255,255,255,0.96)') : alpha(spec.hue, 0.14)}
+                stroke={brand ? (brand.dark ? 'rgba(255,255,255,0.18)' : 'rgba(15,23,42,0.10)') : 'none'} />
+              {brand
+                ? <BrandGlyph brand={brand} size={22} x={20} y={(ln.h - 34) / 2 + 6} />
+                : <Icon x={21} y={(ln.h - 20) / 2} width={20} height={20} color={spec.hue} strokeWidth={2} />}
               <text x={58} y={ln.h / 2 - 6} fontSize={15} fontWeight={600} fill={th.text} paintOrder="stroke"
                 stroke={th.nodeTop} strokeWidth={3} strokeLinejoin="round"
                 textDecoration={deprecated ? 'line-through' : undefined}>{fit(title, 15, tw)[0]}</text>

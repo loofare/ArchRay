@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { t, ui, type AlternativeOption, type GraphIndex, type Impact, type UiKey } from '@archray/core';
 import { kindLabel, kindSpec } from './kinds';
 import { alpha, type Theme } from './theme';
+import { brandFor, BrandGlyph } from './brands';
 
 interface Props {
   idx: GraphIndex;
@@ -26,6 +27,7 @@ export function Inspector(p: Props) {
   const U = (k: UiKey) => ui(k, locale);
   const spec = kindSpec(n.kind);
   const Icon = spec.icon;
+  const brand = brandFor(...(n.techStack ?? []), L(n.name));
   const [copied, setCopied] = useState<string | null>(null);
   const [fallback, setFallback] = useState('');
   const copy = async (key: string, opt: AlternativeOption | null) => {
@@ -60,8 +62,10 @@ export function Inspector(p: Props) {
     <div className="ar-scroll ar-inspector" style={{
       background: th.panel, border: `1px solid ${th.panelBorder}`, borderRadius: 14, padding: 18, backdropFilter: 'blur(12px)', fontSize: 13, lineHeight: 1.55 }}>
       <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-        <div style={{ width: 40, height: 40, borderRadius: 10, background: alpha(spec.hue, 0.15), display: 'grid', placeItems: 'center' }}>
-          <Icon size={22} color={spec.hue} />
+        <div style={{ width: 40, height: 40, borderRadius: 10, display: 'grid', placeItems: 'center',
+          background: brand ? (brand.dark ? '#0F172A' : 'rgba(255,255,255,0.96)') : alpha(spec.hue, 0.15),
+          border: brand ? `1px solid ${brand.dark ? 'rgba(255,255,255,0.18)' : 'rgba(15,23,42,0.10)'}` : 'none' }}>
+          {brand ? <BrandGlyph brand={brand} size={24} /> : <Icon size={22} color={spec.hue} />}
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 16, fontWeight: 700 }}>{L(n.name)}</div>

@@ -179,5 +179,7 @@ describe('layer vocabulary and filtering', () => {
     });
     expect(parseView({ layers: '前端,数据' }, graph).view.layers).toEqual(['client', 'data']);
     expect(validateView({ viewVersion: '1', layers: ['client'] }).ok).toBe(true);
+    expect(validateView({ viewVersion: '1', theme: 'blueprint' }).ok).toBe(true);
+    expect(validateView({ viewVersion: '1', theme: 'glass' }).ok).toBe(true);
   });
 });

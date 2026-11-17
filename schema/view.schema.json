@@ -26,6 +26,14 @@
         {
           "const": "paper",
           "type": "string"
+        },
+        {
+          "const": "blueprint",
+          "type": "string"
+        },
+        {
+          "const": "glass",
+          "type": "string"
         }
       ]
     },

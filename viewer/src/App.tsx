@@ -6,7 +6,7 @@ import {
 } from '@archray/core';
 import { Scene, type Lens } from './Scene';
 import { Inspector } from './Inspector';
-import { THEMES, type Theme } from './theme';
+import { THEMES, alpha, type Theme } from './theme';
 import { exportPng } from './export';
 
 declare global { interface Window { __ARCHRAY_DATA__?: unknown; __ARCHRAY_VIEW__?: Record<string, unknown> } }
@@ -79,6 +79,11 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
   const [placed, setPlaced] = useState<{ idx: object; vis: object; layout: PlanarLayout } | null>(null);
 
   const th = THEMES[themeId];
+  const background = themeId === 'blueprint'
+    ? { backgroundImage: `linear-gradient(${th.bgDot} 1px, transparent 1px), linear-gradient(90deg, ${th.bgDot} 1px, transparent 1px)`, backgroundSize: '28px 28px, 28px 28px' }
+    : themeId === 'glass'
+      ? { backgroundImage: `radial-gradient(circle at 12% 8%, ${alpha(th.accent, 0.12)}, transparent 42%), radial-gradient(circle at 88% 82%, ${alpha(th.planned, 0.1)}, transparent 38%)` }
+      : { backgroundImage: `radial-gradient(${th.bgDot} 1px, transparent 1px)`, backgroundSize: '22px 22px' };
   const U = (k: UiKey) => ui(k, locale);
   const L = (x: Parameters<typeof t>[0]) => t(x, locale, defaultLocale);
   const showNotice = (code: string) => setNotices([code]);
@@ -207,8 +212,7 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
   );
 
   return (
-    <div className="ar-shell" style={{ background: th.bg, color: th.text,
-      backgroundImage: `radial-gradient(${th.bgDot} 1px, transparent 1px)`, backgroundSize: '22px 22px' }}>
+    <div className="ar-shell" style={{ background: th.bg, color: th.text, ...background }}>
       <div className="ar-toolbar">
         <div style={{ marginRight: 8 }}>
           <div style={{ fontSize: 17, fontWeight: 700 }}>{L(graph.meta.name)}</div>
@@ -238,7 +242,10 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
             ))}
           </div>
         )}
-        {btn(themeId === 'midnight' ? '☀' : '☾', () => setThemeId(themeId === 'midnight' ? 'paper' : 'midnight'))}
+        <select className="ar-style" aria-label={U('theme.label')} value={themeId} onChange={(e) => setThemeId(e.target.value as Theme['id'])}
+          style={{ ...buttonStyle(), padding: '5px 8px' }}>
+          {(['midnight', 'blueprint', 'glass', 'paper'] as const).map((id) => <option key={id} value={id}>{U(`theme.${id}`)}</option>)}
+        </select>
         {btn('PNG', () => { exportPng(th, `${L(graph.meta.name)}.png`).catch(() => showNotice('png:failed')); })}
         {btn('view.json', saveView)}
         {/* A button-styled label keeps the native file-input text out of the toolbar. */}
@@ -247,7 +254,7 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
           <input className="ar-file-input" aria-label={U('common.importView')} type="file" accept=".json"
             onChange={(e) => { void importView(e.target.files?.[0]); e.target.value = ''; }} />
         </label>
-        <select aria-label={U('common.findModule')} value={selected ?? ''} style={{ maxWidth: 160, minWidth: 110 }}
+        <select className="ar-find" aria-label={U('common.findModule')} value={selected ?? ''} style={{ maxWidth: 160, minWidth: 110 }}
           onChange={(e) => { setRoot(null); setSelected(e.target.value || null); resetCamera(); }}>
           <option value="">{U('common.findModule')}</option>
           {(layers.length ? base.nodes.filter((n) => vis.nodes.some((v) => v.id === n.id) || vis.groups.some((g) => g.id === n.id)) : base.nodes)

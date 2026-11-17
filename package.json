@@ -1,7 +1,7 @@
 {
   "name": "archray",
   "version": "0.2.0",
-  "description": "AI-driven living system architecture visual engine (AI Skill + zero-runtime-dependency 2.5D isometric interactive sandbox)",
+  "description": "AI-first architecture visualiser: a Skill + CLI that turns a repository into layered, interactive, offline HTML views.",
   "private": true,
   "type": "module",
   "workspaces": [
@@ -18,20 +18,25 @@
     "gen:schema": "node --import tsx scripts/gen-schema.ts",
     "build:viewer": "npm --workspace=viewer run build",
     "build:cli": "node --import tsx scripts/build-cli.ts",
-    "build": "npm run gen:schema && npm run build:viewer && npm run build:cli",
-    "self-analyze": "node scripts/self-analyze.mjs"
+    "build": "npm run gen:schema && npm run gen:brands && npm run build:viewer && npm run build:cli",
+    "self-analyze": "node scripts/self-analyze.mjs",
+    "gen:brands": "node scripts/gen-brands.mjs",
+    "check:sensitive": "node scripts/check-sensitive.mjs"
   },
   "keywords": [
     "architecture",
     "visualization",
-    "isometric",
     "ai-skill",
+    "slash-commands",
+    "layered-architecture",
+    "c4-model",
     "elkjs",
-    "c4-model"
+    "offline-html"
   ],
   "license": "MIT",
   "devDependencies": {
-    "tsx": "^4.19.0",
-    "esbuild": "^0.25.0"
+    "@iconify-json/logos": "^1.2.20",
+    "esbuild": "^0.25.0",
+    "tsx": "^4.19.0"
   }
 }

@@ -26,6 +26,8 @@ build options:
   --output <file>           HTML output (default .archray/index.html)
   --view <file>             view.json to embed (language, theme, projection, camera)
   --layers <list>           focus architecture layers, e.g. frontend,data (or all)
+  --style <name>            tech | blueprint | glass | paper (default tech)
+  --lang <locale>           view language, e.g. zh-CN or en
   --no-open                 do not launch a browser
   --force                   replace an existing output file
 
@@ -252,9 +254,33 @@ function cmdBuild(args: Args): void {
     if (missing.length) console.error(`No modules in layer(s): ${missing.join(', ')}; ignored.`);
     if (!layers.length && parsed.layers.length) console.error('Layer filter left no modules; showing all layers.');
   }
-  const merged: ViewState | undefined = view || layerArg !== undefined
-    ? { ...(view ?? { viewVersion: '1' as const }), ...(layerArg !== undefined ? { layers } : {}) }
+  const styleKey = has(args, 'style') ? flag(args, 'style', '').toLowerCase() : undefined;
+  const STYLES: Record<string, string> = {
+    tech: 'midnight', dark: 'midnight', midnight: 'midnight', blueprint: 'blueprint', glass: 'glass', paper: 'paper', light: 'paper',
+  };
+  const theme = styleKey === undefined ? undefined : STYLES[styleKey];
+  if (styleKey !== undefined && !theme) {
+    throw new Error(`Unknown style: ${styleKey}.\nUse tech, blueprint, glass or paper.`);
+  }
+  const langArg = has(args, 'lang') ? flag(args, 'lang', '') : undefined;
+  let locale: string | undefined;
+  if (langArg !== undefined) {
+    if (!graph.meta.locales.includes(langArg)) {
+      console.error(`Language ${langArg} is not in this graph (${graph.meta.locales.join(', ')}); using the default.`);
+    } else {
+      locale = langArg;
+    }
+  }
+
+  const merged: ViewState | undefined = view || layerArg !== undefined || theme !== undefined || locale !== undefined
+    ? {
+        ...(view ?? { viewVersion: '1' as const }),
+        ...(layerArg !== undefined ? { layers } : {}),
+        ...(theme ? { theme: theme as ViewState['theme'] } : {}),
+        ...(locale ? { locale } : {}),
+      }
     : undefined;
+  if (merged) assertValid(merged, true);
 
   const viewerPath = resolve(root, 'viewer/dist/viewer.html');
   if (!existsSync(viewerPath)) {

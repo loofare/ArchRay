@@ -39,6 +39,16 @@ node /path/to/ArchRay/cli/bin/archray.mjs build .archray/graph.json --layers fro
 
 Chinese and English aliases are accepted (`前端`, `数据`, `gateway`, …). Selected layers stay fully visible; one-hop neighbours are dimmed as cross-layer context. When installed with `--agent`, the presets are `/archray`, `/archray:frontend`, `/archray:backend`, `/archray:data`, `/archray:network`, `/archray:security` and `/archray:full`.
 
+## Style and language
+
+When the user asks for a look or language, pass it at build time instead of editing the graph:
+
+```sh
+node /path/to/ArchRay/cli/bin/archray.mjs build .archray/graph.json --style blueprint --lang en --no-open
+```
+
+Styles are `tech`, `blueprint`, `glass`, `paper`. The graph must already contain the requested locale; otherwise report that it is unavailable and keep the default rather than inventing translations. Known technologies get brand marks; unknown ones use a generic kind icon.
+
 ## Safety and outputs
 
 Write only `.archray` artifacts by default. Preserve existing graph/view files unless the user explicitly authorizes replacement. Do not modify application source or agent configuration as part of analysis.

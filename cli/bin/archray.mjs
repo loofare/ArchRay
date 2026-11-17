@@ -6450,7 +6450,7 @@ var ViewState = Open(Type.Object({
   $schema: Type.Optional(Type.String()),
   viewVersion: Type.Literal("1"),
   locale: Type.Optional(Type.String()),
-  theme: Type.Optional(Type.Union([Type.Literal("midnight"), Type.Literal("paper")])),
+  theme: Type.Optional(Type.Union([Type.Literal("midnight"), Type.Literal("paper"), Type.Literal("blueprint"), Type.Literal("glass")])),
   projection: Type.Optional(Type.Union([Type.Literal("flat"), Type.Literal("iso"), Type.Literal("stack")])),
   lens: Type.Optional(Type.Union([Type.Literal("topology"), Type.Literal("health"), Type.Literal("replaceability"), Type.Literal("flow")])),
   focus: Type.Optional(Id),
@@ -6731,6 +6731,8 @@ build options:
   --output <file>           HTML output (default .archray/index.html)
   --view <file>             view.json to embed (language, theme, projection, camera)
   --layers <list>           focus architecture layers, e.g. frontend,data (or all)
+  --style <name>            tech | blueprint | glass | paper (default tech)
+  --lang <locale>           view language, e.g. zh-CN or en
   --no-open                 do not launch a browser
   --force                   replace an existing output file
 
@@ -6927,7 +6929,37 @@ Use ${LAYERS.map((l) => l.id).join(", ")} or an alias such as \u524D\u7AEF, \u65
     if (missing.length) console.error(`No modules in layer(s): ${missing.join(", ")}; ignored.`);
     if (!layers.length && parsed.layers.length) console.error("Layer filter left no modules; showing all layers.");
   }
-  const merged = view || layerArg !== void 0 ? { ...view ?? { viewVersion: "1" }, ...layerArg !== void 0 ? { layers } : {} } : void 0;
+  const styleKey = has(args, "style") ? flag(args, "style", "").toLowerCase() : void 0;
+  const STYLES = {
+    tech: "midnight",
+    dark: "midnight",
+    midnight: "midnight",
+    blueprint: "blueprint",
+    glass: "glass",
+    paper: "paper",
+    light: "paper"
+  };
+  const theme = styleKey === void 0 ? void 0 : STYLES[styleKey];
+  if (styleKey !== void 0 && !theme) {
+    throw new Error(`Unknown style: ${styleKey}.
+Use tech, blueprint, glass or paper.`);
+  }
+  const langArg = has(args, "lang") ? flag(args, "lang", "") : void 0;
+  let locale;
+  if (langArg !== void 0) {
+    if (!graph.meta.locales.includes(langArg)) {
+      console.error(`Language ${langArg} is not in this graph (${graph.meta.locales.join(", ")}); using the default.`);
+    } else {
+      locale = langArg;
+    }
+  }
+  const merged = view || layerArg !== void 0 || theme !== void 0 || locale !== void 0 ? {
+    ...view ?? { viewVersion: "1" },
+    ...layerArg !== void 0 ? { layers } : {},
+    ...theme ? { theme } : {},
+    ...locale ? { locale } : {}
+  } : void 0;
+  if (merged) assertValid(merged, true);
   const viewerPath = resolve(root, "viewer/dist/viewer.html");
   if (!existsSync(viewerPath)) {
     throw new Error(`Viewer build not found: ${viewerPath}.

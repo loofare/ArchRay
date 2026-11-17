@@ -78,6 +78,15 @@ assert.deepEqual(JSON.parse(focused[1]).layers, ['client', 'data']);
 const badLayer = run(['build', 'graph.json', '--layers', 'nope', '--force', '--no-open'], { ok: false });
 assert.match(badLayer.stderr, /Unknown layer: nope[\s\S]*observability/);
 
+run(['build', 'graph.json', '--style', 'blueprint', '--lang', 'en', '--force', '--no-open']);
+const styled = JSON.parse(read('.archray/index.html').match(/window\.__ARCHRAY_VIEW__=(.*?);<\/script>/)[1]);
+assert.equal(styled.theme, 'blueprint');
+assert.equal(styled.locale, 'en');
+const badStyle = run(['build', 'graph.json', '--style', 'nope', '--force', '--no-open'], { ok: false });
+assert.match(badStyle.stderr, /Unknown style: nope/);
+const badLang = run(['build', 'graph.json', '--lang', 'fr', '--force', '--no-open']);
+assert.match(badLang.stderr, /not in this graph/);
+
 // An unwritable directory fails the atomic commit without leaving a partial or empty output.
 const readonly = join(workdir, 'readonly');
 mkdirSync(readonly);

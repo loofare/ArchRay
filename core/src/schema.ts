@@ -216,7 +216,7 @@ export const ViewState = Open(Type.Object({
   $schema: Type.Optional(Type.String()),
   viewVersion: Type.Literal('1'),
   locale: Type.Optional(Type.String()),
-  theme: Type.Optional(Type.Union([Type.Literal('midnight'),Type.Literal('paper')])),
+  theme: Type.Optional(Type.Union([Type.Literal('midnight'),Type.Literal('paper'),Type.Literal('blueprint'),Type.Literal('glass')])),
   projection: Type.Optional(Type.Union([Type.Literal('flat'),Type.Literal('iso'),Type.Literal('stack')])),
   lens: Type.Optional(Type.Union([Type.Literal('topology'),Type.Literal('health'),Type.Literal('replaceability'),Type.Literal('flow')])),
   focus: Type.Optional(Id),
