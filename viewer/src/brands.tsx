@@ -37,7 +37,9 @@ export function brandFor(...values: (string | undefined | null)[]): BrandData | 
 }
 
 export function BrandGlyph({ brand, size = 20, x = 0, y = 0 }: { brand: BrandData; size?: number; x?: number; y?: number }) {
-  const scale = Math.min(size / brand.w, size / brand.h);
+  // Wide wordmarks need a larger slot to stay legible in a 34px badge.
+  const draw = brand.w / brand.h > 2.5 ? Math.min(34, size * 1.45) : size;
+  const scale = Math.min(draw / brand.w, draw / brand.h);
   const w = brand.w * scale;
   const h = brand.h * scale;
   return (

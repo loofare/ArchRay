@@ -50,7 +50,7 @@ The AI inspects real source, writes `.archray/graph.json`, then builds `.archray
 
 ## Layers
 
-`init` also writes `.archray/tech.json`: 114 technologies and brands with category, layer and component-kind hints. The AI uses it to classify what it finds; it is a hint, not proof that a technology is present.
+`init` also writes `.archray/tech.json`: 212 technologies and brands with category, layer and component-kind hints. The AI uses it to classify what it finds; it is a hint, not proof that a technology is present.
 
 Analyse once, then slice the view without re-analysing:
 

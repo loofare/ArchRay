@@ -125,13 +125,133 @@ const T = [
   ['storybook', 'Storybook', 'tooling', ['platform'], ['library'], []],
 ];
 
-const entries = T.map(([id, name, category, layers, kinds, aliases]) => ({ id, name, category, layers, kinds, aliases }))
-  .sort((a, b) => a.id.localeCompare(b.id));
 
+const EXTRA = [
+  ['express', 'Express', 'backend', ['service'], ['library', 'service'], ['expressjs']],
+  ['fastify', 'Fastify', 'backend', ['service'], ['library', 'service'], ['fastifyjs']],
+  ['koa', 'Koa', 'backend', ['service'], ['library', 'service'], ['koajs']],
+  ['hono', 'Hono', 'backend', ['service'], ['library', 'service'], ['honojs']],
+  ['strapi', 'Strapi', 'backend', ['service'], ['service'], []],
+  ['socketio', 'Socket.IO', 'messaging', ['async'], ['library'], ['socket.io']],
+  ['bullmq', 'BullMQ', 'messaging', ['async'], ['queue'], ['bull mq']],
+  ['celery', 'Celery', 'backend', ['async'], ['worker'], []],
+  ['sidekiq', 'Sidekiq', 'backend', ['async'], ['worker'], []],
+  ['temporal', 'Temporal', 'backend', ['async'], ['worker'], ['temporal.io']],
+  ['airflow', 'Airflow', 'data', ['data', 'async'], ['worker'], ['apache airflow']],
+  ['dagster', 'Dagster', 'data', ['data', 'async'], ['worker'], []],
+  ['prefect', 'Prefect', 'data', ['data', 'async'], ['worker'], []],
+  ['dbt', 'dbt', 'data', ['data'], ['library'], ['data build tool']],
+  ['duckdb', 'DuckDB', 'data', ['data'], ['database'], []],
+  ['neo4j', 'Neo4j', 'data', ['data'], ['database'], []],
+  ['influxdb', 'InfluxDB', 'data', ['data'], ['database'], ['influx']],
+  ['pinecone', 'Pinecone', 'data', ['data'], ['database'], []],
+  ['weaviate', 'Weaviate', 'data', ['data'], ['database'], []],
+  ['qdrant', 'Qdrant', 'data', ['data'], ['database'], []],
+  ['minio', 'MinIO', 'data', ['data'], ['storage'], []],
+  ['cockroachdb', 'CockroachDB', 'data', ['data'], ['database'], ['cockroach']],
+  ['trino', 'Trino', 'data', ['data'], ['database'], ['prestosql']],
+  ['databricks', 'Databricks', 'data', ['data'], ['external-api'], []],
+  ['spark', 'Apache Spark', 'data', ['data'], ['library'], ['apache spark']],
+  ['flink', 'Apache Flink', 'data', ['data'], ['library'], ['apache flink']],
+  ['hadoop', 'Apache Hadoop', 'data', ['data'], ['library'], ['apache hadoop']],
+  ['drizzle', 'Drizzle ORM', 'data', ['data'], ['library'], ['drizzle orm']],
+  ['typeorm', 'TypeORM', 'data', ['data'], ['library'], []],
+  ['sequelize', 'Sequelize', 'data', ['data'], ['library'], []],
+  ['kysely', 'Kysely', 'data', ['data'], ['library'], []],
+  ['knex', 'Knex', 'data', ['data'], ['library'], []],
+  ['helm', 'Helm', 'infra', ['platform'], ['library'], []],
+  ['istio', 'Istio', 'infra', ['gateway'], ['library'], []],
+  ['envoy', 'Envoy', 'infra', ['gateway'], ['library'], []],
+  ['traefik', 'Traefik', 'infra', ['gateway'], ['library'], []],
+  ['argo', 'Argo CD', 'infra', ['platform'], ['worker'], ['argocd', 'argo cd']],
+  ['jenkins', 'Jenkins', 'infra', ['platform'], ['worker'], []],
+  ['circleci', 'CircleCI', 'infra', ['platform'], ['worker'], ['circle ci']],
+  ['pulumi', 'Pulumi', 'infra', ['platform'], ['library'], []],
+  ['cloudformation', 'CloudFormation', 'infra', ['platform'], ['library'], ['aws cloudformation']],
+  ['opentelemetry', 'OpenTelemetry', 'observability', ['observability'], ['library'], ['otel']],
+  ['newrelic', 'New Relic', 'observability', ['observability'], ['external-api'], ['new relic']],
+  ['splunk', 'Splunk', 'observability', ['observability'], ['external-api'], []],
+  ['loki', 'Loki', 'observability', ['observability'], ['service'], []],
+  ['jaeger', 'Jaeger', 'observability', ['observability'], ['service'], []],
+  ['keycloak', 'Keycloak', 'security', ['gateway'], ['external-api'], []],
+  ['vault', 'HashiCorp Vault', 'security', ['external'], ['external-api'], ['hashicorp vault']],
+  ['snyk', 'Snyk', 'security', ['external'], ['external-api'], []],
+  ['sonarqube', 'SonarQube', 'security', ['external'], ['external-api'], ['sonar', 'sonar qube']],
+  ['oauth', 'OAuth', 'security', ['gateway'], ['library'], ['oauth2']],
+  ['oidc', 'OpenID Connect', 'security', ['gateway'], ['library'], ['openid connect']],
+  ['jwt', 'JWT', 'security', ['gateway'], ['library'], ['jsonwebtoken']],
+  ['saml', 'SAML', 'security', ['gateway'], ['library'], []],
+  ['nextauth', 'NextAuth', 'security', ['gateway'], ['library'], ['next-auth', 'auth.js']],
+  ['pnpm', 'pnpm', 'tooling', ['platform'], ['library'], []],
+  ['yarn', 'Yarn', 'tooling', ['platform'], ['library'], []],
+  ['npm', 'npm', 'tooling', ['platform'], ['library'], []],
+  ['nx', 'Nx', 'tooling', ['platform'], ['library'], ['nxjs', 'nrwl']],
+  ['turborepo', 'Turborepo', 'tooling', ['platform'], ['library'], ['turbo']],
+  ['biome', 'Biome', 'tooling', ['platform'], ['library'], ['biomejs']],
+  ['esbuild', 'esbuild', 'tooling', ['platform'], ['library'], []],
+  ['rollup', 'Rollup', 'tooling', ['platform'], ['library'], []],
+  ['parcel', 'Parcel', 'tooling', ['platform'], ['library'], []],
+  ['swc', 'SWC', 'tooling', ['platform'], ['library'], []],
+  ['paypal', 'PayPal', 'saas', ['external'], ['external-api'], []],
+  ['square', 'Square', 'saas', ['external'], ['external-api'], []],
+  ['paddle', 'Paddle', 'saas', ['external'], ['external-api'], []],
+  ['resend', 'Resend', 'saas', ['external'], ['external-api'], []],
+  ['postmark', 'Postmark', 'saas', ['external'], ['external-api'], []],
+  ['mailchimp', 'Mailchimp', 'saas', ['external'], ['external-api'], []],
+  ['segment', 'Segment', 'saas', ['external'], ['external-api'], []],
+  ['mixpanel', 'Mixpanel', 'saas', ['external'], ['external-api'], []],
+  ['amplitude', 'Amplitude', 'saas', ['external'], ['external-api'], []],
+  ['googleanalytics', 'Google Analytics', 'saas', ['external'], ['external-api'], ['google analytics', 'ga4']],
+  ['pagerduty', 'PagerDuty', 'observability', ['observability'], ['external-api'], []],
+  ['launchdarkly', 'LaunchDarkly', 'saas', ['external'], ['external-api'], ['ld']],
+  ['unleash', 'Unleash', 'saas', ['external'], ['external-api'], []],
+  ['zoom', 'Zoom', 'saas', ['external'], ['external-api'], []],
+  ['daily', 'Daily', 'saas', ['external'], ['external-api'], ['dailyco', 'daily.co']],
+  ['googlecalendar', 'Google Calendar', 'saas', ['external'], ['external-api'], ['google calendar']],
+  ['outlook', 'Microsoft Outlook', 'saas', ['external'], ['external-api'], ['microsoft outlook']],
+  ['calendly', 'Calendly', 'saas', ['external'], ['external-api'], []],
+  ['calcom', 'Cal.com', 'saas', ['external'], ['external-api'], ['cal.com']],
+  ['wise', 'Wise', 'saas', ['external'], ['external-api'], []],
+  ['linear', 'Linear', 'saas', ['external'], ['external-api'], []],
+  ['jira', 'Jira', 'saas', ['external'], ['external-api'], []],
+  ['confluence', 'Confluence', 'saas', ['external'], ['external-api'], []],
+  ['capacitor', 'Capacitor', 'mobile', ['client'], ['client'], []],
+  ['cordova', 'Apache Cordova', 'mobile', ['client'], ['client'], ['apache cordova']],
+  ['swiftui', 'SwiftUI', 'mobile', ['client'], ['library'], []],
+  ['jetpackcompose', 'Jetpack Compose', 'mobile', ['client'], ['library'], ['jetpack compose']],
+  ['html5', 'HTML5', 'frontend', ['client'], ['library'], ['html']],
+  ['css3', 'CSS3', 'frontend', ['client'], ['library'], ['css']],
+  ['sass', 'Sass', 'frontend', ['client'], ['library'], ['scss']],
+  ['webpack', 'webpack', 'frontend', ['platform'], ['library'], []],
+  ['radixui', 'Radix UI', 'frontend', ['client'], ['library'], ['radix ui', 'radix']],
+  ['shadcn', 'shadcn/ui', 'frontend', ['client'], ['library'], ['shadcn ui', 'shadcn/ui']],
+];
+
+const KNOWN_KINDS = ['client', 'cli', 'gateway', 'service', 'worker', 'function', 'library', 'module', 'database', 'cache', 'queue', 'storage', 'search', 'external-api', 'ai-model', 'config', 'group'];
+const norm = (value) => value.toLowerCase().normalize('NFKD').replace(/[^a-z0-9\u4e00-\u9fa5]/g, '');
+
+const entries = [
+  ...T.map(([id, name, category, layers, kinds, aliases]) => ({ id, name, category, layers, kinds, aliases })),
+  ...EXTRA.map(([id, name, category, layers, kinds, aliases]) => ({ id, name, category, layers, kinds, aliases })),
+].sort((a, b) => a.id.localeCompare(b.id));
+
+const seenIds = new Set();
+const aliasOwner = new Map();
 for (const e of entries) {
   if (!CATEGORIES.includes(e.category)) throw new Error(`Unknown category: ${e.category}`);
+  if (seenIds.has(e.id)) throw new Error(`Duplicate technology id: ${e.id}`);
+  seenIds.add(e.id);
+  if (!e.layers.length) throw new Error(`No layer for ${e.id}`);
   for (const l of e.layers) if (!LAYERS.includes(l)) throw new Error(`Unknown layer ${l} in ${e.id}`);
   if (!e.kinds.length) throw new Error(`No kind for ${e.id}`);
+  for (const kind of e.kinds) if (!KNOWN_KINDS.includes(kind)) throw new Error(`Unknown kind ${kind} in ${e.id}`);
+  for (const value of [e.id, e.name, ...e.aliases]) {
+    const key = norm(value);
+    if (!key) throw new Error(`Empty alias in ${e.id}`);
+    const owner = aliasOwner.get(key);
+    if (owner && owner !== e.id) throw new Error(`Alias conflict: "${value}" in ${owner} and ${e.id}`);
+    aliasOwner.set(key, e.id);
+  }
 }
 
 const data = {

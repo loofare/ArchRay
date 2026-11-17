@@ -48,7 +48,7 @@ M5.2 第二个样本：真实 Express + Prisma/PostgreSQL 后端。目标是验�
 
 ### B3 · P3 · Express 图标缺失
 
-节点技术栈含 Express，但品牌库未收录 `express`，实际回退到 Node 图标。记录到 M5.4：补 Express、Nx 等常用/小众图标。
+节点技术栈含 Express，但品牌库未收录 `express`，实际回退到 Node 图标。M5.4 已补 Express、Nx 等图标；Express 是官方宽字标，fit 缩放下仍偏小，缩放后可读。
 
 ### B4 · P3 · 样本自身的安全风险
 

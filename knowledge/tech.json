@@ -29,6 +29,33 @@
   ],
   "entries": [
     {
+      "id": "airflow",
+      "name": "Airflow",
+      "category": "data",
+      "layers": [
+        "data",
+        "async"
+      ],
+      "kinds": [
+        "worker"
+      ],
+      "aliases": [
+        "apache airflow"
+      ]
+    },
+    {
+      "id": "amplitude",
+      "name": "Amplitude",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
       "id": "android",
       "name": "Android",
       "category": "mobile",
@@ -96,6 +123,21 @@
       "aliases": [
         "ios",
         "macos"
+      ]
+    },
+    {
+      "id": "argo",
+      "name": "Argo CD",
+      "category": "infra",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "worker"
+      ],
+      "aliases": [
+        "argocd",
+        "argo cd"
       ]
     },
     {
@@ -173,6 +215,20 @@
       ]
     },
     {
+      "id": "biome",
+      "name": "Biome",
+      "category": "tooling",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "biomejs"
+      ]
+    },
+    {
       "id": "bitbucket",
       "name": "Bitbucket",
       "category": "tooling",
@@ -185,6 +241,20 @@
       "aliases": []
     },
     {
+      "id": "bullmq",
+      "name": "BullMQ",
+      "category": "messaging",
+      "layers": [
+        "async"
+      ],
+      "kinds": [
+        "queue"
+      ],
+      "aliases": [
+        "bull mq"
+      ]
+    },
+    {
       "id": "bun",
       "name": "Bun",
       "category": "backend",
@@ -193,6 +263,44 @@
       ],
       "kinds": [
         "service"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "calcom",
+      "name": "Cal.com",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": [
+        "cal.com"
+      ]
+    },
+    {
+      "id": "calendly",
+      "name": "Calendly",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "capacitor",
+      "name": "Capacitor",
+      "category": "mobile",
+      "layers": [
+        "client"
+      ],
+      "kinds": [
+        "client"
       ],
       "aliases": []
     },
@@ -208,6 +316,32 @@
       ],
       "aliases": [
         "apache cassandra"
+      ]
+    },
+    {
+      "id": "celery",
+      "name": "Celery",
+      "category": "backend",
+      "layers": [
+        "async"
+      ],
+      "kinds": [
+        "worker"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "circleci",
+      "name": "CircleCI",
+      "category": "infra",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "worker"
+      ],
+      "aliases": [
+        "circle ci"
       ]
     },
     {
@@ -252,6 +386,74 @@
       ]
     },
     {
+      "id": "cloudformation",
+      "name": "CloudFormation",
+      "category": "infra",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "aws cloudformation"
+      ]
+    },
+    {
+      "id": "cockroachdb",
+      "name": "CockroachDB",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "database"
+      ],
+      "aliases": [
+        "cockroach"
+      ]
+    },
+    {
+      "id": "confluence",
+      "name": "Confluence",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "cordova",
+      "name": "Apache Cordova",
+      "category": "mobile",
+      "layers": [
+        "client"
+      ],
+      "kinds": [
+        "client"
+      ],
+      "aliases": [
+        "apache cordova"
+      ]
+    },
+    {
+      "id": "css3",
+      "name": "CSS3",
+      "category": "frontend",
+      "layers": [
+        "client"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "css"
+      ]
+    },
+    {
       "id": "cypress",
       "name": "Cypress",
       "category": "tooling",
@@ -260,6 +462,46 @@
       ],
       "kinds": [
         "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "dagster",
+      "name": "Dagster",
+      "category": "data",
+      "layers": [
+        "data",
+        "async"
+      ],
+      "kinds": [
+        "worker"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "daily",
+      "name": "Daily",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": [
+        "dailyco",
+        "daily.co"
+      ]
+    },
+    {
+      "id": "databricks",
+      "name": "Databricks",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "external-api"
       ],
       "aliases": []
     },
@@ -274,6 +516,20 @@
         "external-api"
       ],
       "aliases": []
+    },
+    {
+      "id": "dbt",
+      "name": "dbt",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "data build tool"
+      ]
     },
     {
       "id": "deno",
@@ -340,6 +596,32 @@
       ]
     },
     {
+      "id": "drizzle",
+      "name": "Drizzle ORM",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "drizzle orm"
+      ]
+    },
+    {
+      "id": "duckdb",
+      "name": "DuckDB",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "database"
+      ],
+      "aliases": []
+    },
+    {
       "id": "elasticsearch",
       "name": "Elasticsearch",
       "category": "data",
@@ -354,6 +636,30 @@
         "elastic",
         "es"
       ]
+    },
+    {
+      "id": "envoy",
+      "name": "Envoy",
+      "category": "infra",
+      "layers": [
+        "gateway"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "esbuild",
+      "name": "esbuild",
+      "category": "tooling",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
     },
     {
       "id": "eslint",
@@ -381,6 +687,21 @@
       "aliases": []
     },
     {
+      "id": "express",
+      "name": "Express",
+      "category": "backend",
+      "layers": [
+        "service"
+      ],
+      "kinds": [
+        "library",
+        "service"
+      ],
+      "aliases": [
+        "expressjs"
+      ]
+    },
+    {
       "id": "fastapi",
       "name": "FastAPI",
       "category": "backend",
@@ -391,6 +712,21 @@
         "service"
       ],
       "aliases": []
+    },
+    {
+      "id": "fastify",
+      "name": "Fastify",
+      "category": "backend",
+      "layers": [
+        "service"
+      ],
+      "kinds": [
+        "library",
+        "service"
+      ],
+      "aliases": [
+        "fastifyjs"
+      ]
     },
     {
       "id": "figma",
@@ -429,6 +765,20 @@
         "service"
       ],
       "aliases": []
+    },
+    {
+      "id": "flink",
+      "name": "Apache Flink",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "apache flink"
+      ]
     },
     {
       "id": "flutter",
@@ -540,6 +890,35 @@
       ]
     },
     {
+      "id": "googleanalytics",
+      "name": "Google Analytics",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": [
+        "google analytics",
+        "ga4"
+      ]
+    },
+    {
+      "id": "googlecalendar",
+      "name": "Google Calendar",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": [
+        "google calendar"
+      ]
+    },
+    {
       "id": "grafana",
       "name": "Grafana",
       "category": "observability",
@@ -590,6 +969,61 @@
       "aliases": []
     },
     {
+      "id": "hadoop",
+      "name": "Apache Hadoop",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "apache hadoop"
+      ]
+    },
+    {
+      "id": "helm",
+      "name": "Helm",
+      "category": "infra",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "hono",
+      "name": "Hono",
+      "category": "backend",
+      "layers": [
+        "service"
+      ],
+      "kinds": [
+        "library",
+        "service"
+      ],
+      "aliases": [
+        "honojs"
+      ]
+    },
+    {
+      "id": "html5",
+      "name": "HTML5",
+      "category": "frontend",
+      "layers": [
+        "client"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "html"
+      ]
+    },
+    {
       "id": "hubspot",
       "name": "HubSpot",
       "category": "saas",
@@ -614,6 +1048,20 @@
       "aliases": [
         "hugging face",
         "hf"
+      ]
+    },
+    {
+      "id": "influxdb",
+      "name": "InfluxDB",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "database"
+      ],
+      "aliases": [
+        "influx"
       ]
     },
     {
@@ -654,6 +1102,30 @@
       "aliases": []
     },
     {
+      "id": "istio",
+      "name": "Istio",
+      "category": "infra",
+      "layers": [
+        "gateway"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "jaeger",
+      "name": "Jaeger",
+      "category": "observability",
+      "layers": [
+        "observability"
+      ],
+      "kinds": [
+        "service"
+      ],
+      "aliases": []
+    },
+    {
       "id": "java",
       "name": "Java",
       "category": "backend",
@@ -684,6 +1156,18 @@
       ]
     },
     {
+      "id": "jenkins",
+      "name": "Jenkins",
+      "category": "infra",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "worker"
+      ],
+      "aliases": []
+    },
+    {
       "id": "jest",
       "name": "Jest",
       "category": "tooling",
@@ -694,6 +1178,46 @@
         "library"
       ],
       "aliases": []
+    },
+    {
+      "id": "jetpackcompose",
+      "name": "Jetpack Compose",
+      "category": "mobile",
+      "layers": [
+        "client"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "jetpack compose"
+      ]
+    },
+    {
+      "id": "jira",
+      "name": "Jira",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "jwt",
+      "name": "JWT",
+      "category": "security",
+      "layers": [
+        "gateway"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "jsonwebtoken"
+      ]
     },
     {
       "id": "kafka",
@@ -707,6 +1231,45 @@
       ],
       "aliases": [
         "apache kafka"
+      ]
+    },
+    {
+      "id": "keycloak",
+      "name": "Keycloak",
+      "category": "security",
+      "layers": [
+        "gateway"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "knex",
+      "name": "Knex",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "koa",
+      "name": "Koa",
+      "category": "backend",
+      "layers": [
+        "service"
+      ],
+      "kinds": [
+        "library",
+        "service"
+      ],
+      "aliases": [
+        "koajs"
       ]
     },
     {
@@ -736,6 +1299,18 @@
       ]
     },
     {
+      "id": "kysely",
+      "name": "Kysely",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
       "id": "langchain",
       "name": "LangChain",
       "category": "ai",
@@ -761,6 +1336,32 @@
       "aliases": []
     },
     {
+      "id": "launchdarkly",
+      "name": "LaunchDarkly",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": [
+        "ld"
+      ]
+    },
+    {
+      "id": "linear",
+      "name": "Linear",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
       "id": "linux",
       "name": "Linux",
       "category": "infra",
@@ -773,6 +1374,30 @@
       "aliases": []
     },
     {
+      "id": "loki",
+      "name": "Loki",
+      "category": "observability",
+      "layers": [
+        "observability"
+      ],
+      "kinds": [
+        "service"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "mailchimp",
+      "name": "Mailchimp",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
       "id": "mariadb",
       "name": "MariaDB",
       "category": "data",
@@ -781,6 +1406,18 @@
       ],
       "kinds": [
         "database"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "minio",
+      "name": "MinIO",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "storage"
       ],
       "aliases": []
     },
@@ -799,6 +1436,18 @@
       "aliases": [
         "mistral ai"
       ]
+    },
+    {
+      "id": "mixpanel",
+      "name": "Mixpanel",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
     },
     {
       "id": "mongodb",
@@ -839,6 +1488,18 @@
       "aliases": []
     },
     {
+      "id": "neo4j",
+      "name": "Neo4j",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "database"
+      ],
+      "aliases": []
+    },
+    {
       "id": "nestjs",
       "name": "NestJS",
       "category": "backend",
@@ -864,6 +1525,35 @@
         "external-api"
       ],
       "aliases": []
+    },
+    {
+      "id": "newrelic",
+      "name": "New Relic",
+      "category": "observability",
+      "layers": [
+        "observability"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": [
+        "new relic"
+      ]
+    },
+    {
+      "id": "nextauth",
+      "name": "NextAuth",
+      "category": "security",
+      "layers": [
+        "gateway"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "next-auth",
+        "auth.js"
+      ]
     },
     {
       "id": "nextjs",
@@ -925,6 +1615,18 @@
       "aliases": []
     },
     {
+      "id": "npm",
+      "name": "npm",
+      "category": "tooling",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
       "id": "numpy",
       "name": "NumPy",
       "category": "ai",
@@ -950,6 +1652,49 @@
       ],
       "aliases": [
         "nuxtjs"
+      ]
+    },
+    {
+      "id": "nx",
+      "name": "Nx",
+      "category": "tooling",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "nxjs",
+        "nrwl"
+      ]
+    },
+    {
+      "id": "oauth",
+      "name": "OAuth",
+      "category": "security",
+      "layers": [
+        "gateway"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "oauth2"
+      ]
+    },
+    {
+      "id": "oidc",
+      "name": "OpenID Connect",
+      "category": "security",
+      "layers": [
+        "gateway"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "openid connect"
       ]
     },
     {
@@ -996,6 +1741,58 @@
       ]
     },
     {
+      "id": "opentelemetry",
+      "name": "OpenTelemetry",
+      "category": "observability",
+      "layers": [
+        "observability"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "otel"
+      ]
+    },
+    {
+      "id": "outlook",
+      "name": "Microsoft Outlook",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": [
+        "microsoft outlook"
+      ]
+    },
+    {
+      "id": "paddle",
+      "name": "Paddle",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "pagerduty",
+      "name": "PagerDuty",
+      "category": "observability",
+      "layers": [
+        "observability"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
       "id": "pandas",
       "name": "pandas",
       "category": "ai",
@@ -1005,6 +1802,30 @@
       ],
       "kinds": [
         "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "parcel",
+      "name": "Parcel",
+      "category": "tooling",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "paypal",
+      "name": "PayPal",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
       ],
       "aliases": []
     },
@@ -1021,8 +1842,32 @@
       "aliases": []
     },
     {
+      "id": "pinecone",
+      "name": "Pinecone",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "database"
+      ],
+      "aliases": []
+    },
+    {
       "id": "playwright",
       "name": "Playwright",
+      "category": "tooling",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "pnpm",
+      "name": "pnpm",
       "category": "tooling",
       "layers": [
         "platform"
@@ -1057,6 +1902,31 @@
       ],
       "kinds": [
         "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "postmark",
+      "name": "Postmark",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "prefect",
+      "name": "Prefect",
+      "category": "data",
+      "layers": [
+        "data",
+        "async"
+      ],
+      "kinds": [
+        "worker"
       ],
       "aliases": []
     },
@@ -1098,6 +1968,18 @@
       "aliases": []
     },
     {
+      "id": "pulumi",
+      "name": "Pulumi",
+      "category": "infra",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
       "id": "python",
       "name": "Python",
       "category": "backend",
@@ -1128,6 +2010,18 @@
       ]
     },
     {
+      "id": "qdrant",
+      "name": "Qdrant",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "database"
+      ],
+      "aliases": []
+    },
+    {
       "id": "rabbitmq",
       "name": "RabbitMQ",
       "category": "messaging",
@@ -1139,6 +2033,21 @@
       ],
       "aliases": [
         "rabbit mq"
+      ]
+    },
+    {
+      "id": "radixui",
+      "name": "Radix UI",
+      "category": "frontend",
+      "layers": [
+        "client"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "radix ui",
+        "radix"
       ]
     },
     {
@@ -1203,6 +2112,30 @@
       ]
     },
     {
+      "id": "resend",
+      "name": "Resend",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "rollup",
+      "name": "Rollup",
+      "category": "tooling",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
       "id": "ruby",
       "name": "Ruby",
       "category": "backend",
@@ -1241,6 +2174,44 @@
       "aliases": []
     },
     {
+      "id": "saml",
+      "name": "SAML",
+      "category": "security",
+      "layers": [
+        "gateway"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "sass",
+      "name": "Sass",
+      "category": "frontend",
+      "layers": [
+        "client"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "scss"
+      ]
+    },
+    {
+      "id": "segment",
+      "name": "Segment",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
       "id": "sendgrid",
       "name": "SendGrid",
       "category": "saas",
@@ -1265,6 +2236,33 @@
       "aliases": []
     },
     {
+      "id": "sequelize",
+      "name": "Sequelize",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "shadcn",
+      "name": "shadcn/ui",
+      "category": "frontend",
+      "layers": [
+        "client"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "shadcn ui",
+        "shadcn/ui"
+      ]
+    },
+    {
       "id": "shopify",
       "name": "Shopify",
       "category": "saas",
@@ -1273,6 +2271,18 @@
       ],
       "kinds": [
         "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "sidekiq",
+      "name": "Sidekiq",
+      "category": "backend",
+      "layers": [
+        "async"
+      ],
+      "kinds": [
+        "worker"
       ],
       "aliases": []
     },
@@ -1297,6 +2307,73 @@
       ],
       "kinds": [
         "database"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "snyk",
+      "name": "Snyk",
+      "category": "security",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "socketio",
+      "name": "Socket.IO",
+      "category": "messaging",
+      "layers": [
+        "async"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "socket.io"
+      ]
+    },
+    {
+      "id": "sonarqube",
+      "name": "SonarQube",
+      "category": "security",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": [
+        "sonar",
+        "sonar qube"
+      ]
+    },
+    {
+      "id": "spark",
+      "name": "Apache Spark",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "apache spark"
+      ]
+    },
+    {
+      "id": "splunk",
+      "name": "Splunk",
+      "category": "observability",
+      "layers": [
+        "observability"
+      ],
+      "kinds": [
+        "external-api"
       ],
       "aliases": []
     },
@@ -1330,6 +2407,18 @@
       ]
     },
     {
+      "id": "square",
+      "name": "Square",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
       "id": "storybook",
       "name": "Storybook",
       "category": "tooling",
@@ -1338,6 +2427,18 @@
       ],
       "kinds": [
         "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "strapi",
+      "name": "Strapi",
+      "category": "backend",
+      "layers": [
+        "service"
+      ],
+      "kinds": [
+        "service"
       ],
       "aliases": []
     },
@@ -1383,8 +2484,32 @@
       ]
     },
     {
+      "id": "swc",
+      "name": "SWC",
+      "category": "tooling",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
       "id": "swift",
       "name": "Swift",
+      "category": "mobile",
+      "layers": [
+        "client"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "swiftui",
+      "name": "SwiftUI",
       "category": "mobile",
       "layers": [
         "client"
@@ -1406,6 +2531,20 @@
       ],
       "aliases": [
         "tailwind"
+      ]
+    },
+    {
+      "id": "temporal",
+      "name": "Temporal",
+      "category": "backend",
+      "layers": [
+        "async"
+      ],
+      "kinds": [
+        "worker"
+      ],
+      "aliases": [
+        "temporal.io"
       ]
     },
     {
@@ -1437,6 +2576,32 @@
       ]
     },
     {
+      "id": "traefik",
+      "name": "Traefik",
+      "category": "infra",
+      "layers": [
+        "gateway"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "trino",
+      "name": "Trino",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "database"
+      ],
+      "aliases": [
+        "prestosql"
+      ]
+    },
+    {
       "id": "trpc",
       "name": "tRPC",
       "category": "backend",
@@ -1449,6 +2614,20 @@
       "aliases": []
     },
     {
+      "id": "turborepo",
+      "name": "Turborepo",
+      "category": "tooling",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "turbo"
+      ]
+    },
+    {
       "id": "twilio",
       "name": "Twilio",
       "category": "saas",
@@ -1457,6 +2636,18 @@
       ],
       "kinds": [
         "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "typeorm",
+      "name": "TypeORM",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "library"
       ],
       "aliases": []
     },
@@ -1486,6 +2677,32 @@
         "library"
       ],
       "aliases": []
+    },
+    {
+      "id": "unleash",
+      "name": "Unleash",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "vault",
+      "name": "HashiCorp Vault",
+      "category": "security",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": [
+        "hashicorp vault"
+      ]
     },
     {
       "id": "vercel",
@@ -1543,8 +2760,68 @@
       ]
     },
     {
+      "id": "weaviate",
+      "name": "Weaviate",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "database"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "webpack",
+      "name": "webpack",
+      "category": "frontend",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "wise",
+      "name": "Wise",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "yarn",
+      "name": "Yarn",
+      "category": "tooling",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
       "id": "zendesk",
       "name": "Zendesk",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "zoom",
+      "name": "Zoom",
       "category": "saas",
       "layers": [
         "external"
