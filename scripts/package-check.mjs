@@ -1,6 +1,6 @@
 /** Extract the release tarball, install it, and prove the project works without the download. */
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -71,6 +71,36 @@ try {
   const html = readFileSync(join(project, '.archray/index.html'), 'utf8');
   assert.ok(html.includes('window.__ARCHRAY_DATA__'), 'vendored build embeds graph data');
   assert.ok(!html.includes('window.__ARCHRAY_VIEW__={'), 'no view is embedded unless requested');
+
+  // A failed re-install must not touch the vendored tool.
+  const project2 = join(work, 'project2');
+  mkdirSync(project2);
+  run('sh', [join(pkg, 'install.sh'), project2, 'claude']);
+  const toolCommand = join(project2, '.archray/tool/commands/archray.md');
+  writeFileSync(toolCommand, 'TOOL SENTINEL\n');
+  const noForce = spawnSync('sh', [join(pkg, 'install.sh'), project2, 'claude'], { encoding: 'utf8' });
+  assert.notEqual(noForce.status, 0, 'reinstall without --force fails');
+  assert.equal(readFileSync(toolCommand, 'utf8'), 'TOOL SENTINEL\n', 'failed reinstall keeps the old tool');
+
+  // A symlinked .archray/tool must be refused before any copy or delete.
+  const project3 = join(work, 'project3');
+  const outside = join(work, 'outside');
+  mkdirSync(join(project3, '.archray'), { recursive: true });
+  mkdirSync(outside, { recursive: true });
+  writeFileSync(join(outside, 'sentinel.txt'), 'OUTSIDE SENTINEL\n');
+  symlinkSync(outside, join(project3, '.archray/tool'), 'dir');
+  const symlinked = spawnSync('sh', [join(pkg, 'install.sh'), project3, 'claude'], { encoding: 'utf8' });
+  assert.notEqual(symlinked.status, 0, 'symlinked tool path is refused');
+  assert.equal(readFileSync(join(outside, 'sentinel.txt'), 'utf8'), 'OUTSIDE SENTINEL\n', 'outside files are untouched');
+
+  // An existing .gitignore without a trailing newline must not be concatenated.
+  const project4 = join(work, 'project4');
+  mkdirSync(join(project4, '.archray'), { recursive: true });
+  writeFileSync(join(project4, '.archray/.gitignore'), 'custom/');
+  run('sh', [join(pkg, 'install.sh'), project4, 'claude']);
+  const ignore = readFileSync(join(project4, '.archray/.gitignore'), 'utf8');
+  assert.equal(ignore, 'custom/\ntool/\n', 'gitignore keeps its rule and adds tool/ on a new line');
+
   console.log('Package check passed:', tarball);
 } finally {
   rmSync(work, { recursive: true, force: true });

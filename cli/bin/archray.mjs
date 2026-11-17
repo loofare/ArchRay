@@ -8,6 +8,7 @@ var __export = (target, all) => {
 // cli/src/main.ts
 import {
   closeSync,
+  cpSync,
   existsSync,
   linkSync,
   lstatSync,
@@ -16,6 +17,7 @@ import {
   readFileSync,
   realpathSync,
   renameSync,
+  rmSync,
   statSync,
   unlinkSync,
   writeFileSync
@@ -6756,6 +6758,7 @@ Usage: archray <command> [options]
   migrate <v1.json>         convert a v1 graph to v2 (original kept)
   schema [graph|view]       print a JSON schema
   init [options]            write .archray templates for your AI agent
+  install [options]         vendor the tool into a project and install commands
   doctor                    check the packaged files and Node version
   version                   print the CLI version
 
@@ -6775,6 +6778,11 @@ init options:
   --agent <name>            none | claude | cursor | antigravity | all; installs
                             skills and /archray slash commands (default none)
   --cli <path>              CLI path written into commands (default: this package)
+
+install options:
+  --target <dir>            project directory (default .)
+  --agent <name>            none | claude | cursor | antigravity | all (default claude)
+  --force                   update the vendored tool and existing files
 
 migrate / schema options:
   --output <file>           write to a file instead of stdout / default path
@@ -6920,12 +6928,8 @@ var COMMAND_FILES = [
   ["commands/archray/security.md", "security.md"],
   ["commands/archray/full.md", "full.md"]
 ];
-function cmdInit(args) {
-  const target = resolve(flag(args, "target", "."));
-  const agent = flag(args, "agent", "none");
-  if (!["none", "claude", "cursor", "antigravity", "all"].includes(agent)) {
-    throw new Error(`Unknown --agent value: ${agent}. Use none, claude, cursor, antigravity or all.`);
-  }
+var AGENTS = ["none", "claude", "cursor", "antigravity", "all"];
+function planInit(target, agent, cliPath) {
   const files = [...CORE_TEMPLATES];
   const integrations = [
     ["claude", ".claude/skills/archray/SKILL.md"],
@@ -6944,13 +6948,78 @@ function cmdInit(args) {
   if (agent === "claude" || agent === "all") addCommands(".claude/commands", false);
   if (agent === "cursor" || agent === "all") addCommands(".cursor/commands", true);
   if (agent === "antigravity" || agent === "all") addCommands(".agent/commands", true);
-  const cliPath = has(args, "cli") ? flag(args, "cli", "") : resolve(root, "cli/bin/archray.mjs");
-  const planned = files.map(([source, destination]) => ({
+  return files.map(([source, destination]) => ({
     path: resolve(target, destination),
     data: readFileSync(resolve(root, source), "utf8").replaceAll("__ARCHRAY_CLI__", cliPath)
   }));
+}
+function cmdInit(args) {
+  const target = resolve(flag(args, "target", "."));
+  const agent = flag(args, "agent", "none");
+  if (!AGENTS.includes(agent)) {
+    throw new Error(`Unknown --agent value: ${agent}. Use none, claude, cursor, antigravity or all.`);
+  }
+  const cliPath = has(args, "cli") ? flag(args, "cli", "") : resolve(root, "cli/bin/archray.mjs");
+  const planned = planInit(target, agent, cliPath);
   for (const file of planned) guard(file.path, void 0, args);
   for (const file of planned) writeOutput(file.path, file.data, args);
+}
+function cmdInstall(args) {
+  if (Number(process.versions.node.split(".")[0]) < 20) {
+    throw new Error(`Node 20+ is required (running ${process.version}).`);
+  }
+  const target = resolve(flag(args, "target", "."));
+  const agent = flag(args, "agent", "claude");
+  if (!AGENTS.includes(agent)) {
+    throw new Error(`Unknown --agent value: ${agent}. Use none, claude, cursor, antigravity or all.`);
+  }
+  const archrayDir = resolve(target, ".archray");
+  const toolDir = resolve(archrayDir, "tool");
+  for (const path of [archrayDir, toolDir]) {
+    if (existsSync(path) && lstatSync(path).isSymbolicLink()) {
+      throw new Error(`Refusing symbolic-link install path: ${path}`);
+    }
+  }
+  const cliPath = ".archray/tool/cli/bin/archray.mjs";
+  const planned = planInit(target, agent, cliPath);
+  for (const file of planned) guard(file.path, void 0, args);
+  if (existsSync(toolDir) && !has(args, "force")) {
+    throw new Error(`${toolDir} already exists.
+Re-run with --force to update the vendored tool.`);
+  }
+  mkdirSync(archrayDir, { recursive: true });
+  const stage = resolve(archrayDir, `.tool-stage-${process.pid}-${Date.now()}`);
+  mkdirSync(stage, { recursive: true });
+  try {
+    for (const dir of ["cli", "schema", "skill", "commands", "knowledge", "viewer"]) {
+      const source = resolve(root, dir);
+      if (!existsSync(source)) throw new Error(`Missing package directory: ${source}`);
+      cpSync(source, resolve(stage, dir), { recursive: true });
+    }
+    for (const file of planned) writeOutput(file.path, file.data, args);
+    const backup = resolve(archrayDir, `.tool-old-${process.pid}-${Date.now()}`);
+    const hadTool = existsSync(toolDir);
+    if (hadTool) renameSync(toolDir, backup);
+    try {
+      renameSync(stage, toolDir);
+    } catch (error) {
+      if (hadTool) renameSync(backup, toolDir);
+      throw error;
+    }
+    if (hadTool) rmSync(backup, { recursive: true, force: true });
+    const ignore = resolve(archrayDir, ".gitignore");
+    const existing = existsSync(ignore) ? readFileSync(ignore, "utf8") : "";
+    const eol = existing.includes("\r\n") ? "\r\n" : "\n";
+    if (!existing.split(/\r?\n/).some((line) => line.trim() === "tool/")) {
+      const prefix = existing.length === 0 || existing.endsWith("\n") ? existing : `${existing}${eol}`;
+      writeFileSync(ignore, `${prefix}tool/${eol}`);
+    }
+    console.log(`Installed ArchRay into ${target}`);
+    console.log(`Vendored CLI: ${toolDir}/cli/bin/archray.mjs`);
+    console.log("Open the repository in your AI and type /archray");
+  } finally {
+    if (existsSync(stage)) rmSync(stage, { recursive: true, force: true });
+  }
 }
 function cmdMigrate(args) {
   const path = args.positional[0];
@@ -7067,6 +7136,9 @@ function main(argv) {
       break;
     case "init":
       cmdInit(args);
+      break;
+    case "install":
+      cmdInstall(args);
       break;
     case "migrate":
       cmdMigrate(args);

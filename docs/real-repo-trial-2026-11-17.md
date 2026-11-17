@@ -103,3 +103,13 @@ p-limit 没有 client/edge/security 层，`frontend`、`network`、`security` �
 - 27 项核心测试、typecheck、build、CLI 回归、包级回归（含移走下载包）、浏览器检查、脱敏扫描通过。
 
 剩余：T5（全栈预设对库项目不适用）、T6（320px 层名首屏可见性）作为已知限制；M4 修复待代码审计伙伴 R3 复审，PASS 后再创建公开 Release。
+
+## 安装器安全修复（R3 复审后）
+
+审计在自带工具方案上发现三项安装器问题，已修复：
+
+- **R3-01（P1）**：`.archray` / `.archray/tool` 为符号链接时拒绝安装，先校验再写入；不再用 `rm -rf` 跟随链接删除项目外文件。
+- **R3-02（P2）**：不带 `--force` 的重装先做全部冲突预检，失败时自带工具与模板逐字节不变；工具复制改为先写暂存目录再替换。
+- **R3-03（P2）**：`.archray/.gitignore` 无末尾换行时先补分隔换行，再追加 `tool/`；保留原有规则。
+
+安装逻辑从 shell 复制迁到 `archray install`（Node），`install.sh` 只做 Node 版本检查与调用；包级回归新增“无 force 哨兵”“tool 符号链接”“无换行 gitignore”三个负例。修复待 R4 复审。
