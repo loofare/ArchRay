@@ -43,7 +43,7 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
   const external = [];
 
   const open = async (viewport, query = '', init, file = FILE, contextOptions = {}) => {
-    const page = await browser.newPage({ viewport, ...contextOptions });
+    const page = await browser.newPage({ viewport, locale: 'en-US', ...contextOptions });
     page.on('pageerror', (e) => { errors.push(`${query} ${e.message}`); console.error('PAGEERROR', query, e.message); });
     page.on('console', (m) => { if (m.type() === 'error') errors.push(`${query} console: ${m.text()}`); });
     page.on('request', (r) => {
@@ -118,10 +118,14 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
   assert.ok(full.size > 20000, 'full PNG has content');
   await pngPage.close();
 
-  // Reduced-motion preference starts calm.
-  const reduced = await open({ width: 1000, height: 700 }, '', undefined, FILE, { reducedMotion: 'reduce' });
-  assert.equal(await reduced.locator('.ar-shell').getAttribute('data-motion'), 'calm', 'reduced motion starts calm');
+  // Reduced motion also clamps an embedded/URL full setting, until the user opts in.
+  const reduced = await open({ width: 1000, height: 700 }, '?motion=full', undefined, FILE, { reducedMotion: 'reduce' });
+  assert.equal(await reduced.locator('.ar-shell').getAttribute('data-motion'), 'calm', 'reduced motion clamps a full view');
   assert.equal(await reduced.locator('.ar-particle').count(), 0, 'reduced motion has no particles');
+  await reduced.selectOption('.ar-motion', 'full');
+  await reduced.waitForTimeout(400);
+  assert.equal(await reduced.locator('.ar-shell').getAttribute('data-motion'), 'full', 'explicit user choice can override');
+  assert.ok((await reduced.locator('.ar-particle').count()) > 0, 'override restores particles');
   await reduced.close();
 
   await page.selectOption('.ar-find', 'order');
@@ -197,7 +201,7 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
   const zoomed = { ...saved, viewVersion: '1', projection: 'iso', camera: { x: 0, y: 0, zoom: 2 } };
   const zoomPath = path.join(shots, 'view-zoom.json');
   fs.writeFileSync(zoomPath, JSON.stringify(zoomed));
-  await page.setInputFiles('input[type=file]', zoomPath);
+  await page.setInputFiles('.ar-file-input', zoomPath);
   await page.waitForTimeout(700);
   const after = await page.evaluate(() => document.querySelector('#archray-scene').viewBox.baseVal.width);
   assert.ok(after < before - 1, `import restores zoom (${before} -> ${after})`);
@@ -208,7 +212,7 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
   const rich = { viewVersion: '1', locale: 'en', theme: 'paper', projection: 'stack', lens: 'health', scenario: 'swap-auth', camera: { x: 0, y: 0, zoom: 1.25 } };
   const richPath = path.join(shots, 'view-rich.json');
   fs.writeFileSync(richPath, JSON.stringify(rich));
-  await page.setInputFiles('input[type=file]', richPath);
+  await page.setInputFiles('.ar-file-input', richPath);
   await page.waitForTimeout(900);
   assert.equal(await page.$eval('.ar-shell', (el) => getComputedStyle(el).backgroundColor), 'rgb(244, 246, 250)', 'import restores the paper theme');
   const richText = await page.locator('.ar-toolbar').innerText();
@@ -220,7 +224,7 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
   const focusView = { viewVersion: '1', locale: 'zh-CN', focus: 'backend', collapsed: ['backend'] };
   const focusPath = path.join(shots, 'view-focus.json');
   fs.writeFileSync(focusPath, JSON.stringify(focusView));
-  await page.setInputFiles('input[type=file]', focusPath);
+  await page.setInputFiles('.ar-file-input', focusPath);
   await page.waitForTimeout(700);
   assert.match(await page.locator('.ar-toolbar').innerText(), /总览 \/ 后端/, 'import restores focus and locale');
   assert.equal(await page.locator('.ar-inspector').count(), 0, 'import does not reopen stale details');
@@ -265,7 +269,7 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
   await page.locator('.ar-layers button', { hasText: '全部层' }).click();
   await page.waitForTimeout(600);
   assert.equal(await page.locator('.ar-layers button[aria-pressed="true"]').count(), 1, 'all layers resets the filter');
-  await page.setInputFiles('input[type=file]', layerViewPath);
+  await page.setInputFiles('.ar-file-input', layerViewPath);
   await page.waitForTimeout(700);
   assert.deepEqual(await pressed(), ['数据与存储'], 'import restores the layer focus');
   await page.screenshot({ path: path.join(shots, 'layers-restored-zh.png') });
@@ -319,6 +323,11 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
   assert.equal(await page.locator('.ar-layers button[aria-pressed="true"]').count(), 1, '320px layer chips stay usable');
   assert.ok((await box(page, '.ar-layers')).width <= 320, '320px layer row fits the viewport');
   assert.ok((await box(page, '.ar-canvas')).height > 120, '320px filtered canvas stays usable');
+  const chipHeights = await page.locator('.ar-layers button').evaluateAll((els) => els.map((el) => el.getBoundingClientRect().height));
+  assert.ok(Math.max(...chipHeights) < 46, `layer chips stay horizontal: ${chipHeights.join(',')}`);
+  const lastChip = page.locator('.ar-layers button').last();
+  await lastChip.scrollIntoViewIfNeeded();
+  assert.ok(await lastChip.isVisible(), 'last layer chip is reachable');
   await page.screenshot({ path: path.join(shots, 'narrow-320-layers.png') });
   await page.close();
 

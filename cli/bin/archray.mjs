@@ -65,36 +65,58 @@ function canonicalLayer(token) {
 function layerOrder(id) {
   return BY_ID.get(id)?.order ?? 99;
 }
-function parseLayers(input) {
-  const tokens = (Array.isArray(input) ? input : [input ?? ""]).flatMap((v) => String(v).split(/[,\s，、+/]+/)).filter(Boolean);
+var ALL_TOKENS = /* @__PURE__ */ new Set(["all", "*", "\u5168\u90E8", "\u6240\u6709", "\u5168\u90E8\u5C42", "everything"]);
+function splitLayers(input) {
+  return (Array.isArray(input) ? input : [input ?? ""]).flatMap((v) => String(v).split(/[,\s，、+/]+/)).filter(Boolean);
+}
+function graphLayerEntries(graph) {
+  const declared = /* @__PURE__ */ new Map();
+  for (const l of graph.layers ?? []) if (!declared.has(l.id)) declared.set(l.id, l);
+  for (const n of graph.nodes) {
+    if (!n.layer) continue;
+    const key = graphLayerKey(graph, n.layer);
+    if (key && !declared.has(key)) declared.set(key, { id: key, name: key, order: layerOrder(key) });
+  }
+  return [...declared.values()].sort((a, b) => a.order - b.order || a.id.localeCompare(b.id)).map((l) => ({ id: l.id, label: l.name, order: l.order }));
+}
+function graphLayers(graph) {
+  return graphLayerEntries(graph).map((l) => l.id);
+}
+var layerKeys = (layer) => [layer.id, t(layer.name, "en", "en"), t(layer.name, "zh-CN", "en")].map((v) => canonicalLayer(v)).filter((v) => !!v);
+function graphLayerKey(graph, raw) {
+  if (!raw) return void 0;
+  const declared = graph.layers ?? [];
+  if (declared.some((l) => l.id === raw)) return raw;
+  const canonical = canonicalLayer(raw);
+  if (canonical) {
+    const hit = declared.find((l) => layerKeys(l).includes(canonical));
+    if (hit) return hit.id;
+  }
+  const byName = declared.find((l) => [t(l.name, "en", "en"), t(l.name, "zh-CN", "en")].some((n) => n.trim().toLowerCase() === raw.trim().toLowerCase()));
+  return byName?.id ?? raw;
+}
+function resolveGraphLayer(graph, token) {
+  const key = graphLayerKey(graph, token);
+  if (!key) return null;
+  return graphLayers(graph).includes(key) ? key : null;
+}
+function parseGraphLayers(graph, input) {
+  const entries = graphLayerEntries(graph);
+  const available = new Set(entries.map((l) => l.id));
+  const order = new Map(entries.map((l, i) => [l.id, i]));
   const layers = [];
   const unknown = [];
-  for (const token of tokens) {
-    if (["all", "*", "\u5168\u90E8", "\u6240\u6709", "\u5168\u90E8\u5C42", "everything"].includes(token.toLowerCase())) continue;
-    const id = canonicalLayer(token);
-    if (id) {
+  for (const token of splitLayers(input)) {
+    if (ALL_TOKENS.has(token.toLowerCase())) continue;
+    const id = resolveGraphLayer(graph, token);
+    if (id && available.has(id)) {
       if (!layers.includes(id)) layers.push(id);
     } else {
       unknown.push(token);
     }
   }
-  layers.sort((a, b) => layerOrder(a) - layerOrder(b));
+  layers.sort((a, b) => (order.get(a) ?? 99) - (order.get(b) ?? 99));
   return { layers, unknown };
-}
-function graphLayers(graph) {
-  const ids = /* @__PURE__ */ new Set();
-  for (const l of graph.layers ?? []) {
-    const fromName = canonicalLayer(t(l.name, "en", "en")) ?? canonicalLayer(t(l.name, "zh-CN", "en"));
-    const fromId = canonicalLayer(l.id);
-    const id = fromName ?? fromId ?? l.id;
-    if (!ids.has(id)) ids.add(id);
-  }
-  for (const n of graph.nodes) {
-    if (!n.layer) continue;
-    const id = canonicalLayer(n.layer) ?? n.layer;
-    if (!ids.has(id)) ids.add(id);
-  }
-  return [...ids].sort((a, b) => layerOrder(a) - layerOrder(b) || a.localeCompare(b));
 }
 
 // core/src/graph.ts
@@ -6918,18 +6940,15 @@ Choose a different --output.`);
   const layerArg = has(args, "layers") ? flag(args, "layers", "") : void 0;
   let layers = [];
   if (layerArg !== void 0) {
-    const parsed = parseLayers(layerArg);
+    const parsed = parseGraphLayers(graph, layerArg);
     if (parsed.unknown.length) {
       throw new Error(
         `Unknown layer: ${parsed.unknown.join(", ")}.
-Use ${LAYERS.map((l) => l.id).join(", ")} or an alias such as \u524D\u7AEF, \u6570\u636E.`
+This graph has: ${graphLayers(graph).join(", ")}. Alias such as \u524D\u7AEF, \u6570\u636E also work.`
       );
     }
-    const available = new Set(graphLayers(graph));
-    layers = parsed.layers.filter((l) => available.has(l));
-    const missing = parsed.layers.filter((l) => !available.has(l));
-    if (missing.length) console.error(`No modules in layer(s): ${missing.join(", ")}; ignored.`);
-    if (!layers.length && parsed.layers.length) console.error("Layer filter left no modules; showing all layers.");
+    layers = parsed.layers;
+    if (!layers.length) console.error("Layer filter is empty; showing all layers.");
   }
   const styleKey = has(args, "style") ? flag(args, "style", "").toLowerCase() : void 0;
   const STYLES = {
@@ -6950,10 +6969,9 @@ Use tech, blueprint, glass or paper.`);
   let locale;
   if (langArg !== void 0) {
     if (!graph.meta.locales.includes(langArg)) {
-      console.error(`Language ${langArg} is not in this graph (${graph.meta.locales.join(", ")}); using the default.`);
-    } else {
-      locale = langArg;
+      throw new Error(`Language ${langArg} is not in this graph (${graph.meta.locales.join(", ")}).`);
     }
+    locale = langArg;
   }
   const motionArg = has(args, "motion") ? flag(args, "motion", "").toLowerCase() : void 0;
   const MOTIONS = ["full", "calm", "off"];

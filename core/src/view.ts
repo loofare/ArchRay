@@ -1,5 +1,5 @@
 import { validateView } from './validate';
-import { graphLayers, parseLayers } from './layers';
+import { graphLayers, parseGraphLayers } from './layers';
 import type { ArchGraph, ViewState } from './schema';
 
 /** Recover supported view fields independently so one stale value cannot hide the graph. */
@@ -12,11 +12,11 @@ export function parseView(input: unknown, graph: ArchGraph): { view: ViewState; 
   let rawLayers: unknown = source.layers;
   let unknownLayers = false;
   if (typeof source.layers === 'string') {
-    const parsed = parseLayers(source.layers);
+    const parsed = parseGraphLayers(graph, source.layers);
     rawLayers = parsed.layers;
     unknownLayers = parsed.unknown.length > 0;
-  } else if (Array.isArray(source.layers)) {
-    const parsed = parseLayers(source.layers.map(String));
+  } else if (Array.isArray(source.layers) && source.layers.every((v) => typeof v === 'string')) {
+    const parsed = parseGraphLayers(graph, source.layers as string[]);
     rawLayers = parsed.layers;
     unknownLayers = parsed.unknown.length > 0;
   }

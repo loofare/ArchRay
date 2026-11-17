@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 import { validateGraph, validateView } from '../../core/src/validate';
 import { migrateV1 } from '../../core/src/migrate';
-import { LAYERS, graphLayers, parseLayers } from '../../core/src/layers';
+import { graphLayers, parseGraphLayers } from '../../core/src/layers';
 import type { ArchGraph, ViewState } from '../../core/src/schema';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
@@ -242,18 +242,15 @@ function cmdBuild(args: Args): void {
   const layerArg = has(args, 'layers') ? flag(args, 'layers', '') : undefined;
   let layers: string[] = [];
   if (layerArg !== undefined) {
-    const parsed = parseLayers(layerArg);
+    const parsed = parseGraphLayers(graph, layerArg);
     if (parsed.unknown.length) {
       throw new Error(
         `Unknown layer: ${parsed.unknown.join(', ')}.\n` +
-        `Use ${LAYERS.map((l) => l.id).join(', ')} or an alias such as 前端, 数据.`,
+        `This graph has: ${graphLayers(graph).join(', ')}. Alias such as 前端, 数据 also work.`,
       );
     }
-    const available = new Set(graphLayers(graph));
-    layers = parsed.layers.filter((l) => available.has(l));
-    const missing = parsed.layers.filter((l) => !available.has(l));
-    if (missing.length) console.error(`No modules in layer(s): ${missing.join(', ')}; ignored.`);
-    if (!layers.length && parsed.layers.length) console.error('Layer filter left no modules; showing all layers.');
+    layers = parsed.layers;
+    if (!layers.length) console.error('Layer filter is empty; showing all layers.');
   }
   const styleKey = has(args, 'style') ? flag(args, 'style', '').toLowerCase() : undefined;
   const STYLES: Record<string, string> = {
@@ -267,10 +264,9 @@ function cmdBuild(args: Args): void {
   let locale: string | undefined;
   if (langArg !== undefined) {
     if (!graph.meta.locales.includes(langArg)) {
-      console.error(`Language ${langArg} is not in this graph (${graph.meta.locales.join(', ')}); using the default.`);
-    } else {
-      locale = langArg;
+      throw new Error(`Language ${langArg} is not in this graph (${graph.meta.locales.join(', ')}).`);
     }
+    locale = langArg;
   }
 
   const motionArg = has(args, 'motion') ? flag(args, 'motion', '').toLowerCase() : undefined;

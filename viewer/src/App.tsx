@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import {
-  parseView, applyScenario, computeLayout, graphLayers, graphLocales, impactOf, indexGraph, layerLabel,
+  parseView, applyScenario, computeLayout, graphLayerLabel, graphLayers, graphLocales, impactOf, indexGraph,
   negotiateLocale, replacementPrompt, t, ui, validateGraph, visibleGraph,
   type ArchGraph, type PlanarLayout, type ProjectionId, type UiKey,
 } from '@archray/core';
@@ -52,6 +52,18 @@ function noticeText(code: string, U: (k: UiKey) => string, locale: string): stri
   }
 }
 
+function useSystemReducedMotion() {
+  const [reduced, setReduced] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setReduced(media.matches);
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
+  return reduced;
+}
+
 function Viewer({ graph: base }: { graph: ArchGraph }) {
   const qs = Object.fromEntries(new URLSearchParams(location.search));
   const initial = useMemo(() => parseView({ ...(window.__ARCHRAY_VIEW__ ?? {}), ...qs }, base), [base]);
@@ -74,8 +86,12 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
   const [selected, setSelected] = useState<string | null>(null);
   const [scenarioId, setScenarioId] = useState<string | null>(v0.scenario ?? null);
   const [layers, setLayers] = useState<string[]>(v0.layers ?? []);
+  const systemReduced = useSystemReducedMotion();
+  const [motionOverride, setMotionOverride] = useState(false);
   const [motion, setMotion] = useState<'full' | 'calm' | 'off'>(() =>
     v0.motion ?? (window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'calm' : 'full'));
+  const activeMotion = systemReduced && !motionOverride ? 'calm' : motion;
+  useEffect(() => { if (systemReduced) setMotionOverride(false); }, [systemReduced]);
   const [flowId, setFlowId] = useState<string | null>(null);
   const [showRecord, setShowRecord] = useState(false);
   const [showMore, setShowMore] = useState(false);
@@ -168,7 +184,7 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
       ...(root ? { focus: root } : {}),
       collapsed: [...idx.children.keys()].filter((g): g is string => !!g && !expanded.has(g)),
       ...(layers.length ? { layers } : {}),
-      motion,
+      motion: activeMotion,
       ...(scenarioId ? { scenario: scenarioId } : {}),
     };
     const a = document.createElement('a');
@@ -193,6 +209,7 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
       setSelected(null);
       setLayers(v.layers ?? []);
       if (v.motion) setMotion(v.motion);
+      setMotionOverride(false);
       setFlowId(null);
       setStep(0);
       setNotices(warnings);
@@ -218,7 +235,7 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
   );
 
   return (
-    <div className={`ar-shell ar-motion-${motion}`} data-motion={motion}
+    <div className={`ar-shell ar-motion-${activeMotion}`} data-motion={activeMotion}
       style={{ background: th.bg, color: th.text, ...background, ['--ar-accent' as string]: th.accent } as CSSProperties}>
       <div className="ar-toolbar">
         <div style={{ marginRight: 8 }}>
@@ -247,7 +264,7 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
               <button key={id} aria-pressed={layers.includes(id)} onClick={() => setLayers((cur) => cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id])}
                 title={layers.length ? U('layers.hint') : undefined}
                 style={{ ...buttonStyle(layers.includes(id)), padding: '4px 9px', fontSize: 11 }}>
-                {layerLabel(id, locale)}
+                {graphLayerLabel(base, id, locale)}
               </button>
             ))}
           </div>
@@ -256,7 +273,8 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
           style={{ ...buttonStyle(), padding: '5px 8px' }}>
           {(['midnight', 'blueprint', 'glass', 'paper'] as const).map((id) => <option key={id} value={id}>{U(`theme.${id}`)}</option>)}
         </select>
-        <select className="ar-motion" aria-label={U('motion.label')} value={motion} onChange={(e) => setMotion(e.target.value as typeof motion)}
+        <select className="ar-motion" aria-label={U('motion.label')} value={activeMotion}
+          onChange={(e) => { setMotion(e.target.value as typeof motion); setMotionOverride(true); }}
           style={{ ...buttonStyle(), padding: '5px 8px' }}>
           {(['full', 'calm', 'off'] as const).map((id) => <option key={id} value={id}>{U(`motion.${id}`)}</option>)}
         </select>
@@ -279,6 +297,11 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
           {(layers.length ? base.nodes.filter((n) => vis.nodes.some((v) => v.id === n.id) || vis.groups.some((g) => g.id === n.id)) : base.nodes)
             .map((n) => <option key={n.id} value={n.id}>{L(n.name)}</option>)}
         </select>
+        {layers.length > 0 && vis.nodes.length === 0 && vis.groups.length === 0 && (
+          <div role="alert" style={{ width: '100%', fontSize: 12, color: th.warn }}>
+            {U('layers.empty')} {btn(U('layers.all'), () => setLayers([]))}
+          </div>
+        )}
         {diff && (
           <div style={{ width: '100%', fontSize: 12 }}>
             {U('diff.preview')} · {U('diff.added')}: {names(diff.added)} · {U('diff.removed')}: {names(diff.removed)} · {U('diff.changed')}: {names(diff.changed)}
@@ -299,7 +322,7 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
             <Scene camera={camera} onCamera={setCamera} idx={idx} layout={layout} projection={projection} theme={th} locale={locale} lens={lens}
               selected={selected} highlight={highlight} activeEdges={activeEdges} diff={diff}
               onSelect={setSelected}
-              onOpen={(id) => { setRoot(id); setSelected(null); }} context={vis.context} motion={motion} />
+              onOpen={(id) => { setRoot(id); setSelected(null); }} context={vis.context} motion={activeMotion} />
           )}
           <div className="ar-zoom">
             {btn('−', () => setCamera((c) => ({ ...c, zoom: Math.max(0.1, c.zoom / 1.3) })))}
@@ -339,8 +362,8 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
             <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 10 }}>{U('more.title')}</div>
             <label style={{ display: 'grid', gap: 4, marginBottom: 10, fontSize: 12 }}>
               {U('motion.label')}
-              <select className="ar-motion-sheet" value={motion}
-                onChange={(e) => { setMotion(e.target.value as typeof motion); setShowMore(false); }}
+              <select className="ar-motion-sheet" value={activeMotion}
+                onChange={(e) => { setMotion(e.target.value as typeof motion); setMotionOverride(true); setShowMore(false); }}
                 style={{ ...buttonStyle(), padding: '6px 8px' }}>
                 {(['full', 'calm', 'off'] as const).map((id) => <option key={id} value={id}>{U(`motion.${id}`)}</option>)}
               </select>

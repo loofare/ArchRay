@@ -1,5 +1,5 @@
 import { validateGraph } from './validate';
-import { canonicalLayerOf } from './layers';
+import { graphLayerKey, resolveGraphLayer } from './layers';
 import type { ArchEdge, ArchGraph, ArchNode, Scenario } from './schema';
 
 export interface GraphIndex {
@@ -63,7 +63,9 @@ export interface VisibleGraph {
   edges: VisibleEdge[];
   /** parent id in the visible tree (null = root of current view) */
   visibleParent: Map<string, string | null>;
-  /** nodes kept only as cross-layer context (dimmed) when a layer filter is active */
+  /** semantic id -> visible representative (same id, or its collapsed ancestor) */
+  representative: Map<string, string>;
+  /** visible nodes kept only as cross-layer context (dimmed) when a layer filter is active */
   context: Set<string>;
 }
 
@@ -71,23 +73,67 @@ export interface VisibleGraph {
  * Compute what to draw.
  * - `root`: drill-down root (null = whole system). Only its descendants are shown.
  * - `expanded`: group ids whose children are shown inline. Others render as a single box.
- * Edges are lifted to the nearest visible ancestor and merged; internal edges disappear.
+ * - `layers`: graph layer ids; selection happens on the semantic graph, then maps to
+ *   visible representatives. Groups that contain a selected node are auto-expanded so
+ *   a collapsed group cannot hide or fake the selection.
  */
-export function visibleGraph(idx: GraphIndex, opts: { root?: string | null; expanded?: Set<string>; layers?: string[] } = {}): VisibleGraph {
+export function visibleGraph(
+  idx: GraphIndex,
+  opts: { root?: string | null; expanded?: Set<string>; layers?: string[] } = {},
+): VisibleGraph {
   const root = opts.root ?? null;
-  const expanded = opts.expanded ?? new Set<string>();
+  const baseExpanded = opts.expanded ?? new Set<string>();
+  const wanted = opts.layers?.length
+    ? new Set(opts.layers.map((layer) => resolveGraphLayer(idx.graph, layer) ?? layer))
+    : null;
+
+  const selected = new Set<string>();
+  if (wanted) {
+    for (const n of idx.graph.nodes) {
+      const key = graphLayerKey(idx.graph, layerOf(idx, n.id));
+      if (key && wanted.has(key)) selected.add(n.id);
+    }
+  }
+
+  let expanded = baseExpanded;
+  if (wanted && selected.size) {
+    expanded = new Set(baseExpanded);
+    const memo = new Map<string, boolean>();
+    const hasSelected = (id: string): boolean => {
+      const cached = memo.get(id);
+      if (cached !== undefined) return cached;
+      const hit = (idx.children.get(id) ?? []).some((c) => selected.has(c.id) || hasSelected(c.id));
+      memo.set(id, hit);
+      return hit;
+    };
+    for (const n of idx.graph.nodes) {
+      if ((idx.children.get(n.id)?.length ?? 0) > 0 && hasSelected(n.id)) expanded.add(n.id);
+    }
+  }
+
+  const base = buildVisible(idx, root, expanded);
+  if (!wanted) return base;
+  if (!selected.size) return emptyVisible();
+  return filterLayers(idx, base, selected);
+}
+
+function buildVisible(idx: GraphIndex, root: string | null, expanded: Set<string>): VisibleGraph {
   const nodes: ArchNode[] = [];
   const groups: ArchNode[] = [];
   const visibleParent = new Map<string, string | null>();
-  const repr = new Map<string, string>(); // any node id -> visible representative id
+  const representative = new Map<string, string>();
 
+  const markSubtree = (id: string, rep: string) => {
+    representative.set(id, rep);
+    for (const k of idx.children.get(id) ?? []) markSubtree(k.id, rep);
+  };
   const walk = (parent: string | null, visParent: string | null) => {
     for (const n of idx.children.get(parent) ?? []) {
       const kids = idx.children.get(n.id) ?? [];
       if (kids.length > 0 && expanded.has(n.id)) {
         groups.push(n);
         visibleParent.set(n.id, visParent);
-        repr.set(n.id, n.id);
+        representative.set(n.id, n.id);
         walk(n.id, n.id);
       } else {
         nodes.push(n);
@@ -96,18 +142,13 @@ export function visibleGraph(idx: GraphIndex, opts: { root?: string | null; expa
       }
     }
   };
-  const markSubtree = (id: string, rep: string) => {
-    repr.set(id, rep);
-    for (const k of idx.children.get(id) ?? []) markSubtree(k.id, rep);
-  };
   walk(root, null);
 
   const merged = new Map<string, VisibleEdge>();
   for (const e of idx.graph.edges) {
-    const s = repr.get(e.source);
-    const t = repr.get(e.target);
+    const s = representative.get(e.source);
+    const t = representative.get(e.target);
     if (!s || !t || s === t) continue;
-    // edges to an expanded group itself are allowed (group-level dependency)
     const key = `${s}->${t}`;
     const ve = merged.get(key);
     if (ve) {
@@ -117,43 +158,48 @@ export function visibleGraph(idx: GraphIndex, opts: { root?: string | null; expa
       merged.set(key, { id: s === e.source && t === e.target ? e.id : `agg:${key}`, source: s, target: t, members: [e], aggregated: !(s === e.source && t === e.target) });
     }
   }
-  const base: VisibleGraph = { nodes, groups, edges: [...merged.values()], visibleParent, context: new Set() };
-  return opts.layers?.length ? filterLayers(idx, base, opts.layers) : base;
+  return { nodes, groups, edges: [...merged.values()], visibleParent, representative, context: new Set() };
+}
+
+function emptyVisible(): VisibleGraph {
+  return { nodes: [], groups: [], edges: [], visibleParent: new Map(), representative: new Map(), context: new Set() };
 }
 
 /**
- * Keep the selected architecture layers, their ancestors (for the hierarchy) and
- * one-hop neighbours as dimmed context so cross-layer calls stay visible.
+ * Keep the selected layers, their ancestors (hierarchy) and one-hop neighbours as
+ * dimmed context. Ancestor groups are containers, not context, so their selected
+ * children never inherit dimming.
  */
-function filterLayers(idx: GraphIndex, base: VisibleGraph, layers: string[]): VisibleGraph {
-  const wanted = new Set(layers);
-  const selected = new Set<string>();
-  for (const n of [...base.nodes, ...base.groups]) {
-    const layer = canonicalLayerOf(idx.graph, layerOf(idx, n.id));
-    if (layer && wanted.has(layer)) selected.add(n.id);
-  }
-  if (selected.size === 0) return { ...base, context: new Set() };
-
-  const keep = new Set(selected);
-  for (const e of base.edges) {
-    if (selected.has(e.source) || selected.has(e.target)) {
-      keep.add(e.source);
-      keep.add(e.target);
-    }
-  }
-  // Keep every ancestor too, otherwise a lifted child would be allocated to the wrong band.
-  for (let changed = true; changed;) {
-    changed = false;
-    for (const id of [...keep]) {
-      const parent = base.visibleParent.get(id) ?? null;
-      if (parent && !keep.has(parent)) {
-        keep.add(parent);
-        changed = true;
-      }
-    }
+function filterLayers(idx: GraphIndex, base: VisibleGraph, selected: Set<string>): VisibleGraph {
+  const context = new Set<string>();
+  for (const e of idx.graph.edges) {
+    if (selected.has(e.source) && !selected.has(e.target)) context.add(e.target);
+    if (selected.has(e.target) && !selected.has(e.source)) context.add(e.source);
   }
 
-  const context = new Set([...keep].filter((id) => !selected.has(id)));
+  const ancestorIds = new Set<string>();
+  for (const id of [...selected, ...context]) for (const a of ancestors(idx, id)) ancestorIds.add(a);
+
+  const visible = (id: string) => base.representative.get(id);
+  const selectedVisible = new Set<string>();
+  for (const id of selected) {
+    const rep = visible(id);
+    if (rep) selectedVisible.add(rep);
+  }
+  const ancestorVisible = new Set<string>();
+  for (const id of ancestorIds) {
+    const rep = visible(id);
+    if (rep) ancestorVisible.add(rep);
+  }
+  const contextVisible = new Set<string>();
+  for (const id of context) {
+    const rep = visible(id);
+    if (!rep) continue;
+    if (selectedVisible.has(rep) || ancestorVisible.has(rep)) continue;
+    contextVisible.add(rep);
+  }
+
+  const keep = new Set([...selectedVisible, ...ancestorVisible, ...contextVisible]);
   const nodes = base.nodes.filter((n) => keep.has(n.id));
   const groups = base.groups.filter((g) => keep.has(g.id));
   const visibleParent = new Map<string, string | null>();
@@ -161,8 +207,11 @@ function filterLayers(idx: GraphIndex, base: VisibleGraph, layers: string[]): Vi
     const parent = base.visibleParent.get(id) ?? null;
     visibleParent.set(id, parent && keep.has(parent) ? parent : null);
   }
-  const edges = base.edges.filter((e) => keep.has(e.source) && keep.has(e.target) && (selected.has(e.source) || selected.has(e.target)));
-  return { nodes, groups, edges, visibleParent, context };
+  const edges = base.edges.filter((e) =>
+    keep.has(e.source) && keep.has(e.target) && (selectedVisible.has(e.source) || selectedVisible.has(e.target)));
+  const representative = new Map<string, string>();
+  for (const [id, rep] of base.representative) if (keep.has(rep)) representative.set(id, rep);
+  return { nodes, groups, edges, visibleParent, representative, context: contextVisible };
 }
 
 /* ------------------------------------------------------------ scenarios */

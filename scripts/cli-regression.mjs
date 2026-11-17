@@ -76,7 +76,7 @@ const focused = read('.archray/index.html').match(/window\.__ARCHRAY_VIEW__=(.*?
 assert.ok(focused, 'layer build embeds a view');
 assert.deepEqual(JSON.parse(focused[1]).layers, ['client', 'data']);
 const badLayer = run(['build', 'graph.json', '--layers', 'nope', '--force', '--no-open'], { ok: false });
-assert.match(badLayer.stderr, /Unknown layer: nope[\s\S]*observability/);
+assert.match(badLayer.stderr, /Unknown layer: nope[\s\S]*This graph has/);
 
 run(['build', 'graph.json', '--style', 'blueprint', '--lang', 'en', '--force', '--no-open']);
 const styled = JSON.parse(read('.archray/index.html').match(/window\.__ARCHRAY_VIEW__=(.*?);<\/script>/)[1]);
@@ -88,8 +88,26 @@ run(['build', 'graph.json', '--motion', 'calm', '--force', '--no-open']);
 assert.equal(JSON.parse(read('.archray/index.html').match(/window\.__ARCHRAY_VIEW__=(.*?);<\/script>/)[1]).motion, 'calm');
 const badMotion = run(['build', 'graph.json', '--motion', 'nope', '--force', '--no-open'], { ok: false });
 assert.match(badMotion.stderr, /Unknown motion: nope/);
-const badLang = run(['build', 'graph.json', '--lang', 'fr', '--force', '--no-open']);
-assert.match(badLang.stderr, /not in this graph/);
+const badLang = run(['build', 'graph.json', '--lang', 'fr', '--force', '--no-open'], { ok: false });
+assert.match(badLang.stderr, /Language fr is not in this graph/);
+
+// Custom graph layers survive CLI focus and remain selectable in the viewer.
+const custom = {
+  schemaVersion: '2.0',
+  meta: { name: 'Custom layers', locales: ['en'], generatedAt: '2026-11-17T00:00:00Z' },
+  layers: [{ id: 'business', name: { en: 'Business', zh: '业务' }, order: 0 }, { id: 'data', name: 'Data', order: 1 }],
+  nodes: [
+    { id: 'b', name: 'B', kind: 'service', layer: 'business' },
+    { id: 'd', name: 'D', kind: 'database', layer: 'data' },
+  ],
+  edges: [{ id: 'bd', source: 'b', target: 'd' }],
+};
+writeFileSync(join(workdir, 'custom.json'), JSON.stringify(custom));
+run(['build', 'custom.json', '--layers', '业务', '--force', '--no-open']);
+const customView = JSON.parse(read('.archray/index.html').match(/window\.__ARCHRAY_VIEW__=(.*?);<\/script>/)[1]);
+assert.deepEqual(customView.layers, ['business'], 'custom layer ids survive --layers');
+const missingCustom = run(['build', 'custom.json', '--layers', 'platform', '--force', '--no-open'], { ok: false });
+assert.match(missingCustom.stderr, /Unknown layer: platform[\s\S]*business/);
 
 // An unwritable directory fails the atomic commit without leaving a partial or empty output.
 const readonly = join(workdir, 'readonly');

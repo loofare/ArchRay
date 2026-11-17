@@ -38,7 +38,7 @@ Analyse once, then slice the view without re-analysing:
 node /path/to/ArchRay/cli/bin/archray.mjs build .archray/graph.json --layers frontend,data --no-open
 ```
 
-Layers are `client`, `edge`, `gateway`, `service`, `async`, `data`, `ai`, `external`, `platform`, `observability`; Chinese aliases such as `前端`, `数据`, `网关` work too. Selected layers stay visible and one-hop neighbours are dimmed as cross-layer context. `/archray` accepts the same keywords.
+Layers are `client`, `edge`, `gateway`, `service`, `async`, `data`, `ai`, `external`, `platform`, `observability`; Chinese aliases such as `前端`, `数据`, `网关` work too. A graph may declare its own layer ids; those stay selectable and are saved by their own id. Selected layers stay visible and one-hop neighbours are dimmed as cross-layer context. `/archray` accepts the same keywords.
 
 ## Styles and language
 
@@ -50,11 +50,11 @@ node /path/to/ArchRay/cli/bin/archray.mjs build .archray/graph.json --style blue
 
 Styles: `tech` (default), `blueprint`, `glass`, `paper`. Language uses the graph's locales; a missing locale is reported and falls back instead of inventing text. Known technologies (Postgres, React, Kubernetes, AWS, Stripe, …) get a brand mark on the node; unknown ones fall back to a generic component icon.
 
-Motion is `full`, `calm` or `off`, via `--motion` or the toolbar. `full` adds ambient current and travelling particles; `calm` keeps slow dashes; `off` stops ambient motion. When the operating system asks for reduced motion, the view starts in `calm`.
+Motion is `full`, `calm` or `off`, via `--motion` or the toolbar. `full` adds ambient current and travelling particles; `calm` keeps slow dashes; `off` stops ambient motion. When the operating system asks for reduced motion, the view is clamped to `calm`, even for a saved or URL `full` setting; choosing a level in the toolbar is an explicit override.
 
 ## What the HTML gives you
 
-The single HTML embeds the viewer, the graph and operating-system fonts, so it opens offline, including over `file://`. It defaults to flat and also offers stack/iso, module selection, drill-down, fold/expand, zoom controls, wheel zoom, background drag and Fit. Details show full descriptions and source paths; narrow screens use a closable overlay.
+The single HTML embeds the viewer and the graph data, and uses the operating-system font stack; font files are not embedded. It opens offline, including over `file://`. It defaults to flat and also offers stack/iso, module selection, drill-down, fold/expand, zoom controls, wheel zoom, background drag and Fit. Details show full descriptions and source paths; narrow screens use a closable overlay.
 
 Flow highlighting follows declared directed edges, not observed traffic. Save `view.json`, then import it or embed it with `--view` to restore language, style, motion, projection, lens, focus, collapsed groups, layers, camera and scenario. Invalid or stale view values fall back with warnings.
 

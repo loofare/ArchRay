@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
-  applyScenario, graphLayers, indexGraph, migrateV1, parseLayers, parseView, replacementPrompt,
-  validateGraph, validateView, visibleGraph,
+  applyScenario, canonicalLayerOf, graphLayerLabel, graphLayers, indexGraph, migrateV1,
+  parseGraphLayers, parseLayers, parseView, replacementPrompt, validateGraph, validateView, visibleGraph,
   type ArchGraph, type Scenario,
 } from '../src';
 
@@ -156,7 +156,7 @@ describe('layer vocabulary and filtering', () => {
   });
 
   it('canonicalises graph layer ids and labels', () => {
-    expect(graphLayers(layered())).toEqual(['client', 'service', 'data']);
+    expect(graphLayers(layered())).toEqual(['frontend', 'backend', 'data']);
   });
 
   it('keeps selected layers plus one-hop context and drops unrelated nodes and edges', () => {
@@ -174,15 +174,66 @@ describe('layer vocabulary and filtering', () => {
   it('restores layers from views and URL strings, dropping layers absent from the graph', () => {
     const graph = layered();
     expect(parseView({ viewVersion: '1', layers: ['client', 'ghost'] }, graph)).toMatchObject({
-      view: { layers: ['client'] },
+      view: { layers: ['frontend'] },
       warnings: ['stale:layers'],
     });
-    expect(parseView({ layers: '前端,数据' }, graph).view.layers).toEqual(['client', 'data']);
+    expect(parseView({ layers: '前端,数据' }, graph).view.layers).toEqual(['frontend', 'data']);
     expect(validateView({ viewVersion: '1', layers: ['client'] }).ok).toBe(true);
     expect(validateView({ viewVersion: '1', theme: 'blueprint' }).ok).toBe(true);
     expect(validateView({ viewVersion: '1', theme: 'glass' }).ok).toBe(true);
     expect(validateView({ viewVersion: '1', motion: 'calm' }).ok).toBe(true);
     expect(validateView({ viewVersion: '1', motion: 'fast' }).ok).toBe(false);
     expect(parseView({ viewVersion: '1', motion: 'off' }, graph).view.motion).toBe('off');
+  });
+});
+
+const customGraph = (): ArchGraph => ({
+  schemaVersion: '2.0',
+  meta: { name: 'custom', locales: ['en'], generatedAt: '2026-11-17T00:00:00Z' },
+  layers: [
+    { id: 'business', name: { en: 'Business', zh: '业务' }, order: 0 },
+    { id: 'custom', name: 'Frontend', order: 1 },
+  ],
+  nodes: [
+    { id: 'b', name: 'B', kind: 'service', layer: 'business' },
+    { id: 'c', name: 'C', kind: 'client', layer: 'custom' },
+  ],
+  edges: [{ id: 'bc', source: 'b', target: 'c' }],
+});
+
+describe('custom and collapsed layer edges', () => {
+  it('keeps custom graph layers through labels and save/restore', () => {
+    expect(graphLayers(customGraph())).toEqual(['business', 'custom']);
+    expect(canonicalLayerOf(customGraph(), 'custom')).toBe('custom');
+    expect(graphLayerLabel(customGraph(), 'custom', 'en')).toBe('Frontend');
+    expect(parseGraphLayers(customGraph(), 'business,前端')).toEqual({ layers: ['business', 'custom'], unknown: [] });
+    expect(parseView({ viewVersion: '1', layers: ['business'] }, customGraph()).view.layers).toEqual(['business']);
+    expect(parseView({ layers: '业务' }, customGraph()).view.layers).toEqual(['business']);
+  });
+
+  it('auto-expands a collapsed group that hides a selected layer', () => {
+    const graph: ArchGraph = {
+      schemaVersion: '2.0',
+      meta: { name: 'nested', locales: ['en'], generatedAt: '2026-11-17T00:00:00Z' },
+      layers: [
+        { id: 'frontend', name: 'Frontend', order: 0 },
+        { id: 'service', name: 'Service', order: 1 },
+        { id: 'data', name: 'Data', order: 2 },
+      ],
+      nodes: [
+        { id: 'p', name: 'P', kind: 'service', layer: 'service' },
+        { id: 'ui', name: 'UI', kind: 'client', layer: 'frontend', parent: 'p' },
+        { id: 'db', name: 'DB', kind: 'database', layer: 'data' },
+      ],
+      edges: [{ id: 'ui-db', source: 'ui', target: 'db' }],
+    };
+    const vis = visibleGraph(indexGraph(graph), { layers: ['client'], expanded: new Set() });
+    expect(vis.nodes.map((n) => n.id).sort()).toEqual(['db', 'ui']);
+    expect(vis.groups.map((g) => g.id)).toEqual(['p']);
+    expect([...vis.context]).toEqual(['db']);
+
+    const noEdges = visibleGraph(indexGraph({ ...graph, edges: [] }), { layers: ['client'], expanded: new Set() });
+    expect(noEdges.nodes.map((n) => n.id)).toEqual(['ui']);
+    expect(noEdges.context.size).toBe(0);
   });
 });

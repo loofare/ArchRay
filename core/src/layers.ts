@@ -1,9 +1,9 @@
-import type { ArchGraph, LocalizedText } from './schema';
+import type { ArchGraph, ArchLayer, LocalizedText } from './schema';
 import { t } from './i18n';
 
 /**
- * Canonical architecture layers. Graphs may use their own layer ids; aliases map them
- * onto these buckets so one command vocabulary works across repositories and languages.
+ * Canonical architecture layers. Graphs may use their own layer ids; the global
+ * aliases help users type "前端" or "data", while a graph's own ids stay valid.
  */
 export interface LayerDef {
   id: string;
@@ -34,7 +34,7 @@ for (const l of LAYERS) {
 
 const norm = (s: string) => s.trim().toLowerCase().replace(/[\s_]+/g, '-');
 
-/** Map a user token, graph layer id or layer label to a canonical layer id. */
+/** Map a user token or layer label to a canonical layer id (global vocabulary only). */
 export function canonicalLayer(token: string | undefined): string | null {
   if (!token) return null;
   const key = token.trim();
@@ -55,15 +55,20 @@ export interface ParsedLayers {
   unknown: string[];
 }
 
-/** Parse `frontend,data` / `前端 数据` / repeated flags into canonical ids. */
-export function parseLayers(input: string | string[] | undefined): ParsedLayers {
-  const tokens = (Array.isArray(input) ? input : [input ?? ''])
+const ALL_TOKENS = new Set(['all', '*', '全部', '所有', '全部层', 'everything']);
+
+function splitLayers(input: string | string[] | undefined): string[] {
+  return (Array.isArray(input) ? input : [input ?? ''])
     .flatMap((v) => String(v).split(/[,\s，、+/]+/))
     .filter(Boolean);
+}
+
+/** Parse global aliases without a graph (used by tests and generic callers). */
+export function parseLayers(input: string | string[] | undefined): ParsedLayers {
   const layers: string[] = [];
   const unknown: string[] = [];
-  for (const token of tokens) {
-    if (['all', '*', '全部', '所有', '全部层', 'everything'].includes(token.toLowerCase())) continue;
+  for (const token of splitLayers(input)) {
+    if (ALL_TOKENS.has(token.toLowerCase())) continue;
     const id = canonicalLayer(token);
     if (id) {
       if (!layers.includes(id)) layers.push(id);
@@ -75,29 +80,85 @@ export function parseLayers(input: string | string[] | undefined): ParsedLayers 
   return { layers, unknown };
 }
 
-/** Every layer the graph actually uses, canonicalised and sorted. */
-export function graphLayers(graph: ArchGraph): string[] {
-  const ids = new Set<string>();
-  for (const l of graph.layers ?? []) {
-    const fromName = canonicalLayer(t(l.name, 'en', 'en')) ?? canonicalLayer(t(l.name, 'zh-CN', 'en'));
-    const fromId = canonicalLayer(l.id);
-    const id = fromName ?? fromId ?? l.id;
-    if (!ids.has(id)) ids.add(id);
-  }
+/* ------------------------------------------------------- graph layers */
+
+/** Declared layers of a graph, plus node-only layer ids, in display order. */
+export function graphLayerEntries(graph: ArchGraph): { id: string; label: LocalizedText; order: number }[] {
+  const declared = new Map<string, ArchLayer>();
+  for (const l of graph.layers ?? []) if (!declared.has(l.id)) declared.set(l.id, l);
   for (const n of graph.nodes) {
     if (!n.layer) continue;
-    const id = canonicalLayer(n.layer) ?? n.layer;
-    if (!ids.has(id)) ids.add(id);
+    const key = graphLayerKey(graph, n.layer);
+    if (key && !declared.has(key)) declared.set(key, { id: key, name: key, order: layerOrder(key) });
   }
-  return [...ids].sort((a, b) => layerOrder(a) - layerOrder(b) || a.localeCompare(b));
+  return [...declared.values()]
+    .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id))
+    .map((l) => ({ id: l.id, label: l.name, order: l.order }));
 }
 
-/** Resolve the graph's own layer id for a node, then canonicalise it. */
-export function canonicalLayerOf(graph: ArchGraph, raw: string | undefined): string | undefined {
+export function graphLayers(graph: ArchGraph): string[] {
+  return graphLayerEntries(graph).map((l) => l.id);
+}
+
+/** Localised label for a graph layer; custom ids fall back to the id. */
+export function graphLayerLabel(graph: ArchGraph, id: string, locale: string): string {
+  // Canonical ids keep the shared vocabulary; custom ids use the graph's own label.
+  const canonical = BY_ID.get(id);
+  if (canonical) return t(canonical.label, locale, 'en');
+  const layer = graph.layers?.find((l) => l.id === id);
+  if (layer) return t(layer.name, locale, 'en');
+  return id;
+}
+
+const layerKeys = (layer: ArchLayer) => [layer.id, t(layer.name, 'en', 'en'), t(layer.name, 'zh-CN', 'en')]
+  .map((v) => canonicalLayer(v))
+  .filter((v): v is string => !!v);
+
+/**
+ * Resolve a node/layer token to the graph's own layer id.
+ * The graph's declared ids win, then its names, then global aliases; unknown ids stay as-is.
+ */
+export function graphLayerKey(graph: ArchGraph, raw: string | undefined): string | undefined {
   if (!raw) return undefined;
-  const layer = graph.layers?.find((l) => l.id === raw);
-  const byName = layer
-    ? canonicalLayer(t(layer.name, 'en', 'en')) ?? canonicalLayer(t(layer.name, 'zh-CN', 'en'))
-    : null;
-  return byName ?? canonicalLayer(raw) ?? raw;
+  const declared = graph.layers ?? [];
+  if (declared.some((l) => l.id === raw)) return raw;
+  const canonical = canonicalLayer(raw);
+  if (canonical) {
+    const hit = declared.find((l) => layerKeys(l).includes(canonical));
+    if (hit) return hit.id;
+  }
+  const byName = declared.find((l) => [t(l.name, 'en', 'en'), t(l.name, 'zh-CN', 'en')].some((n) => n.trim().toLowerCase() === raw.trim().toLowerCase()));
+  return byName?.id ?? raw;
+}
+
+/** Resolve a user command token to a graph layer id, or null when the graph has no such layer. */
+export function resolveGraphLayer(graph: ArchGraph, token: string): string | null {
+  const key = graphLayerKey(graph, token);
+  if (!key) return null;
+  return graphLayers(graph).includes(key) ? key : null;
+}
+
+/** Parse layer tokens in the context of one graph, keeping custom layer ids. */
+export function parseGraphLayers(graph: ArchGraph, input: string | string[] | undefined): ParsedLayers {
+  const entries = graphLayerEntries(graph);
+  const available = new Set(entries.map((l) => l.id));
+  const order = new Map(entries.map((l, i) => [l.id, i]));
+  const layers: string[] = [];
+  const unknown: string[] = [];
+  for (const token of splitLayers(input)) {
+    if (ALL_TOKENS.has(token.toLowerCase())) continue;
+    const id = resolveGraphLayer(graph, token);
+    if (id && available.has(id)) {
+      if (!layers.includes(id)) layers.push(id);
+    } else {
+      unknown.push(token);
+    }
+  }
+  layers.sort((a, b) => (order.get(a) ?? 99) - (order.get(b) ?? 99));
+  return { layers, unknown };
+}
+
+/** Compatibility helper: the graph layer key for a raw layer id. */
+export function canonicalLayerOf(graph: ArchGraph, raw: string | undefined): string | undefined {
+  return graphLayerKey(graph, raw);
 }
