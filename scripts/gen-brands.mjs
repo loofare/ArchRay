@@ -135,7 +135,7 @@ const CATALOG = {
   storybook: [],
   express: ['expressjs'],
   nx: ['nxjs', 'nrwl'],
-  drizzle: ['drizzle orm'],
+  'drizzle-orm-icon': ['drizzle orm', 'drizzle-orm', 'drizzle'],
   hono: ['honojs'],
   fastify: ['fastifyjs'],
   koa: ['koajs'],

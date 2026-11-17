@@ -5,7 +5,7 @@ import { brandFor } from '../viewer/src/brands.tsx';
 assert.equal(brandFor('Express')?.id, 'express');
 assert.equal(brandFor('expressjs')?.id, 'express');
 assert.equal(brandFor('Nx')?.id, 'nx');
-assert.equal(brandFor('Drizzle ORM')?.id, 'drizzle');
+assert.equal(brandFor('Drizzle ORM')?.id, 'drizzle-orm-icon');
 assert.equal(brandFor('Prisma')?.id, 'prisma');
 assert.equal(brandFor('PostgreSQL 16')?.id, 'postgresql');
 assert.equal(brandFor('OpenTelemetry')?.id, 'opentelemetry-icon');
