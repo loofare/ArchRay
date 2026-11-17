@@ -178,9 +178,11 @@ export function Scene(p: SceneProps) {
               <rect x={0} y={0} width={4} height={ln.h} rx={2} fill={st} />
               <rect x={14} y={(ln.h - 34) / 2} width={34} height={34} rx={9} fill={alpha(spec.hue, 0.14)} />
               <Icon x={21} y={(ln.h - 20) / 2} width={20} height={20} color={spec.hue} strokeWidth={2} />
-              <text x={58} y={ln.h / 2 - 3} fontSize={15} fontWeight={600} fill={th.text}
+              <text x={58} y={ln.h / 2 - 6} fontSize={15} fontWeight={600} fill={th.text} paintOrder="stroke"
+                stroke={th.nodeTop} strokeWidth={3} strokeLinejoin="round"
                 textDecoration={deprecated ? 'line-through' : undefined}>{fit(title, 15, tw)[0]}</text>
-              <text x={58} y={ln.h / 2 + 16} fontSize={12} fill={th.sub}>{fit(sub, 12, tw)[0]}</text>
+              <text x={58} y={ln.h / 2 + 10} fontSize={12} fill={th.sub} paintOrder="stroke"
+                stroke={th.nodeTop} strokeWidth={3} strokeLinejoin="round">{fit(sub, 12, tw)[0]}</text>
               {hasKids ? <text x={ln.w - 12} y={16} fontSize={11} textAnchor="end" fill={th.faint}>⊞ {hasKids}</text> : null}
               {(p.lens === 'health' || p.lens === 'replaceability') && <circle cx={ln.w - 10} cy={ln.h - 10} r={4} fill={st} className="ar-pulse" />}
             </>)}
