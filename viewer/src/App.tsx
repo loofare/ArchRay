@@ -74,7 +74,11 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
   const [selected, setSelected] = useState<string | null>(null);
   const [scenarioId, setScenarioId] = useState<string | null>(v0.scenario ?? null);
   const [layers, setLayers] = useState<string[]>(v0.layers ?? []);
+  const [motion, setMotion] = useState<'full' | 'calm' | 'off'>(() =>
+    v0.motion ?? (window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'calm' : 'full'));
   const [flowId, setFlowId] = useState<string | null>(null);
+  const [showRecord, setShowRecord] = useState(false);
+  const [showMore, setShowMore] = useState(false);
   const [step, setStep] = useState(0);
   const [placed, setPlaced] = useState<{ idx: object; vis: object; layout: PlanarLayout } | null>(null);
 
@@ -164,6 +168,7 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
       ...(root ? { focus: root } : {}),
       collapsed: [...idx.children.keys()].filter((g): g is string => !!g && !expanded.has(g)),
       ...(layers.length ? { layers } : {}),
+      motion,
       ...(scenarioId ? { scenario: scenarioId } : {}),
     };
     const a = document.createElement('a');
@@ -187,6 +192,7 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
       setExpanded(new Set(base.nodes.filter((n) => base.nodes.some((c) => c.parent === n.id) && !v.collapsed?.includes(n.id)).map((n) => n.id)));
       setSelected(null);
       setLayers(v.layers ?? []);
+      if (v.motion) setMotion(v.motion);
       setFlowId(null);
       setStep(0);
       setNotices(warnings);
@@ -212,7 +218,8 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
   );
 
   return (
-    <div className="ar-shell" style={{ background: th.bg, color: th.text, ...background }}>
+    <div className={`ar-shell ar-motion-${motion}`} data-motion={motion}
+      style={{ background: th.bg, color: th.text, ...background, ['--ar-accent' as string]: th.accent } as CSSProperties}>
       <div className="ar-toolbar">
         <div style={{ marginRight: 8 }}>
           <div style={{ fontSize: 17, fontWeight: 700 }}>{L(graph.meta.name)}</div>
@@ -222,8 +229,11 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
               {crumbs.map((c) => <span key={c}> / <a style={{ color: th.accent, cursor: 'pointer' }} onClick={() => setRoot(c)}>{L(idx.byId.get(c)?.name)}</a></span>)}
             </> : `${graph.nodes.length} ${U('common.nodes')} · ${graph.edges.length} ${U('common.edges')}`}
           </div>
-          <div style={{ fontSize: 10, color: th.faint }}>
+          <div className="ar-provenance-full" style={{ fontSize: 10, color: th.faint }}>
             {U('meta.inputOnly')} · {U('meta.generated')} {base.meta.generatedAt} · {U('meta.commit')} {base.meta.repo?.commit ?? '—'} · {U('meta.notRuntime')}
+          </div>
+          <div className="ar-provenance-short" style={{ fontSize: 10, color: th.faint }}>
+            {U('meta.inputOnly')} · {U('meta.notRuntime')}
           </div>
         </div>
         {seg((['topology', 'health', 'replaceability'] as const).map((id) => ({ id, label: U(`lens.${id}`) })), lens, setLens)}
@@ -246,14 +256,23 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
           style={{ ...buttonStyle(), padding: '5px 8px' }}>
           {(['midnight', 'blueprint', 'glass', 'paper'] as const).map((id) => <option key={id} value={id}>{U(`theme.${id}`)}</option>)}
         </select>
+        <select className="ar-motion" aria-label={U('motion.label')} value={motion} onChange={(e) => setMotion(e.target.value as typeof motion)}
+          style={{ ...buttonStyle(), padding: '5px 8px' }}>
+          {(['full', 'calm', 'off'] as const).map((id) => <option key={id} value={id}>{U(`motion.${id}`)}</option>)}
+        </select>
         {btn('PNG', () => { exportPng(th, `${L(graph.meta.name)}.png`).catch(() => showNotice('png:failed')); })}
-        {btn('view.json', saveView)}
-        {/* A button-styled label keeps the native file-input text out of the toolbar. */}
-        <label className="ar-file" style={{ ...buttonStyle(), display: 'inline-flex', alignItems: 'center' }}>
-          {U('common.importView')}
-          <input className="ar-file-input" aria-label={U('common.importView')} type="file" accept=".json"
-            onChange={(e) => { void importView(e.target.files?.[0]); e.target.value = ''; }} />
-        </label>
+        <div className="ar-secondary" style={{ display: 'contents' }}>
+          {btn(U('common.exportFull'), () => { exportPng(th, `${L(graph.meta.name)}-full.png`, { full: true }).catch(() => showNotice('png:failed')); })}
+          {btn(U('record.open'), () => setShowRecord(true))}
+          {btn('view.json', saveView)}
+          {/* A button-styled label keeps the native file-input text out of the toolbar. */}
+          <label className="ar-file" style={{ ...buttonStyle(), display: 'inline-flex', alignItems: 'center' }}>
+            {U('common.importView')}
+            <input className="ar-file-input" aria-label={U('common.importView')} type="file" accept=".json"
+              onChange={(e) => { void importView(e.target.files?.[0]); e.target.value = ''; }} />
+          </label>
+        </div>
+        <button className="ar-more" aria-label={U('more.title')} onClick={() => setShowMore(true)} style={{ ...buttonStyle(), padding: '6px 10px' }}>⋯</button>
         <select className="ar-find" aria-label={U('common.findModule')} value={selected ?? ''} style={{ maxWidth: 160, minWidth: 110 }}
           onChange={(e) => { setRoot(null); setSelected(e.target.value || null); resetCamera(); }}>
           <option value="">{U('common.findModule')}</option>
@@ -280,7 +299,7 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
             <Scene camera={camera} onCamera={setCamera} idx={idx} layout={layout} projection={projection} theme={th} locale={locale} lens={lens}
               selected={selected} highlight={highlight} activeEdges={activeEdges} diff={diff}
               onSelect={setSelected}
-              onOpen={(id) => { setRoot(id); setSelected(null); }} context={vis.context} />
+              onOpen={(id) => { setRoot(id); setSelected(null); }} context={vis.context} motion={motion} />
           )}
           <div className="ar-zoom">
             {btn('−', () => setCamera((c) => ({ ...c, zoom: Math.max(0.1, c.zoom / 1.3) })))}
@@ -311,6 +330,52 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
         {(graph.flows ?? []).map((f) => btn(`▶ ${L(f.name)}`, () => setFlowId(flowId === f.id ? null : f.id), flowId === f.id))}
         {(base.scenarios ?? []).map((s) => btn(`⇄ ${L(s.name)}`, () => setScenarioId(scenarioId === s.id ? null : s.id), scenarioId === s.id))}
       </div>
+
+      {showMore && (
+        <div role="dialog" aria-modal="true" aria-label={U('more.title')} onClick={() => setShowMore(false)}
+          style={{ position: 'absolute', inset: 0, zIndex: 20, background: 'rgba(2,6,23,0.55)', display: 'grid', placeItems: 'center', padding: 16 }}>
+          <div onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: 360, width: '100%', background: th.panel, border: `1px solid ${th.panelBorder}`, borderRadius: 14, padding: 18, color: th.text, fontSize: 13 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 10 }}>{U('more.title')}</div>
+            <label style={{ display: 'grid', gap: 4, marginBottom: 10, fontSize: 12 }}>
+              {U('motion.label')}
+              <select className="ar-motion-sheet" value={motion}
+                onChange={(e) => { setMotion(e.target.value as typeof motion); setShowMore(false); }}
+                style={{ ...buttonStyle(), padding: '6px 8px' }}>
+                {(['full', 'calm', 'off'] as const).map((id) => <option key={id} value={id}>{U(`motion.${id}`)}</option>)}
+              </select>
+            </label>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {btn(U('common.exportFull'), () => { setShowMore(false); exportPng(th, `${L(graph.meta.name)}-full.png`, { full: true }).catch(() => showNotice('png:failed')); })}
+              {btn(U('record.open'), () => { setShowMore(false); setShowRecord(true); })}
+              {btn('view.json', () => { setShowMore(false); saveView(); })}
+              <label className="ar-file" style={{ ...buttonStyle(), display: 'inline-flex', alignItems: 'center' }}>
+                {U('common.importView')}
+                <input className="ar-file-input" aria-label={U('common.importView')} type="file" accept=".json"
+                  onChange={(e) => { void importView(e.target.files?.[0]); e.target.value = ''; setShowMore(false); }} />
+              </label>
+            </div>
+            <div style={{ marginTop: 12 }}>{btn(U('common.close'), () => setShowMore(false))}</div>
+          </div>
+        </div>
+      )}
+
+      {showRecord && (
+        <div role="dialog" aria-modal="true" aria-label={U('record.title')} onClick={() => setShowRecord(false)}
+          style={{ position: 'absolute', inset: 0, zIndex: 20, background: 'rgba(2,6,23,0.55)', display: 'grid', placeItems: 'center', padding: 16 }}>
+          <div onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: 480, background: th.panel, border: `1px solid ${th.panelBorder}`, borderRadius: 14, padding: 20, color: th.text, fontSize: 13, lineHeight: 1.6 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>{U('record.title')}</div>
+            <ol style={{ margin: '0 0 10px', paddingLeft: 18 }}>
+              <li>{U('record.step1')}</li>
+              <li>{U('record.step2')}</li>
+              <li>{U('record.step3')}</li>
+            </ol>
+            <p style={{ color: th.sub, margin: '0 0 12px' }}>{U('record.note')}</p>
+            {btn(U('record.close'), () => setShowRecord(false))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

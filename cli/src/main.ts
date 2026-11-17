@@ -28,6 +28,7 @@ build options:
   --layers <list>           focus architecture layers, e.g. frontend,data (or all)
   --style <name>            tech | blueprint | glass | paper (default tech)
   --lang <locale>           view language, e.g. zh-CN or en
+  --motion <mode>           full | calm | off (default full; calm for reduced motion)
   --no-open                 do not launch a browser
   --force                   replace an existing output file
 
@@ -272,12 +273,20 @@ function cmdBuild(args: Args): void {
     }
   }
 
-  const merged: ViewState | undefined = view || layerArg !== undefined || theme !== undefined || locale !== undefined
+  const motionArg = has(args, 'motion') ? flag(args, 'motion', '').toLowerCase() : undefined;
+  const MOTIONS = ['full', 'calm', 'off'] as const;
+  if (motionArg !== undefined && !(MOTIONS as readonly string[]).includes(motionArg)) {
+    throw new Error(`Unknown motion: ${motionArg}.\nUse full, calm or off.`);
+  }
+  const motion = motionArg as ViewState['motion'] | undefined;
+
+  const merged: ViewState | undefined = view || layerArg !== undefined || theme !== undefined || locale !== undefined || motion !== undefined
     ? {
         ...(view ?? { viewVersion: '1' as const }),
         ...(layerArg !== undefined ? { layers } : {}),
         ...(theme ? { theme: theme as ViewState['theme'] } : {}),
         ...(locale ? { locale } : {}),
+        ...(motion ? { motion } : {}),
       }
     : undefined;
   if (merged) assertValid(merged, true);

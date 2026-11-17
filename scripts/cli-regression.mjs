@@ -84,6 +84,10 @@ assert.equal(styled.theme, 'blueprint');
 assert.equal(styled.locale, 'en');
 const badStyle = run(['build', 'graph.json', '--style', 'nope', '--force', '--no-open'], { ok: false });
 assert.match(badStyle.stderr, /Unknown style: nope/);
+run(['build', 'graph.json', '--motion', 'calm', '--force', '--no-open']);
+assert.equal(JSON.parse(read('.archray/index.html').match(/window\.__ARCHRAY_VIEW__=(.*?);<\/script>/)[1]).motion, 'calm');
+const badMotion = run(['build', 'graph.json', '--motion', 'nope', '--force', '--no-open'], { ok: false });
+assert.match(badMotion.stderr, /Unknown motion: nope/);
 const badLang = run(['build', 'graph.json', '--lang', 'fr', '--force', '--no-open']);
 assert.match(badLang.stderr, /not in this graph/);
 

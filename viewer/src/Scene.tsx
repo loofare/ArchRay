@@ -18,6 +18,7 @@ export interface SceneProps {
   theme: Theme;
   locale: string;
   lens: Lens;
+  motion: 'full' | 'calm' | 'off';
   selected: string | null;
   highlight: Set<string> | null;
   context: Set<string> | null;
@@ -72,6 +73,8 @@ export function Scene(p: SceneProps) {
     return kindSpec(n.kind).hue;
   };
   const dim = (id: string) => (p.highlight !== null && !p.highlight.has(id)) || (p.context?.has(id) === true && p.highlight?.has(id) !== true);
+  const pathOf = (pts: Pt[]) => 'M' + pts.map((pt) => `${pt.x.toFixed(1)} ${pt.y.toFixed(1)}`).join(' L ');
+  const particleStep = Math.max(1, Math.ceil(layout.edges.length / 18));
 
   const slab = (b: { x: number; y: number; w: number; h: number }, top: string, side: string, stroke: string, sw = 1, dash?: string) => {
     const [a, bq, c, d] = projectBox(pr, b);
@@ -136,7 +139,7 @@ export function Scene(p: SceneProps) {
       })}
 
       {/* edges */}
-      {layout.edges.map((e) => {
+      {layout.edges.map((e, edgeIndex) => {
         const pts = projectPolyline(pr, layout, e.points);
         const active = p.activeEdges?.has(e.id) ?? false;
         const faded = (p.highlight && !(p.highlight.has(e.source) && p.highlight.has(e.target))) || (p.activeEdges && !active);
@@ -146,12 +149,20 @@ export function Scene(p: SceneProps) {
         const added = p.diff?.addedEdges.has(e.id);
         const color = active ? th.accent : removed ? th.critical : added ? th.planned : faded ? th.edgeDim : th.edge;
         return (
-          <g key={e.id}>
+          <g key={e.id} className="ar-edge">
             <polyline points={poly(pts)} fill="none" stroke={color} strokeWidth={active ? 2.4 : 1.4}
               strokeDasharray={async_ || removed ? '5 5' : added ? '8 4' : undefined} strokeLinejoin="round"
               markerEnd={faded ? undefined : active ? 'url(#ar-arrow-hi)' : 'url(#ar-arrow)'} />
-            {active && <polyline className="ar-flow" points={poly(pts)} fill="none" stroke={th.accent} strokeWidth={4}
+            {p.motion !== 'off' && <polyline className="ar-current" points={poly(pts)} fill="none" stroke={th.accent}
+              strokeWidth={1.4} strokeDasharray="2 12" strokeLinecap="round" opacity={active ? 0.5 : faded ? 0.12 : 0.28} />}
+            {active && p.motion !== 'off' && <polyline className="ar-flow" points={poly(pts)} fill="none" stroke={th.accent} strokeWidth={4}
               strokeDasharray="4 20" strokeLinecap="round" opacity={0.9} />}
+            {p.motion === 'full' && edgeIndex % particleStep === 0 && edgeIndex < particleStep * 18 && (
+              <circle className="ar-particle" r={1.8} fill={th.accent} opacity={0.9}>
+                <animateMotion path={pathOf(pts)} dur={`${2.6 + (edgeIndex % 5) * 0.45}s`}
+                  begin={`${(edgeIndex % 7) * 0.32}s`} repeatCount="indefinite" />
+              </circle>
+            )}
           </g>
         );
       })}
@@ -172,13 +183,13 @@ export function Scene(p: SceneProps) {
         const sub = L(n.summary) || kindLabel(n.kind, locale);
         const tw = ln.w - 62;
         return (
-          <g key={n.id} opacity={dim(n.id) ? 0.22 : deprecated ? 0.55 : 1} style={{ cursor: 'pointer' }}
+          <g key={n.id} className={`ar-node${sel ? ' is-selected' : ''}`} opacity={dim(n.id) ? 0.22 : deprecated ? 0.55 : 1} style={{ cursor: 'pointer' }}
             onClick={(e) => { e.stopPropagation(); p.onSelect(n.id); }}
             onDoubleClick={(e) => { e.stopPropagation(); if (hasKids) p.onOpen(n.id); }}>
             {pr.tilted && <polygon points={poly(projectBox(pr, { ...ln, x: ln.x + 6, y: ln.y + 10 }))} fill={th.shadow} />}
             {slab(ln, th.nodeTop, alpha(st, 0.55), sel ? th.accent : planned ? th.planned : th.nodeStroke, sel ? 2.2 : 1.1, planned ? '6 4' : undefined)}
             {onPlane({ x: ln.x, y: ln.y }, <>
-              <rect x={0} y={0} width={4} height={ln.h} rx={2} fill={st} />
+              <rect className="ar-status" x={0} y={0} width={4} height={ln.h} rx={2} fill={st} />
               <rect x={14} y={(ln.h - 34) / 2} width={34} height={34} rx={9}
                 fill={brand ? (brand.dark ? '#0F172A' : 'rgba(255,255,255,0.96)') : alpha(spec.hue, 0.14)}
                 stroke={brand ? (brand.dark ? 'rgba(255,255,255,0.18)' : 'rgba(15,23,42,0.10)') : 'none'} />

@@ -42,8 +42,8 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
   const errors = [];
   const external = [];
 
-  const open = async (viewport, query = '', init, file = FILE) => {
-    const page = await browser.newPage({ viewport });
+  const open = async (viewport, query = '', init, file = FILE, contextOptions = {}) => {
+    const page = await browser.newPage({ viewport, ...contextOptions });
     page.on('pageerror', (e) => { errors.push(`${query} ${e.message}`); console.error('PAGEERROR', query, e.message); });
     page.on('console', (m) => { if (m.type() === 'error') errors.push(`${query} console: ${m.text()}`); });
     page.on('request', (r) => {
@@ -79,6 +79,50 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
   await page.waitForTimeout(300);
   assert.ok((await page.locator('[data-brand="postgresql"]').count()) >= 1, 'PostgreSQL brand icon renders');
   assert.ok((await page.locator('[data-brand]').count()) >= 5, 'known tech gets brand marks');
+
+  // Motion levels: full has particles and ambient current; calm keeps slow dashes; off stops both.
+  assert.equal(await page.locator('.ar-shell').getAttribute('data-motion'), 'full', 'motion defaults to full');
+  assert.ok((await page.locator('.ar-particle').count()) > 0, 'full motion draws particles');
+  assert.ok((await page.locator('.ar-current').count()) > 0, 'full motion draws ambient current');
+  await page.selectOption('.ar-motion', 'calm');
+  await page.waitForTimeout(300);
+  assert.equal(await page.locator('.ar-particle').count(), 0, 'calm motion drops particles');
+  assert.ok((await page.locator('.ar-current').count()) > 0, 'calm motion keeps slow current');
+  await page.selectOption('.ar-motion', 'off');
+  await page.waitForTimeout(300);
+  assert.equal(await page.locator('.ar-current').count(), 0, 'off removes ambient motion');
+  await page.selectOption('.ar-motion', 'full');
+  await page.waitForTimeout(300);
+
+  // Recording guidance is local-only.
+  await page.click('button:has-text("Record")');
+  assert.match(await page.locator('[role=dialog]').innerText(), /⌘⇧5/, 'recording guide shows system shortcut');
+  await page.click('button:has-text("Close")');
+  assert.equal(await page.locator('[role=dialog]').count(), 0, 'recording guide closes');
+
+  // Full-graph PNG ignores the current camera.
+  const pngPage = await open({ width: 1200, height: 800 }, '?locale=en');
+  const [currentPng] = await Promise.all([pngPage.waitForEvent('download'), pngPage.click('button:has-text("PNG")')]);
+  await currentPng.saveAs(path.join(shots, 'camera.png'));
+  const [fullPng] = await Promise.all([pngPage.waitForEvent('download'), pngPage.click('button:has-text("Full PNG")')]);
+  const fullPath = path.join(shots, 'full-graph.png');
+  await fullPng.saveAs(fullPath);
+  const pngHeader = (file) => {
+    const buf = fs.readFileSync(file);
+    return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20), size: buf.length };
+  };
+  const camera = pngHeader(path.join(shots, 'camera.png'));
+  const full = pngHeader(fullPath);
+  assert.ok(full.width > 1000 && full.height > 700, `full PNG covers the graph: ${JSON.stringify(full)}`);
+  assert.ok(full.width !== camera.width || full.height !== camera.height, 'full PNG differs from the camera export');
+  assert.ok(full.size > 20000, 'full PNG has content');
+  await pngPage.close();
+
+  // Reduced-motion preference starts calm.
+  const reduced = await open({ width: 1000, height: 700 }, '', undefined, FILE, { reducedMotion: 'reduce' });
+  assert.equal(await reduced.locator('.ar-shell').getAttribute('data-motion'), 'calm', 'reduced motion starts calm');
+  assert.equal(await reduced.locator('.ar-particle').count(), 0, 'reduced motion has no particles');
+  await reduced.close();
 
   await page.selectOption('.ar-find', 'order');
   await page.waitForTimeout(400);
@@ -263,6 +307,15 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
   }
 
   page = await open({ width: 320, height: 640 }, '?layers=client&locale=zh-CN');
+  await page.click('.ar-more');
+  assert.equal(await page.locator('[role=dialog]').count(), 1, '320px more menu opens');
+  assert.match(await page.locator('[role=dialog]').innerText(), /整图 PNG|Full PNG/, 'more menu exposes full export');
+  await page.selectOption('.ar-motion-sheet', 'off');
+  await page.waitForTimeout(300);
+  assert.equal(await page.locator('.ar-shell').getAttribute('data-motion'), 'off', 'mobile menu controls motion');
+  await page.click('.ar-more');
+  await page.locator('[role=dialog] button:has-text("关闭")').last().click();
+  assert.equal(await page.locator('[role=dialog]').count(), 0, 'more menu closes');
   assert.equal(await page.locator('.ar-layers button[aria-pressed="true"]').count(), 1, '320px layer chips stay usable');
   assert.ok((await box(page, '.ar-layers')).width <= 320, '320px layer row fits the viewport');
   assert.ok((await box(page, '.ar-canvas')).height > 120, '320px filtered canvas stays usable');

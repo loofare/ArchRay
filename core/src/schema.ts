@@ -222,6 +222,7 @@ export const ViewState = Open(Type.Object({
   focus: Type.Optional(Id),
   collapsed: Type.Optional(Type.Array(Id)),
   layers: Type.Optional(Type.Array(Type.String({ minLength: 1 }), { description: 'Canonical architecture layers to focus; empty means all.' })),
+  motion: Type.Optional(Type.Union([Type.Literal('full'), Type.Literal('calm'), Type.Literal('off')], { description: 'Ambient motion level; defaults to calm when the system asks for reduced motion.' })),
   hidden: Type.Optional(Type.Array(Id)),
   pinned: Type.Optional(Type.Record(Id, Type.Object({ x: Type.Number(), y: Type.Number() }), { description: 'Manual position overrides in layout space.' })),
   scenario: Type.Optional(Id),

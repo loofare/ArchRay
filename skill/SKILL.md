@@ -47,7 +47,7 @@ When the user asks for a look or language, pass it at build time instead of edit
 node /path/to/ArchRay/cli/bin/archray.mjs build .archray/graph.json --style blueprint --lang en --no-open
 ```
 
-Styles are `tech`, `blueprint`, `glass`, `paper`. The graph must already contain the requested locale; otherwise report that it is unavailable and keep the default rather than inventing translations. Known technologies get brand marks; unknown ones use a generic kind icon.
+Styles are `tech`, `blueprint`, `glass`, `paper`; motion is `full`, `calm` or `off` (`--motion`). The graph must already contain the requested locale; otherwise report that it is unavailable and keep the default rather than inventing translations. Known technologies get brand marks; unknown ones use a generic kind icon.
 
 ## Safety and outputs
 

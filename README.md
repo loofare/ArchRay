@@ -50,11 +50,15 @@ node /path/to/ArchRay/cli/bin/archray.mjs build .archray/graph.json --style blue
 
 Styles: `tech` (default), `blueprint`, `glass`, `paper`. Language uses the graph's locales; a missing locale is reported and falls back instead of inventing text. Known technologies (Postgres, React, Kubernetes, AWS, Stripe, …) get a brand mark on the node; unknown ones fall back to a generic component icon.
 
+Motion is `full`, `calm` or `off`, via `--motion` or the toolbar. `full` adds ambient current and travelling particles; `calm` keeps slow dashes; `off` stops ambient motion. When the operating system asks for reduced motion, the view starts in `calm`.
+
 ## What the HTML gives you
 
 The single HTML embeds the viewer, the graph and operating-system fonts, so it opens offline, including over `file://`. It defaults to flat and also offers stack/iso, module selection, drill-down, fold/expand, zoom controls, wheel zoom, background drag and Fit. Details show full descriptions and source paths; narrow screens use a closable overlay.
 
-Flow highlighting follows declared directed edges, not observed traffic. Save `view.json`, then import it or embed it with `--view` to restore language, style, projection, lens, focus, collapsed groups, layers, camera and scenario. Invalid or stale view values fall back with warnings. Export the current view as PNG; choosing an image size or recording a walkthrough happens inside the HTML in a later release.
+Flow highlighting follows declared directed edges, not observed traffic. Save `view.json`, then import it or embed it with `--view` to restore language, style, motion, projection, lens, focus, collapsed groups, layers, camera and scenario. Invalid or stale view values fall back with warnings.
+
+Export the current camera or the **whole graph** as PNG (2x, capped at a safe canvas size). Ambient particles are stripped from stills so nothing freezes mid-path. A **Record** guide explains the system shortcuts and what to demonstrate; the page never records by itself, so nothing leaves the machine.
 
 ## Under the hood (CLI)
 

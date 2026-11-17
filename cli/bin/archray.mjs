@@ -6456,6 +6456,7 @@ var ViewState = Open(Type.Object({
   focus: Type.Optional(Id),
   collapsed: Type.Optional(Type.Array(Id)),
   layers: Type.Optional(Type.Array(Type.String({ minLength: 1 }), { description: "Canonical architecture layers to focus; empty means all." })),
+  motion: Type.Optional(Type.Union([Type.Literal("full"), Type.Literal("calm"), Type.Literal("off")], { description: "Ambient motion level; defaults to calm when the system asks for reduced motion." })),
   hidden: Type.Optional(Type.Array(Id)),
   pinned: Type.Optional(Type.Record(Id, Type.Object({ x: Type.Number(), y: Type.Number() }), { description: "Manual position overrides in layout space." })),
   scenario: Type.Optional(Id),
@@ -6733,6 +6734,7 @@ build options:
   --layers <list>           focus architecture layers, e.g. frontend,data (or all)
   --style <name>            tech | blueprint | glass | paper (default tech)
   --lang <locale>           view language, e.g. zh-CN or en
+  --motion <mode>           full | calm | off (default full; calm for reduced motion)
   --no-open                 do not launch a browser
   --force                   replace an existing output file
 
@@ -6953,11 +6955,19 @@ Use tech, blueprint, glass or paper.`);
       locale = langArg;
     }
   }
-  const merged = view || layerArg !== void 0 || theme !== void 0 || locale !== void 0 ? {
+  const motionArg = has(args, "motion") ? flag(args, "motion", "").toLowerCase() : void 0;
+  const MOTIONS = ["full", "calm", "off"];
+  if (motionArg !== void 0 && !MOTIONS.includes(motionArg)) {
+    throw new Error(`Unknown motion: ${motionArg}.
+Use full, calm or off.`);
+  }
+  const motion = motionArg;
+  const merged = view || layerArg !== void 0 || theme !== void 0 || locale !== void 0 || motion !== void 0 ? {
     ...view ?? { viewVersion: "1" },
     ...layerArg !== void 0 ? { layers } : {},
     ...theme ? { theme } : {},
-    ...locale ? { locale } : {}
+    ...locale ? { locale } : {},
+    ...motion ? { motion } : {}
   } : void 0;
   if (merged) assertValid(merged, true);
   const viewerPath = resolve(root, "viewer/dist/viewer.html");

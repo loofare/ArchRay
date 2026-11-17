@@ -96,6 +96,23 @@
         "type": "string"
       }
     },
+    "motion": {
+      "description": "Ambient motion level; defaults to calm when the system asks for reduced motion.",
+      "anyOf": [
+        {
+          "const": "full",
+          "type": "string"
+        },
+        {
+          "const": "calm",
+          "type": "string"
+        },
+        {
+          "const": "off",
+          "type": "string"
+        }
+      ]
+    },
     "hidden": {
       "type": "array",
       "items": {

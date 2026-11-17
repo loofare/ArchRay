@@ -22,7 +22,7 @@ export function parseView(input: unknown, graph: ArchGraph): { view: ViewState; 
   }
   const warn = (code: string) => { if (!warnings.includes(code)) warnings.push(code); };
 
-  for (const key of ['locale', 'theme', 'projection', 'lens', 'focus', 'collapsed', 'layers', 'scenario', 'camera'] as const) {
+  for (const key of ['locale', 'theme', 'projection', 'lens', 'focus', 'collapsed', 'layers', 'motion', 'scenario', 'camera'] as const) {
     const value = key === 'layers' ? rawLayers : source[key];
     if (value === undefined) continue;
     const test = { viewVersion: '1', [key]: value };

@@ -181,5 +181,8 @@ describe('layer vocabulary and filtering', () => {
     expect(validateView({ viewVersion: '1', layers: ['client'] }).ok).toBe(true);
     expect(validateView({ viewVersion: '1', theme: 'blueprint' }).ok).toBe(true);
     expect(validateView({ viewVersion: '1', theme: 'glass' }).ok).toBe(true);
+    expect(validateView({ viewVersion: '1', motion: 'calm' }).ok).toBe(true);
+    expect(validateView({ viewVersion: '1', motion: 'fast' }).ok).toBe(false);
+    expect(parseView({ viewVersion: '1', motion: 'off' }, graph).view.motion).toBe('off');
   });
 });
