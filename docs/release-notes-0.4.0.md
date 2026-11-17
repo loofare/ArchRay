@@ -8,7 +8,6 @@
 - **真实仓库验证**：前端 `nextjs/saas-starter`、后端 `Express + Prisma`、大型 `Cal.com` 包级架构；覆盖安装、生成、分层、离线浏览、导出与 320px。
 - **大图可读缩放**：25+ 模块在宽屏按布局边界打开到可读字号（最高 4×）；Fit 回全图；显式 camera/layers/focus 不覆盖。
 - **知识库与图标**：212 条技术/品牌提示、167 个品牌图标；kind、重复 ID、跨条目别名冲突在生成期拒绝；Drizzle ORM 使用专用标记。
-- **质量门禁**：29 项核心测试、CLI 回归、宿主发现、包级安装/回滚、原版浏览器矩阵、脱敏扫描；M5 代码审计 R9 PASS。
 
 ## 安装
 
@@ -36,3 +35,6 @@ tar -xzf archray-0.4.0.tgz
 - [后端试用](trial-backend-realworld-2026-11-17.md)
 - [Cal.com 大图](trial-large-calcom-2026-11-17.md)
 - [知识库扩充](trial-knowledge-expansion-2026-11-17.md)
+
+
+本版本为 ArchRay 公开仓库的首个公开发行版。
