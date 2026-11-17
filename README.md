@@ -35,6 +35,22 @@ If a command stops, the message names the next step:
 - `Cannot read ... file not found` — run `archray init`, then have your agent write `.archray/graph.json`.
 - `...: <path>: <reason>` — invalid graph fields; fix the graph, not the viewer.
 
+Install slash commands into your agent (Claude Code example; Cursor and Antigravity use flat `archray-*.md` files):
+
+```sh
+node /path/to/ArchRay/cli/bin/archray.mjs init --agent claude
+# /archray, /archray:frontend, /archray:backend, /archray:data,
+# /archray:network, /archray:security, /archray:full
+```
+
+Analyse once, then slice the view without re-analysing:
+
+```sh
+node /path/to/ArchRay/cli/bin/archray.mjs build .archray/graph.json --layers frontend,data --no-open
+```
+
+Layers are `client`, `edge`, `gateway`, `service`, `async`, `data`, `ai`, `external`, `platform`, `observability`; Chinese aliases such as `前端`, `数据`, `网关` work too. Selected layers stay visible and one-hop neighbours are dimmed as cross-layer context.
+
 Run `archray help` for every command and option.
 
 The compiled CLI uses Node built-ins only. The HTML embeds the viewer, fonts supplied by the operating system, and graph data. Browsing that artifact does not require an ArchRay service; dependency installation and your AI agent may use the network.

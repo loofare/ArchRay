@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 import { validateGraph, validateView } from '../../core/src/validate';
 import { migrateV1 } from '../../core/src/migrate';
+import { LAYERS, graphLayers, parseLayers } from '../../core/src/layers';
 import type { ArchGraph, ViewState } from '../../core/src/schema';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
@@ -24,12 +25,14 @@ build options:
   --input <file>            graph to render (default .archray/graph.json)
   --output <file>           HTML output (default .archray/index.html)
   --view <file>             view.json to embed (language, theme, projection, camera)
+  --layers <list>           focus architecture layers, e.g. frontend,data (or all)
   --no-open                 do not launch a browser
   --force                   replace an existing output file
 
 init options:
   --target <dir>            project directory (default .)
-  --agent <name>            none | claude | cursor | antigravity | all (default none)
+  --agent <name>            none | claude | cursor | antigravity | all; installs
+                            skills and /archray slash commands (default none)
 
 migrate / schema options:
   --output <file>           write to a file instead of stdout / default path
@@ -181,8 +184,33 @@ function cmdInit(args: Args): void {
     if (agent === id || agent === 'all') files.push(['skill/SKILL.md', destination]);
   }
 
+  // Slash commands: `/archray` plus focused presets. Claude namespaces subdirectories;
+  // other hosts get flat `archray-<preset>.md` files.
+  const commandFiles: [string, string][] = [
+    ['commands/archray.md', 'archray.md'],
+    ['commands/archray/frontend.md', 'frontend.md'],
+    ['commands/archray/backend.md', 'backend.md'],
+    ['commands/archray/data.md', 'data.md'],
+    ['commands/archray/network.md', 'network.md'],
+    ['commands/archray/security.md', 'security.md'],
+    ['commands/archray/full.md', 'full.md'],
+  ];
+  const addCommands = (base: string, flat: boolean) => {
+    for (const [source, name] of commandFiles) {
+      const destination = name === 'archray.md' ? `${base}/archray.md` : flat ? `${base}/archray-${name}` : `${base}/archray/${name}`;
+      files.push([source, destination]);
+    }
+  };
+  if (agent === 'claude' || agent === 'all') addCommands('.claude/commands', false);
+  if (agent === 'cursor' || agent === 'all') addCommands('.cursor/commands', true);
+  if (agent === 'antigravity' || agent === 'all') addCommands('.agent/commands', true);
+
   // Preflight every destination before writing so a conflict cannot leave a half-written init.
-  const planned = files.map(([source, destination]) => ({ path: resolve(target, destination), data: readFileSync(resolve(root, source), 'utf8') }));
+  const cliPath = resolve(root, 'cli/bin/archray.mjs');
+  const planned = files.map(([source, destination]) => ({
+    path: resolve(target, destination),
+    data: readFileSync(resolve(root, source), 'utf8').replaceAll('__ARCHRAY_CLI__', cliPath),
+  }));
   for (const file of planned) guard(file.path, undefined, args);
   for (const file of planned) writeOutput(file.path, file.data, args);
 }
@@ -208,6 +236,26 @@ function cmdBuild(args: Args): void {
     throw new Error(`Refusing to write output over the view input: ${output}.\nChoose a different --output.`);
   }
 
+  const layerArg = has(args, 'layers') ? flag(args, 'layers', '') : undefined;
+  let layers: string[] = [];
+  if (layerArg !== undefined) {
+    const parsed = parseLayers(layerArg);
+    if (parsed.unknown.length) {
+      throw new Error(
+        `Unknown layer: ${parsed.unknown.join(', ')}.\n` +
+        `Use ${LAYERS.map((l) => l.id).join(', ')} or an alias such as 前端, 数据.`,
+      );
+    }
+    const available = new Set(graphLayers(graph));
+    layers = parsed.layers.filter((l) => available.has(l));
+    const missing = parsed.layers.filter((l) => !available.has(l));
+    if (missing.length) console.error(`No modules in layer(s): ${missing.join(', ')}; ignored.`);
+    if (!layers.length && parsed.layers.length) console.error('Layer filter left no modules; showing all layers.');
+  }
+  const merged: ViewState | undefined = view || layerArg !== undefined
+    ? { ...(view ?? { viewVersion: '1' as const }), ...(layerArg !== undefined ? { layers } : {}) }
+    : undefined;
+
   const viewerPath = resolve(root, 'viewer/dist/viewer.html');
   if (!existsSync(viewerPath)) {
     throw new Error(`Viewer build not found: ${viewerPath}.\nRun "npm run build" in the ArchRay checkout first.`);
@@ -223,7 +271,7 @@ function cmdBuild(args: Args): void {
 
   // Replacement callbacks keep $&, $` and $' in user text literal instead of treating them as patterns.
   html = html.replace(/<title>[\s\S]*?<\/title>/i, () => `<title>${escapedTitle} — ArchRay</title>`);
-  html = html.replace('</head>', () => `<script>window.__ARCHRAY_DATA__=${embed(graph)};${view ? `window.__ARCHRAY_VIEW__=${embed(view)};` : ''}</script></head>`);
+  html = html.replace('</head>', () => `<script>window.__ARCHRAY_DATA__=${embed(graph)};${merged ? `window.__ARCHRAY_VIEW__=${embed(merged)};` : ''}</script></head>`);
   writeOutput(output, html, args, input);
 
   if (!has(args, 'no-open')) openInBrowser(resolve(output));

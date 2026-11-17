@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
-  applyScenario, indexGraph, migrateV1, parseView, replacementPrompt, validateGraph, validateView,
+  applyScenario, graphLayers, indexGraph, migrateV1, parseLayers, parseView, replacementPrompt,
+  validateGraph, validateView, visibleGraph,
   type ArchGraph, type Scenario,
 } from '../src';
 
@@ -126,5 +127,57 @@ describe('view recovery and prompts', () => {
     expect(prompt).not.toContain('implement step 1');
     expect(prompt).toContain('commit: unknown');
     expect(prompt).toContain('Evidence is limited to the input graph');
+  });
+});
+
+const layered = (): ArchGraph => ({
+  schemaVersion: '2.0',
+  meta: { name: 'layered', locales: ['en'], defaultLocale: 'en', generatedAt: '2026-11-17T00:00:00Z' },
+  layers: [
+    { id: 'frontend', name: 'Frontend', order: 0 },
+    { id: 'backend', name: 'Backend', order: 1 },
+    { id: 'data', name: 'Data', order: 2 },
+  ],
+  nodes: [
+    { id: 'ui', name: 'UI', kind: 'client', layer: 'frontend' },
+    { id: 'other', name: 'Other UI', kind: 'client', layer: 'frontend' },
+    { id: 'svc', name: 'Service', kind: 'service', layer: 'backend' },
+    { id: 'db', name: 'DB', kind: 'database', layer: 'data' },
+  ],
+  edges: [{ id: 'ui-svc', source: 'ui', target: 'svc' }, { id: 'svc-db', source: 'svc', target: 'db' }],
+});
+
+describe('layer vocabulary and filtering', () => {
+  it('maps Chinese and English tokens onto canonical layers', () => {
+    expect(parseLayers('前端, 数据')).toEqual({ layers: ['client', 'data'], unknown: [] });
+    expect(parseLayers('gateway network')).toEqual({ layers: ['edge', 'gateway'], unknown: [] });
+    expect(parseLayers('all')).toEqual({ layers: [], unknown: [] });
+    expect(parseLayers('nope,后端').unknown).toEqual(['nope']);
+  });
+
+  it('canonicalises graph layer ids and labels', () => {
+    expect(graphLayers(layered())).toEqual(['client', 'service', 'data']);
+  });
+
+  it('keeps selected layers plus one-hop context and drops unrelated nodes and edges', () => {
+    const idx = indexGraph(layered());
+    const front = visibleGraph(idx, { layers: ['client'] });
+    expect(front.nodes.map((n) => n.id).sort()).toEqual(['other', 'svc', 'ui']);
+    expect([...front.context]).toEqual(['svc']);
+    expect(front.edges.map((e) => e.id)).toEqual(['ui-svc']);
+
+    const both = visibleGraph(idx, { layers: ['client', 'data'] });
+    expect(both.nodes.map((n) => n.id).sort()).toEqual(['db', 'other', 'svc', 'ui']);
+    expect(both.edges.map((e) => e.id).sort()).toEqual(['svc-db', 'ui-svc']);
+  });
+
+  it('restores layers from views and URL strings, dropping layers absent from the graph', () => {
+    const graph = layered();
+    expect(parseView({ viewVersion: '1', layers: ['client', 'ghost'] }, graph)).toMatchObject({
+      view: { layers: ['client'] },
+      warnings: ['stale:layers'],
+    });
+    expect(parseView({ layers: '前端,数据' }, graph).view.layers).toEqual(['client', 'data']);
+    expect(validateView({ viewVersion: '1', layers: ['client'] }).ok).toBe(true);
   });
 });

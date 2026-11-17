@@ -24,6 +24,79 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
 
+// core/src/i18n.ts
+function t(text, locale, fallback) {
+  if (text === void 0) return "";
+  if (typeof text === "string") return text;
+  if (text[locale]) return text[locale];
+  const lang = locale.split("-")[0];
+  const byLang = Object.keys(text).find((k) => k.split("-")[0] === lang);
+  if (byLang) return text[byLang];
+  if (fallback && text[fallback]) return text[fallback];
+  const first = Object.values(text)[0];
+  return first ?? "";
+}
+
+// core/src/layers.ts
+var LAYERS = [
+  { id: "client", order: 0, label: { en: "Clients & frontend", zh: "\u5BA2\u6237\u7AEF\u4E0E\u524D\u7AEF" }, aliases: ["\u524D\u7AEF", "\u5BA2\u6237\u7AEF", "\u7528\u6237\u7AEF", "\u754C\u9762", "ui", "frontend", "front-end", "web", "mobile", "client", "presentation", "spa"] },
+  { id: "edge", order: 1, label: { en: "Network & delivery", zh: "\u7F51\u7EDC\u4E0E\u4F20\u8F93" }, aliases: ["\u7F51\u7EDC", "\u4F20\u8F93", "\u7F51\u7EDC\u5C42", "\u4F20\u8F93\u5C42", "\u5206\u53D1", "\u9759\u6001\u8D44\u6E90", "\u63A5\u5165\u5C42", "network", "transport", "edge", "cdn", "dns", "delivery", "http", "access", "access-layer"] },
+  { id: "gateway", order: 2, label: { en: "Security & gateway", zh: "\u5B89\u5168\u4E0E\u7F51\u5173" }, aliases: ["\u7F51\u5173", "\u5B89\u5168", "\u5B89\u5168\u7F51\u5173", "\u9274\u6743", "\u6743\u9650", "gateway", "security", "auth", "waf", "proxy", "ingress", "loadbalancer", "load-balancer", "lb"] },
+  { id: "service", order: 3, label: { en: "Backend & middleware", zh: "\u540E\u7AEF\u4E0E\u4E2D\u95F4\u5C42" }, aliases: ["\u540E\u7AEF", "\u670D\u52A1", "\u4E2D\u95F4\u5C42", "\u4E1A\u52A1", "\u4E1A\u52A1\u5C42", "\u5E94\u7528\u5C42", "\u5E94\u7528\u670D\u52A1", "\u5E94\u7528\u670D\u52A1\u5C42", "backend", "service", "services", "server", "api", "middleware", "microservice", "domain", "application", "application-services"] },
+  { id: "async", order: 4, label: { en: "Async & automation", zh: "\u5F02\u6B65\u4E0E\u81EA\u52A8\u5316" }, aliases: ["\u5F02\u6B65", "\u4EFB\u52A1", "\u961F\u5217", "\u6D88\u606F", "\u8C03\u5EA6", "async", "worker", "job", "jobs", "queue", "messaging", "event", "events", "stream", "cron", "automation"] },
+  { id: "data", order: 5, label: { en: "Data & storage", zh: "\u6570\u636E\u4E0E\u5B58\u50A8" }, aliases: ["\u6570\u636E", "\u5B58\u50A8", "\u6570\u636E\u5C42", "\u6570\u636E\u5E93", "\u7F13\u5B58", "\u6570\u4ED3", "data", "storage", "database", "db", "cache", "warehouse", "lake", "search", "vector"] },
+  { id: "ai", order: 6, label: { en: "AI & models", zh: "AI \u4E0E\u6A21\u578B" }, aliases: ["ai", "\u6A21\u578B", "\u667A\u80FD", "\u7B97\u6CD5", "ml", "model", "models", "llm", "inference", "embedding", "agent"] },
+  { id: "external", order: 7, label: { en: "External & SaaS", zh: "\u5916\u90E8\u4E0E SaaS" }, aliases: ["\u5916\u90E8", "\u7B2C\u4E09\u65B9", "\u5546\u4E1A", "saas", "external", "third-party", "thirdparty", "vendor", "partner", "api-external"] },
+  { id: "platform", order: 8, label: { en: "Platform & infra", zh: "\u5E73\u53F0\u4E0E\u57FA\u7840\u8BBE\u65BD" }, aliases: ["\u5E73\u53F0", "\u57FA\u7840\u8BBE\u65BD", "\u90E8\u7F72", "\u8FD0\u7EF4", "infra", "infrastructure", "platform", "devops", "cloud", "k8s", "kubernetes", "container", "hosting", "ci"] },
+  { id: "observability", order: 9, label: { en: "Observability", zh: "\u53EF\u89C2\u6D4B" }, aliases: ["\u76D1\u63A7", "\u65E5\u5FD7", "\u53EF\u89C2\u6D4B", "\u544A\u8B66", "observability", "monitoring", "logging", "tracing", "metrics", "alerting"] }
+];
+var BY_ID = new Map(LAYERS.map((l) => [l.id, l]));
+var BY_ALIAS = /* @__PURE__ */ new Map();
+for (const l of LAYERS) {
+  BY_ALIAS.set(l.id, l.id);
+  for (const a of l.aliases) BY_ALIAS.set(a.toLowerCase(), l.id);
+}
+var norm = (s) => s.trim().toLowerCase().replace(/[\s_]+/g, "-");
+function canonicalLayer(token) {
+  if (!token) return null;
+  const key = token.trim();
+  return BY_ALIAS.get(key.toLowerCase()) ?? BY_ALIAS.get(norm(key)) ?? (BY_ID.has(key) ? key : null);
+}
+function layerOrder(id) {
+  return BY_ID.get(id)?.order ?? 99;
+}
+function parseLayers(input) {
+  const tokens = (Array.isArray(input) ? input : [input ?? ""]).flatMap((v) => String(v).split(/[,\s，、+/]+/)).filter(Boolean);
+  const layers = [];
+  const unknown = [];
+  for (const token of tokens) {
+    if (["all", "*", "\u5168\u90E8", "\u6240\u6709", "\u5168\u90E8\u5C42", "everything"].includes(token.toLowerCase())) continue;
+    const id = canonicalLayer(token);
+    if (id) {
+      if (!layers.includes(id)) layers.push(id);
+    } else {
+      unknown.push(token);
+    }
+  }
+  layers.sort((a, b) => layerOrder(a) - layerOrder(b));
+  return { layers, unknown };
+}
+function graphLayers(graph) {
+  const ids = /* @__PURE__ */ new Set();
+  for (const l of graph.layers ?? []) {
+    const fromName = canonicalLayer(t(l.name, "en", "en")) ?? canonicalLayer(t(l.name, "zh-CN", "en"));
+    const fromId = canonicalLayer(l.id);
+    const id = fromName ?? fromId ?? l.id;
+    if (!ids.has(id)) ids.add(id);
+  }
+  for (const n of graph.nodes) {
+    if (!n.layer) continue;
+    const id = canonicalLayer(n.layer) ?? n.layer;
+    if (!ids.has(id)) ids.add(id);
+  }
+  return [...ids].sort((a, b) => layerOrder(a) - layerOrder(b) || a.localeCompare(b));
+}
+
 // core/src/graph.ts
 function applyScenario(graph, scenario) {
   const working = structuredClone(graph);
@@ -6187,7 +6260,7 @@ var LocalizedText = Type.Union(
   ],
   { description: "Plain string (in meta.defaultLocale) or per-locale map." }
 );
-var Open = (t) => t;
+var Open = (t2) => t2;
 var KNOWN_NODE_KINDS = [
   "client",
   "cli",
@@ -6382,6 +6455,7 @@ var ViewState = Open(Type.Object({
   lens: Type.Optional(Type.Union([Type.Literal("topology"), Type.Literal("health"), Type.Literal("replaceability"), Type.Literal("flow")])),
   focus: Type.Optional(Id),
   collapsed: Type.Optional(Type.Array(Id)),
+  layers: Type.Optional(Type.Array(Type.String({ minLength: 1 }), { description: "Canonical architecture layers to focus; empty means all." })),
   hidden: Type.Optional(Type.Array(Id)),
   pinned: Type.Optional(Type.Record(Id, Type.Object({ x: Type.Number(), y: Type.Number() }), { description: "Manual position overrides in layout space." })),
   scenario: Type.Optional(Id),
@@ -6486,9 +6560,9 @@ function semantic(g, issues) {
       if (s.edge && !edgeIds.has(s.edge)) err(`/flows/${i}/steps/${j}/edge`, `unknown edge "${s.edge}"`);
     });
   });
-  function checkText(t, path) {
-    if (t && typeof t === "object") {
-      for (const k of Object.keys(t)) if (!locales.has(k)) warn(path, `locale "${k}" not declared in meta.locales`);
+  function checkText(t2, path) {
+    if (t2 && typeof t2 === "object") {
+      for (const k of Object.keys(t2)) if (!locales.has(k)) warn(path, `locale "${k}" not declared in meta.locales`);
     }
   }
 }
@@ -6656,12 +6730,14 @@ build options:
   --input <file>            graph to render (default .archray/graph.json)
   --output <file>           HTML output (default .archray/index.html)
   --view <file>             view.json to embed (language, theme, projection, camera)
+  --layers <list>           focus architecture layers, e.g. frontend,data (or all)
   --no-open                 do not launch a browser
   --force                   replace an existing output file
 
 init options:
   --target <dir>            project directory (default .)
-  --agent <name>            none | claude | cursor | antigravity | all (default none)
+  --agent <name>            none | claude | cursor | antigravity | all; installs
+                            skills and /archray slash commands (default none)
 
 migrate / schema options:
   --output <file>           write to a file instead of stdout / default path
@@ -6790,7 +6866,29 @@ function cmdInit(args) {
   for (const [id, destination] of integrations) {
     if (agent === id || agent === "all") files.push(["skill/SKILL.md", destination]);
   }
-  const planned = files.map(([source, destination]) => ({ path: resolve(target, destination), data: readFileSync(resolve(root, source), "utf8") }));
+  const commandFiles = [
+    ["commands/archray.md", "archray.md"],
+    ["commands/archray/frontend.md", "frontend.md"],
+    ["commands/archray/backend.md", "backend.md"],
+    ["commands/archray/data.md", "data.md"],
+    ["commands/archray/network.md", "network.md"],
+    ["commands/archray/security.md", "security.md"],
+    ["commands/archray/full.md", "full.md"]
+  ];
+  const addCommands = (base, flat) => {
+    for (const [source, name] of commandFiles) {
+      const destination = name === "archray.md" ? `${base}/archray.md` : flat ? `${base}/archray-${name}` : `${base}/archray/${name}`;
+      files.push([source, destination]);
+    }
+  };
+  if (agent === "claude" || agent === "all") addCommands(".claude/commands", false);
+  if (agent === "cursor" || agent === "all") addCommands(".cursor/commands", true);
+  if (agent === "antigravity" || agent === "all") addCommands(".agent/commands", true);
+  const cliPath = resolve(root, "cli/bin/archray.mjs");
+  const planned = files.map(([source, destination]) => ({
+    path: resolve(target, destination),
+    data: readFileSync(resolve(root, source), "utf8").replaceAll("__ARCHRAY_CLI__", cliPath)
+  }));
   for (const file of planned) guard(file.path, void 0, args);
   for (const file of planned) writeOutput(file.path, file.data, args);
 }
@@ -6813,6 +6911,23 @@ function cmdBuild(args) {
     throw new Error(`Refusing to write output over the view input: ${output}.
 Choose a different --output.`);
   }
+  const layerArg = has(args, "layers") ? flag(args, "layers", "") : void 0;
+  let layers = [];
+  if (layerArg !== void 0) {
+    const parsed = parseLayers(layerArg);
+    if (parsed.unknown.length) {
+      throw new Error(
+        `Unknown layer: ${parsed.unknown.join(", ")}.
+Use ${LAYERS.map((l) => l.id).join(", ")} or an alias such as \u524D\u7AEF, \u6570\u636E.`
+      );
+    }
+    const available = new Set(graphLayers(graph));
+    layers = parsed.layers.filter((l) => available.has(l));
+    const missing = parsed.layers.filter((l) => !available.has(l));
+    if (missing.length) console.error(`No modules in layer(s): ${missing.join(", ")}; ignored.`);
+    if (!layers.length && parsed.layers.length) console.error("Layer filter left no modules; showing all layers.");
+  }
+  const merged = view || layerArg !== void 0 ? { ...view ?? { viewVersion: "1" }, ...layerArg !== void 0 ? { layers } : {} } : void 0;
   const viewerPath = resolve(root, "viewer/dist/viewer.html");
   if (!existsSync(viewerPath)) {
     throw new Error(`Viewer build not found: ${viewerPath}.
@@ -6824,7 +6939,7 @@ Run "npm run build" in the ArchRay checkout first.`);
   const title = typeof name === "string" ? name : Object.values(name)[0] ?? "ArchRay";
   const escapedTitle = String(title).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   html = html.replace(/<title>[\s\S]*?<\/title>/i, () => `<title>${escapedTitle} \u2014 ArchRay</title>`);
-  html = html.replace("</head>", () => `<script>window.__ARCHRAY_DATA__=${embed(graph)};${view ? `window.__ARCHRAY_VIEW__=${embed(view)};` : ""}</script></head>`);
+  html = html.replace("</head>", () => `<script>window.__ARCHRAY_DATA__=${embed(graph)};${merged ? `window.__ARCHRAY_VIEW__=${embed(merged)};` : ""}</script></head>`);
   writeOutput(output, html, args, input);
   if (!has(args, "no-open")) openInBrowser(resolve(output));
 }

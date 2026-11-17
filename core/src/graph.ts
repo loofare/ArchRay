@@ -1,4 +1,5 @@
 import { validateGraph } from './validate';
+import { canonicalLayerOf } from './layers';
 import type { ArchEdge, ArchGraph, ArchNode, Scenario } from './schema';
 
 export interface GraphIndex {
@@ -62,6 +63,8 @@ export interface VisibleGraph {
   edges: VisibleEdge[];
   /** parent id in the visible tree (null = root of current view) */
   visibleParent: Map<string, string | null>;
+  /** nodes kept only as cross-layer context (dimmed) when a layer filter is active */
+  context: Set<string>;
 }
 
 /**
@@ -70,7 +73,7 @@ export interface VisibleGraph {
  * - `expanded`: group ids whose children are shown inline. Others render as a single box.
  * Edges are lifted to the nearest visible ancestor and merged; internal edges disappear.
  */
-export function visibleGraph(idx: GraphIndex, opts: { root?: string | null; expanded?: Set<string> } = {}): VisibleGraph {
+export function visibleGraph(idx: GraphIndex, opts: { root?: string | null; expanded?: Set<string>; layers?: string[] } = {}): VisibleGraph {
   const root = opts.root ?? null;
   const expanded = opts.expanded ?? new Set<string>();
   const nodes: ArchNode[] = [];
@@ -114,7 +117,52 @@ export function visibleGraph(idx: GraphIndex, opts: { root?: string | null; expa
       merged.set(key, { id: s === e.source && t === e.target ? e.id : `agg:${key}`, source: s, target: t, members: [e], aggregated: !(s === e.source && t === e.target) });
     }
   }
-  return { nodes, groups, edges: [...merged.values()], visibleParent };
+  const base: VisibleGraph = { nodes, groups, edges: [...merged.values()], visibleParent, context: new Set() };
+  return opts.layers?.length ? filterLayers(idx, base, opts.layers) : base;
+}
+
+/**
+ * Keep the selected architecture layers, their ancestors (for the hierarchy) and
+ * one-hop neighbours as dimmed context so cross-layer calls stay visible.
+ */
+function filterLayers(idx: GraphIndex, base: VisibleGraph, layers: string[]): VisibleGraph {
+  const wanted = new Set(layers);
+  const selected = new Set<string>();
+  for (const n of [...base.nodes, ...base.groups]) {
+    const layer = canonicalLayerOf(idx.graph, layerOf(idx, n.id));
+    if (layer && wanted.has(layer)) selected.add(n.id);
+  }
+  if (selected.size === 0) return { ...base, context: new Set() };
+
+  const keep = new Set(selected);
+  for (const e of base.edges) {
+    if (selected.has(e.source) || selected.has(e.target)) {
+      keep.add(e.source);
+      keep.add(e.target);
+    }
+  }
+  // Keep every ancestor too, otherwise a lifted child would be allocated to the wrong band.
+  for (let changed = true; changed;) {
+    changed = false;
+    for (const id of [...keep]) {
+      const parent = base.visibleParent.get(id) ?? null;
+      if (parent && !keep.has(parent)) {
+        keep.add(parent);
+        changed = true;
+      }
+    }
+  }
+
+  const context = new Set([...keep].filter((id) => !selected.has(id)));
+  const nodes = base.nodes.filter((n) => keep.has(n.id));
+  const groups = base.groups.filter((g) => keep.has(g.id));
+  const visibleParent = new Map<string, string | null>();
+  for (const id of keep) {
+    const parent = base.visibleParent.get(id) ?? null;
+    visibleParent.set(id, parent && keep.has(parent) ? parent : null);
+  }
+  const edges = base.edges.filter((e) => keep.has(e.source) && keep.has(e.target) && (selected.has(e.source) || selected.has(e.target)));
+  return { nodes, groups, edges, visibleParent, context };
 }
 
 /* ------------------------------------------------------------ scenarios */

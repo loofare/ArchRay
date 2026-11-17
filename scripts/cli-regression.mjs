@@ -3,7 +3,7 @@
  * Covers init preflight, output protection, atomic refusal, embedded data fidelity
  * and the v2 Skill metadata that agents rely on.
  */
-import { chmodSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -25,6 +25,15 @@ run(['init']);
 assert.deepEqual(readdirSync(workdir), ['.archray'], 'init writes only .archray by default');
 const skill = read('.archray/SKILL.md');
 assert.match(skill, /^---\nname: archray\ndescription: .+\n---/, 'the installed Skill keeps agent-readable frontmatter');
+
+const agentDir = join(workdir, 'agent');
+mkdirSync(agentDir);
+run(['init', '--target', agentDir, '--agent', 'claude']);
+assert.ok(existsSync(join(agentDir, '.claude/commands/archray.md')), 'agent init installs /archray');
+assert.ok(existsSync(join(agentDir, '.claude/commands/archray/frontend.md')), 'agent init installs /archray:frontend');
+const command = readFileSync(join(agentDir, '.claude/commands/archray.md'), 'utf8');
+assert.ok(!command.includes('__ARCHRAY_CLI__'), 'command templates resolve the CLI path');
+assert.ok(command.includes(cli.replaceAll('\\', '/')) || command.includes(cli), 'commands call this checkout');
 
 const duplicate = run(['init'], { ok: false });
 assert.match(duplicate.stderr, /already exists[\s\S]*--force/, 'repeat init explains how to overwrite');
@@ -60,6 +69,14 @@ assert.match(symlinkOut.stderr, /symbolic link/);
 assert.equal(read('other.json'), '{}', 'a symlinked output target is not touched');
 
 run(['build', 'graph.json', '--force', '--no-open']);
+
+// Layer focus is a view, not a new analysis.
+run(['build', 'graph.json', '--layers', '前端,数据', '--force', '--no-open']);
+const focused = read('.archray/index.html').match(/window\.__ARCHRAY_VIEW__=(.*?);<\/script>/);
+assert.ok(focused, 'layer build embeds a view');
+assert.deepEqual(JSON.parse(focused[1]).layers, ['client', 'data']);
+const badLayer = run(['build', 'graph.json', '--layers', 'nope', '--force', '--no-open'], { ok: false });
+assert.match(badLayer.stderr, /Unknown layer: nope[\s\S]*observability/);
 
 // An unwritable directory fails the atomic commit without leaving a partial or empty output.
 const readonly = join(workdir, 'readonly');

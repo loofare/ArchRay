@@ -19,6 +19,7 @@ export interface SceneProps {
   lens: Lens;
   selected: string | null;
   highlight: Set<string> | null;
+  context: Set<string> | null;
   activeEdges: Set<string> | null;
   diff: ScenarioDiff | null;
   onSelect(id: string | null): void;
@@ -69,7 +70,7 @@ export function Scene(p: SceneProps) {
     }
     return kindSpec(n.kind).hue;
   };
-  const dim = (id: string) => p.highlight !== null && !p.highlight.has(id);
+  const dim = (id: string) => (p.highlight !== null && !p.highlight.has(id)) || (p.context?.has(id) === true && p.highlight?.has(id) !== true);
 
   const slab = (b: { x: number; y: number; w: number; h: number }, top: string, side: string, stroke: string, sw = 1, dash?: string) => {
     const [a, bq, c, d] = projectBox(pr, b);

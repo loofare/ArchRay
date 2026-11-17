@@ -179,6 +179,40 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
   await page.screenshot({ path: path.join(shots, 'png-failure.png') });
   await page.close();
 
+  /* ------------------------------------------------------- layer focus */
+  page = await open({ width: 1440, height: 900 }, '?layers=前端,数据&locale=zh-CN');
+  const pressed = async () => (await page.locator('.ar-layers button[aria-pressed="true"]').allInnerTexts()).map((t) => t.trim()).sort();
+  assert.deepEqual(await pressed(), ['客户端与前端', '数据与存储'].sort(), 'URL layers activate chips');
+  const layerScene = await page.locator('#archray-scene').textContent();
+  assert.match(layerScene, /API 网关/, 'one-hop context stays visible');
+  assert.match(layerScene, /PostgreSQL/, 'selected data layer stays visible');
+  const opacityOf = (label) => page.evaluate((text) => {
+    const node = [...document.querySelectorAll('#archray-scene text')].find((t) => t.textContent.includes(text));
+    const group = node?.closest('g[opacity]');
+    return group ? Number(getComputedStyle(group).opacity) : null;
+  }, label);
+  assert.ok((await opacityOf('订单服务')) < 0.5, 'unselected service is dimmed context');
+  assert.equal(await opacityOf('PostgreSQL'), 1, 'selected layer is fully visible');
+  await page.screenshot({ path: path.join(shots, 'layers-zh.png') });
+
+  await page.locator('.ar-layers button', { hasText: '客户端与前端' }).click();
+  await page.waitForTimeout(700);
+  assert.ok(!/Web 控制台/.test(await page.locator('#archray-scene').textContent()), 'chip toggle removes a layer');
+
+  const [layerView] = await Promise.all([page.waitForEvent('download'), page.click('button:has-text("view.json")')]);
+  const layerViewPath = path.join(shots, 'view-layers.json');
+  await layerView.saveAs(layerViewPath);
+  assert.deepEqual(JSON.parse(fs.readFileSync(layerViewPath, 'utf8')).layers, ['data'], 'saved view keeps the layer focus');
+
+  await page.locator('.ar-layers button', { hasText: '全部层' }).click();
+  await page.waitForTimeout(600);
+  assert.equal(await page.locator('.ar-layers button[aria-pressed="true"]').count(), 1, 'all layers resets the filter');
+  await page.setInputFiles('input[type=file]', layerViewPath);
+  await page.waitForTimeout(700);
+  assert.deepEqual(await pressed(), ['数据与存储'], 'import restores the layer focus');
+  await page.screenshot({ path: path.join(shots, 'layers-restored-zh.png') });
+  await page.close();
+
   /* --------------------------------------------------- invalid view input */
   page = await open({ width: 1280, height: 800 }, '?theme=bad&projection=nope&lens=1&collapsed=123&focus=ghost&camera=bad&locale=zh-CN');
   const alert = (await page.locator('[role=alert]').innerText()).replace(/\s+/g, ' ');
@@ -213,6 +247,13 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
     await page.screenshot({ path: path.join(shots, `narrow-${w}-graph.png`) });
     await page.close();
   }
+
+  page = await open({ width: 320, height: 640 }, '?layers=client&locale=zh-CN');
+  assert.equal(await page.locator('.ar-layers button[aria-pressed="true"]').count(), 1, '320px layer chips stay usable');
+  assert.ok((await box(page, '.ar-layers')).width <= 320, '320px layer row fits the viewport');
+  assert.ok((await box(page, '.ar-canvas')).height > 120, '320px filtered canvas stays usable');
+  await page.screenshot({ path: path.join(shots, 'narrow-320-layers.png') });
+  await page.close();
 
   /* --------------------------------------- 40 modules, light theme, stack */
   const layers = [

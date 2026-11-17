@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import {
-  parseView, applyScenario, computeLayout, graphLocales, impactOf, indexGraph, negotiateLocale, replacementPrompt, t, ui,
-  validateGraph, visibleGraph, type ArchGraph, type PlanarLayout, type ProjectionId, type UiKey,
+  parseView, applyScenario, computeLayout, graphLayers, graphLocales, impactOf, indexGraph, layerLabel,
+  negotiateLocale, replacementPrompt, t, ui, validateGraph, visibleGraph,
+  type ArchGraph, type PlanarLayout, type ProjectionId, type UiKey,
 } from '@archray/core';
 import { Scene, type Lens } from './Scene';
 import { Inspector } from './Inspector';
@@ -72,6 +73,7 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
   });
   const [selected, setSelected] = useState<string | null>(null);
   const [scenarioId, setScenarioId] = useState<string | null>(v0.scenario ?? null);
+  const [layers, setLayers] = useState<string[]>(v0.layers ?? []);
   const [flowId, setFlowId] = useState<string | null>(null);
   const [step, setStep] = useState(0);
   const [placed, setPlaced] = useState<{ idx: object; vis: object; layout: PlanarLayout } | null>(null);
@@ -85,7 +87,11 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
   const scen = base.scenarios?.find((s) => s.id === scenarioId) ?? null;
   const { graph, diff } = useMemo(() => (scen ? applyScenario(base, scen) : { graph: base, diff: null }), [base, scen]);
   const idx = useMemo(() => indexGraph(graph), [graph]);
-  const vis = useMemo(() => visibleGraph(idx, { root, expanded }), [idx, root, expanded]);
+  const availableLayers = useMemo(() => graphLayers(base), [base]);
+  const vis = useMemo(
+    () => visibleGraph(idx, { root, expanded, layers: layers.length ? layers : undefined }),
+    [idx, root, expanded, layers],
+  );
 
   useEffect(() => {
     let alive = true;
@@ -152,6 +158,7 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
       camera, $schema: './view.schema.json', viewVersion: '1', locale, theme: themeId, projection, lens,
       ...(root ? { focus: root } : {}),
       collapsed: [...idx.children.keys()].filter((g): g is string => !!g && !expanded.has(g)),
+      ...(layers.length ? { layers } : {}),
       ...(scenarioId ? { scenario: scenarioId } : {}),
     };
     const a = document.createElement('a');
@@ -174,6 +181,7 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
       setCamera(v.camera ?? { x: 0, y: 0, zoom: 1 });
       setExpanded(new Set(base.nodes.filter((n) => base.nodes.some((c) => c.parent === n.id) && !v.collapsed?.includes(n.id)).map((n) => n.id)));
       setSelected(null);
+      setLayers(v.layers ?? []);
       setFlowId(null);
       setStep(0);
       setNotices(warnings);
@@ -217,6 +225,19 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
         {seg((['topology', 'health', 'replaceability'] as const).map((id) => ({ id, label: U(`lens.${id}`) })), lens, setLens)}
         {seg((['stack', 'iso', 'flat'] as const).map((id) => ({ id, label: U(`projection.${id}`) })), projection, setProjection)}
         {locales.length > 1 && seg(locales.map((l) => ({ id: l, label: l.startsWith('zh') ? '中' : l.split('-')[0]!.toUpperCase() })), locale, setLocale)}
+        {availableLayers.length > 1 && (
+          <div className="ar-layers" role="group" aria-label={U('layers.label')}>
+            <span style={{ fontSize: 11, color: th.faint, marginRight: 2 }}>{U('layers.label')}</span>
+            <button aria-pressed={layers.length === 0} onClick={() => setLayers([])} title={U('layers.all')} style={{ ...buttonStyle(layers.length === 0), padding: '4px 9px', fontSize: 11 }}>{U('layers.all')}</button>
+            {availableLayers.map((id) => (
+              <button key={id} aria-pressed={layers.includes(id)} onClick={() => setLayers((cur) => cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id])}
+                title={layers.length ? U('layers.hint') : undefined}
+                style={{ ...buttonStyle(layers.includes(id)), padding: '4px 9px', fontSize: 11 }}>
+                {layerLabel(id, locale)}
+              </button>
+            ))}
+          </div>
+        )}
         {btn(themeId === 'midnight' ? '☀' : '☾', () => setThemeId(themeId === 'midnight' ? 'paper' : 'midnight'))}
         {btn('PNG', () => { exportPng(th, `${L(graph.meta.name)}.png`).catch(() => showNotice('png:failed')); })}
         {btn('view.json', saveView)}
@@ -229,7 +250,8 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
         <select aria-label={U('common.findModule')} value={selected ?? ''} style={{ maxWidth: 160, minWidth: 110 }}
           onChange={(e) => { setRoot(null); setSelected(e.target.value || null); resetCamera(); }}>
           <option value="">{U('common.findModule')}</option>
-          {base.nodes.map((n) => <option key={n.id} value={n.id}>{L(n.name)}</option>)}
+          {(layers.length ? base.nodes.filter((n) => vis.nodes.some((v) => v.id === n.id) || vis.groups.some((g) => g.id === n.id)) : base.nodes)
+            .map((n) => <option key={n.id} value={n.id}>{L(n.name)}</option>)}
         </select>
         {diff && (
           <div style={{ width: '100%', fontSize: 12 }}>
@@ -251,7 +273,7 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
             <Scene camera={camera} onCamera={setCamera} idx={idx} layout={layout} projection={projection} theme={th} locale={locale} lens={lens}
               selected={selected} highlight={highlight} activeEdges={activeEdges} diff={diff}
               onSelect={setSelected}
-              onOpen={(id) => { setRoot(id); setSelected(null); }} />
+              onOpen={(id) => { setRoot(id); setSelected(null); }} context={vis.context} />
           )}
           <div className="ar-zoom">
             {btn('−', () => setCamera((c) => ({ ...c, zoom: Math.max(0.1, c.zoom / 1.3) })))}

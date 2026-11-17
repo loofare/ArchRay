@@ -80,6 +80,14 @@
         "type": "string"
       }
     },
+    "layers": {
+      "description": "Canonical architecture layers to focus; empty means all.",
+      "type": "array",
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      }
+    },
     "hidden": {
       "type": "array",
       "items": {

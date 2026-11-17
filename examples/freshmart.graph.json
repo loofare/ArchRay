@@ -20,39 +20,48 @@
   },
   "layers": [
     {
-      "id": "edge",
+      "id": "client",
       "name": {
-        "zh-CN": "接入层",
-        "en": "Edge & Clients"
+        "zh-CN": "客户端",
+        "en": "Clients"
       },
       "order": 0,
       "color": "#38BDF8"
     },
     {
-      "id": "app",
+      "id": "edge",
       "name": {
-        "zh-CN": "应用服务层",
-        "en": "Application Services"
+        "zh-CN": "网络与接入",
+        "en": "Network & edge"
       },
       "order": 1,
+      "color": "#22D3EE"
+    },
+    {
+      "id": "service",
+      "name": {
+        "zh-CN": "应用服务层",
+        "en": "Application services"
+      },
+      "order": 2,
       "color": "#818CF8"
     },
     {
       "id": "async",
       "name": {
-        "zh-CN": "异步与智能层",
+        "zh-CN": "异步与智能",
         "en": "Async & AI"
       },
-      "order": 2,
+      "order": 3,
       "color": "#C084FC"
     },
     {
       "id": "data",
       "name": {
-        "zh-CN": "数据层",
-        "en": "Data & Storage"
+        "zh-CN": "数据与存储",
+        "en": "Data & storage"
       },
-      "order": 3,
+      "order": 4,
       "color": "#34D399"
     }
   ],
@@ -64,7 +73,7 @@
         "en": "Web Console"
       },
       "kind": "client",
-      "layer": "edge",
+      "layer": "client",
       "summary": {
         "zh-CN": "面向商家的管理后台",
         "en": "Merchant dashboard"
@@ -93,7 +102,7 @@
         "en": "Mobile App"
       },
       "kind": "client",
-      "layer": "edge",
+      "layer": "client",
       "summary": {
         "zh-CN": "顾客下单",
         "en": "Customer ordering"
@@ -182,7 +191,7 @@
         "en": "Backend Monolith"
       },
       "kind": "group",
-      "layer": "app",
+      "layer": "service",
       "summary": {
         "zh-CN": "按领域拆分的模块化单体",
         "en": "Modular monolith by domain"
@@ -253,7 +262,8 @@
             "risk": "medium"
           }
         ]
-      }
+      },
+      "layer": "service"
     },
     {
       "id": "order",
@@ -318,7 +328,8 @@
             "risk": "high"
           }
         ]
-      }
+      },
+      "layer": "service"
     },
     {
       "id": "payment",
@@ -352,7 +363,8 @@
             "risk": "medium"
           }
         ]
-      }
+      },
+      "layer": "service"
     },
     {
       "id": "catalog",
@@ -370,7 +382,8 @@
       ],
       "sourcePaths": [
         "apps/api/src/catalog/catalog.service.ts"
-      ]
+      ],
+      "layer": "service"
     },
     {
       "id": "notify",

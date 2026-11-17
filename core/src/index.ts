@@ -5,5 +5,6 @@ export * from './graph';
 export * from './layout';
 export * from './projection';
 export * from './migrate';
+export * from './layers';
 export * from './prompt';
 export * from './view';

@@ -221,6 +221,7 @@ export const ViewState = Open(Type.Object({
   lens: Type.Optional(Type.Union([Type.Literal('topology'),Type.Literal('health'),Type.Literal('replaceability'),Type.Literal('flow')])),
   focus: Type.Optional(Id),
   collapsed: Type.Optional(Type.Array(Id)),
+  layers: Type.Optional(Type.Array(Type.String({ minLength: 1 }), { description: 'Canonical architecture layers to focus; empty means all.' })),
   hidden: Type.Optional(Type.Array(Id)),
   pinned: Type.Optional(Type.Record(Id, Type.Object({ x: Type.Number(), y: Type.Number() }), { description: 'Manual position overrides in layout space.' })),
   scenario: Type.Optional(Id),
