@@ -6748,7 +6748,7 @@ function migrateV1(v1, locale = "en") {
 
 // cli/src/main.ts
 var root = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
-var VERSION = true ? "0.3.0" : "dev";
+var VERSION = true ? "0.4.0" : "dev";
 var HELP = `ArchRay v2 (source trial)
 
 Usage: archray <command> [options]

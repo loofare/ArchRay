@@ -18,7 +18,7 @@ for (const dir of ['cli/bin', 'schema', 'skill', 'commands', 'knowledge', 'examp
 }
 mkdirSync(resolve(out, 'viewer/dist'), { recursive: true });
 copyFileSync('viewer/dist/viewer.html', resolve(out, 'viewer/dist/viewer.html'));
-for (const file of ['LICENSE', 'README.md', 'README.en.md', 'package.json']) copyFileSync(file, resolve(out, file));
+for (const file of ['LICENSE', 'NOTICE', 'README.md', 'README.en.md', 'package.json']) copyFileSync(file, resolve(out, file));
 mkdirSync(resolve(out, 'docs'), { recursive: true });
 copyFileSync('docs/host-compatibility.md', resolve(out, 'docs/host-compatibility.md'));
 

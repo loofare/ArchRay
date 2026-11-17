@@ -8,16 +8,14 @@ ArchRay is an **AI-first architecture visualiser**: install it once, then type `
 
 Copy this to an AI that can run commands:
 
-> Install ArchRay in this repository and start using it: download `archray-0.3.0.tgz` from https://github.com/loofare/ArchRay/releases/tag/v0.3.0, extract it, run `./archray-0.3.0/install.sh . claude`, then follow `.archray/SKILL.md` to generate `.archray/graph.json`, build the HTML, and show me how to use `/archray`.
+> Install ArchRay in this repository and start using it: download `archray-0.3.0.tgz` from https://github.com/loofare/ArchRay/releases/tag/v0.4.0, extract it, run `./archray-0.3.0/install.sh . claude`, then follow `.archray/SKILL.md` to generate `.archray/graph.json`, build the HTML, and show me how to use `/archray`.
 
 Open a new AI session:
 
 - **Claude Code / Cursor / Antigravity / Pi**: type `/archray`. Pi presets are `/archray-frontend` etc.; `/skill:archray` also works.
 - **Codex**: type `$archray` or `/skills`; there is no `/archray` slash command.
 
-For Cursor, Antigravity, Pi or Codex, replace `claude` with the matching value in the install command. **The v0.3.0 release only carries Claude/Cursor/Antigravity layouts; Pi/Codex need v0.4.0 or a source install.**
-
-## Quick start (in your AI)
+For Cursor, Antigravity, Pi or Codex, replace `claude` with the matching value in the install command. ## Quick start (in your AI)
 
 **Option A — release package (recommended).** Download `archray-<version>.tgz` from the releases page, then:
 
@@ -111,6 +109,8 @@ node /path/to/ArchRay/cli/bin/archray.mjs build .archray/graph.json --view .arch
 v1 migration preserves original evidence under `extensions.migration`, scopes local IDs and refuses ambiguous references. Original files are not overwritten. From the tool checkout, `npm run self-analyze` converts the retained v1 graph in a temporary directory and builds `.archray/self-legacy.html`. It is a legacy demo labelled in the title as not current-source analysis, not a scan of this checkout. The tracked `.archray/graph.json` and `.archray/index.html` are that retained initial baseline, not a description of the current checkout.
 
 Scenarios are target previews; base graph facts remain the basis for impact and prompts. Deletion cascades subtrees, incident edges and flow steps; replacement reparents children and maps flow endpoints. The original input remains unchanged. Prompts request review, migration, rollback and verification plans; implementation requires separate authorization. Clipboard failure exposes selectable text. PNG exports the current camera or the full visible graph.
+
+No npm release, scan, SaaS, Playground, automatic refactoring, replacement catalog, timeline/watch or poster editor is included.
 
 
 ## Upgrade and uninstall

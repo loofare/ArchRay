@@ -8,16 +8,14 @@ ArchRay 是 **AI 优先的架构可视化工具**：安装一次，之后在 AI 
 
 把下面这句复制给能执行命令的 AI：
 
-> 请把 ArchRay 安装到当前仓库并开始使用：从 https://github.com/loofare/ArchRay/releases/tag/v0.3.0 下载 `archray-0.3.0.tgz`，解压后运行 `./archray-0.3.0/install.sh . claude`；然后按 `.archray/SKILL.md` 生成 `.archray/graph.json`，构建 HTML，并告诉我 `/archray` 怎么用。
+> 请把 ArchRay 安装到当前仓库并开始使用：从 https://github.com/loofare/ArchRay/releases/tag/v0.4.0 下载 `archray-0.3.0.tgz`，解压后运行 `./archray-0.3.0/install.sh . claude`；然后按 `.archray/SKILL.md` 生成 `.archray/graph.json`，构建 HTML，并告诉我 `/archray` 怎么用。
 
 安装后新开一个 AI 会话：
 
 - **Claude Code / Cursor / Antigravity / Pi**：输入 `/archray`。Pi 的预设是 `/archray-frontend` 等，也可用 `/skill:archray`。
 - **Codex**：输入 `$archray` 或 `/skills`，没有 `/archray` 斜杠命令。
 
-用 Cursor、Antigravity、Pi 或 Codex 时，把安装命令里的 `claude` 换成对应值。**v0.3.0 发布包只带 Claude/Cursor/Antigravity 布局；Pi/Codex 需要 v0.4.0 或源码安装。**
-
-## 快速开始（在 AI 里）
+用 Cursor、Antigravity、Pi 或 Codex 时，把安装命令里的 `claude` 换成对应值。## 快速开始（在 AI 里）
 
 **方式 A —— 发布包（推荐）。** 从 Releases 下载 `archray-<version>.tgz`，然后：
 
@@ -111,6 +109,8 @@ node /path/to/ArchRay/cli/bin/archray.mjs build .archray/graph.json --view .arch
 v1 迁移把原始证据保存在 `extensions.migration` 下，给局部 ID 加作用域，并拒绝歧义引用。原文件不会被覆盖。在工具仓库里，`npm run self-analyze` 会在临时目录转换保留的 v1 图，并构建 `.archray/self-legacy.html`。它是标题明确标注“非当前源码分析”的旧版演示，不是对本仓库的扫描。仓库里跟踪的 `.archray/graph.json` 和 `.archray/index.html` 就是这份 v1 基线，不代表当前检出。
 
 方案是目标状态预览；当前图事实仍是影响分析和提示词的基础。删除会级联子树、相关边和流程步骤；替换会重挂子节点并映射流程端点。原始输入不变。提示词只要求复核、迁移、回滚和验证计划；实施需要另行授权。剪贴板失败会显示可选文本。PNG 可导出当前相机或完整可见图。
+
+不包含 npm 正式发布、scan、SaaS、Playground、自动重构、替代目录、时间线/watch 或海报编辑器。
 
 
 ## 升级与卸载

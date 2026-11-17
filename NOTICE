@@ -1,0 +1,15 @@
+ArchRay
+Copyright (c) 2026 ArchRay contributors
+Licensed under the MIT License (see LICENSE).
+
+Brand icons
+-----------
+The generated brand icon registry is built from the Iconify `logos` collection
+(https://github.com/gilbarbara/logos), released under CC0 1.0. Individual brand
+names, logos and trademarks remain the property of their respective owners.
+They are used here only to identify technologies in architecture diagrams and
+do not imply affiliation, sponsorship or endorsement.
+
+Fonts
+-----
+Rendered HTML uses the operating system font stack; no font files are bundled.
