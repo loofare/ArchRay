@@ -4,6 +4,14 @@
 
 ArchRay 是 **AI 优先的架构可视化工具**：安装一次，之后在 AI 助手里输入 `/archray`。它会读取你的仓库、记录证据，并生成可分层、可交互的单文件 HTML，用来查看、分享和导出。
 
+## 一句话安装
+
+把下面这句复制给能执行命令的 AI：
+
+> 请把 ArchRay 安装到当前仓库并开始使用：从 https://github.com/loofare/ArchRay/releases/tag/v0.3.0 下载 `archray-0.3.0.tgz`，解压后运行 `./archray-0.3.0/install.sh . claude`；然后按 `.archray/SKILL.md` 生成 `.archray/graph.json`，构建 HTML，并告诉我 `/archray` 怎么用。
+
+安装后新开一个 AI 会话，输入 `/archray`。用 Cursor 或 Antigravity 时，把命令里的 `claude` 换成 `cursor` 或 `antigravity`。
+
 ## 快速开始（在 AI 里）
 
 **方式 A —— 发布包（推荐）。** 从 Releases 下载 `archray-<version>.tgz`，然后：
