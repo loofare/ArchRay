@@ -44,16 +44,22 @@ skill:archray [skill]
 
 ## 安装示例
 
-v0.4.0 发布包包含全部宿主：
+v0.5.0 发布包包含全部宿主。推荐从项目根目录使用 bootstrap：
 
 ```sh
-./archray-0.4.0/install.sh /path/to/repo claude
-./archray-0.4.0/install.sh /path/to/repo pi
-./archray-0.4.0/install.sh /path/to/repo codex
-./archray-0.4.0/install.sh /path/to/repo all
+tmp=$(mktemp)
+HOSTS=claude   # 改成 pi、codex、claude,pi 或 all
+if curl -fsSL https://github.com/loofare/ArchRay/releases/latest/download/install.sh -o "$tmp"; then
+  sh "$tmp" . "$HOSTS"
+  archray_install_status=$?
+else
+  archray_install_status=$?
+fi
+rm -f "$tmp"
+test "$archray_install_status" -eq 0
 ```
 
-从源码安装时，把 `./archray-0.4.0/install.sh` 换成 `node cli/bin/archray.mjs install`。
+从源码安装时，使用 `node cli/bin/archray.mjs install --target /path/to/repo --agent claude`。
 
 Pi 首次打开项目时会要求信任项目文件；信任后 `/archray` 可用；编辑 prompt 后用 `/reload`。
 

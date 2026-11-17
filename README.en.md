@@ -2,139 +2,239 @@
 
 # ArchRay
 
-ArchRay is an **AI-first architecture visualiser**: install it once, then type `/archray` inside your AI assistant. It reads your repository, records evidence, and builds a layered, interactive single-file HTML view that you can explore, share and export.
+ArchRay is an **AI-first architecture visualiser**: install it into your repository once, then type `/archray` in your AI assistant. It reads real source, records evidence, and builds a layered, interactive, offline single-file HTML view.
 
-## One-line install
+---
 
-Copy this to an AI that can run commands:
+## 1. First use
 
-> Install ArchRay in this repository and start using it: download `archray-0.4.0.tgz` from https://github.com/loofare/ArchRay/releases/tag/v0.4.0, extract it, run `./archray-0.4.0/install.sh . claude`, then follow `.archray/SKILL.md` to generate `.archray/graph.json`, build the HTML, and show me how to use `/archray`.
+1. Install ArchRay from the **root of your project repository** (section 4).
+2. Open a new AI session.
+3. Use the entry for your host: Claude/Cursor/Antigravity/Pi use `/archray`; Codex uses `$archray` or `/skills`.
+4. The first run analyses the repository and writes `.archray/graph.json` and `.archray/index.html`. Open the HTML.
 
-Open a new AI session:
+Already installed? Start at section 2.
 
-- **Claude Code / Cursor / Antigravity / Pi**: type `/archray`. Pi presets are `/archray-frontend` etc.; `/skill:archray` also works.
-- **Codex**: type `$archray` or `/skills`; there is no `/archray` slash command.
+## 2. What to say in your AI
 
-For Cursor, Antigravity, Pi or Codex, replace `claude` with the matching value in the install command.
+| Goal | Input |
+|---|---|
+| Install | copy the install sentence in section 4 |
+| Analyse this repository | `/archray` |
+| Frontend only | `/archray frontend` |
+| Update | `/archray update` |
+| Uninstall | `Uninstall ArchRay from this repository; keep graph/view/index` |
 
-## Quick start (in your AI)
-
-**Option A — release package (recommended).** Download `archray-<version>.tgz` from the releases page, then:
-
-```sh
-tar -xzf archray-<version>.tgz
-./archray-<version>/install.sh /path/to/your-repo claude
-```
-
-The installer needs Node 20+. It vendors a self-contained copy of the CLI, viewer, skill, commands and knowledge base into `.archray/tool/`, writes the slash commands and templates, and adds `tool/` to `.archray/.gitignore`. The downloaded `archray-<version>/` folder is no longer needed after installation (about 2.1 MB per repository). Run `node .archray/tool/cli/bin/archray.mjs doctor` inside the repository if something looks missing.
-
-**Option B — from source.** Node 20+:
-
-```sh
-git clone https://github.com/loofare/ArchRay.git
-cd ArchRay
-npm ci && npm run build
-node /path/to/ArchRay/cli/bin/archray.mjs init --target /path/to/your-repo --agent claude
-```
-
-Then in your AI:
+Natural language also works:
 
 ```text
-/archray
-/archray 前端,数据
+Analyse the real source in this repository, build a layered architecture view, record evidence and unknowns, build the single-file HTML, and tell me the output path. Do not modify business code.
 ```
 
-Claude Code gets `/archray` plus `/archray:frontend`, `:backend`, `:data`, `:network`, `:security`, `:full`. Cursor and Antigravity get flat `archray-*.md` commands. Pi uses `/archray`, `/archray-frontend` and `/skill:archray`; Codex reads `.agents/skills` and uses `$archray` or `/skills`. Install with `--agent claude|cursor|antigravity|pi|codex`. See the [host compatibility matrix](docs/host-compatibility.md).
+```text
+Update ArchRay in this repository to the latest version, keep .archray/graph.json and view.json, and tell me the old and new versions.
+```
 
-The AI inspects real source, writes `.archray/graph.json`, then builds `.archray/index.html`. `init` writes templates and commands only; the graph comes from that analysis. Candidates may be empty; keeping the current implementation is valid. ArchRay does not scan source or verify graph claims.
+Codex has no `/archray` slash command; use `$archray` or `/skills`.
 
-## Layers
+## 3. Command line
 
-`init` also writes `.archray/tech.json`: 212 technologies and brands with category, layer and component-kind hints. The AI uses it to classify what it finds; it is a hint, not proof that a technology is present.
-
-Analyse once, then slice the view without re-analysing:
+Run these from the **target repository root**. The installer provides a project-local command, not a global PATH entry:
 
 ```sh
-node /path/to/ArchRay/cli/bin/archray.mjs build .archray/graph.json --layers frontend,data --no-open
+./.archray/archray help
+./.archray/archray version
+./.archray/archray doctor
+
+./.archray/archray update --check
+./.archray/archray update
+
+./.archray/archray validate .archray/graph.json
+./.archray/archray build .archray/graph.json --no-open
+
+./.archray/archray uninstall --dry-run
+./.archray/archray uninstall
 ```
 
-Layers are `client`, `edge`, `gateway`, `service`, `async`, `data`, `ai`, `external`, `platform`, `observability`; Chinese aliases such as `前端`, `数据`, `网关` work too. A graph may declare its own layer ids; those stay selectable and are saved by their own id. Selected layers stay visible and one-hop runtime neighbours are dimmed as cross-layer context; platform/tooling nodes stay hidden unless selected. Graphs with 25+ modules open at a readable zoom on wide screens (up to 4×; extremely large graphs may still need manual zoom); Fit returns to the whole graph. `/archray` accepts the same keywords.
+On Windows:
 
-## Styles and language
+```bat
+.archray\archray.cmd help
+.archray\archray.cmd update --check
+```
 
-Choose at build time, or switch style inside the HTML:
+The long form also works:
 
 ```sh
-node /path/to/ArchRay/cli/bin/archray.mjs build .archray/graph.json --style blueprint --lang en --no-open
+node .archray/tool/cli/bin/archray.mjs build .archray/graph.json --no-open
 ```
 
-Styles: `tech` (default), `blueprint`, `glass`, `paper`. Language uses the graph's locales; a missing locale is reported and falls back instead of inventing text. Known technologies (Postgres, React, Kubernetes, AWS, Stripe, …) get a brand mark on the node; unknown ones fall back to a generic component icon.
+## 4. Install
 
-Motion is `full`, `calm` or `off`, via `--motion` or the toolbar. `full` adds ambient current and travelling particles; `calm` keeps slow dashes; `off` stops ambient motion. When the operating system asks for reduced motion, a saved or URL `full` setting is clamped to `calm`; `calm` and `off` are preserved. Choosing a level in the toolbar is an explicit override.
+Requires Node 20+, `curl`, `tar`, and network access to GitHub Releases. The installer needs POSIX `sh`/`mktemp`; on Windows use Git Bash or WSL. The installed `.archray\archray.cmd` is the later CLI entry, not the bootstrap shell.
+
+### One-line release install
+
+```sh
+tmp=$(mktemp)
+if curl -fsSL https://github.com/loofare/ArchRay/releases/latest/download/install.sh -o "$tmp"; then
+  sh "$tmp" . claude
+  archray_install_status=$?
+else
+  archray_install_status=$?
+fi
+rm -f "$tmp"
+test "$archray_install_status" -eq 0
+```
+
+Replace `claude` with your host:
+
+| Host | Argument | Entry |
+|---|---|---|
+| Claude Code | `claude` | `/archray`, `/archray:frontend`, … |
+| Cursor | `cursor` | `/archray`, `/archray-frontend`, … |
+| Antigravity | `antigravity` | `/archray`, `/archray-frontend`, … |
+| Pi | `pi` | `/archray`, `/archray-frontend`, `/skill:archray` |
+| Codex | `codex` | `$archray` or `/skills` |
+
+Multiple hosts (download once, choose one command):
+
+```sh
+tmp=$(mktemp)
+if curl -fsSL https://github.com/loofare/ArchRay/releases/latest/download/install.sh -o "$tmp"; then
+  sh "$tmp" . claude,pi          # or pi,codex / all
+  archray_install_status=$?
+else
+  archray_install_status=$?
+fi
+rm -f "$tmp"
+test "$archray_install_status" -eq 0
+```
+
+
+The inner `install` defaults to `claude`; the root bootstrap defaults to `auto`; these differ. `auto` detects **existing ArchRay installs in this repository**, not which AI apps are on your computer. On a clean repository, choose the host explicitly.
+
+The installer writes the CLI, viewer, skill, commands and knowledge base under `.archray/tool/`, adds `.archray/SKILL.md`, schemas, `tech.json`, host files, the `.archray/archray` + `.archray/archray.cmd` wrappers, and `.archray/install.json`.
+
+`--force` refreshes the tool and registered host templates/commands while **keeping** `.archray/graph.json`, `view.json` and `index.html`. Back up local edits to generated commands/skills before upgrading.
+
+### AI install sentence
+
+Copy this to an AI that can run commands (replace `claude` with your host or `claude,pi`):
+
+```text
+Install ArchRay in this repository: download https://github.com/loofare/ArchRay/releases/latest/download/install.sh to a temporary file, then run `sh <temp-file> . claude` only if the download succeeded; stop if it failed.
+```
+
+Open a new AI session afterwards. If installation succeeded but later commands misbehave, run `./.archray/archray doctor`; if the first install fails early (the wrapper may not exist yet), read the Node/curl/tar/sh or network error first, and do not delete `.archray` data blindly.
+
+## 5. Upgrade
+
+### v0.5.0 and later
+
+`./.archray/archray update --check` reads the manifest over the network and reports current/available only; it does not download or apply. `update` downloads, verifies and installs.
+
+Updates refresh the tool, skill, commands and templates; they **do not re-analyse source** and keep graph/view/index. A failed update keeps the old tool. Run `version` and `doctor` afterwards. `/archray update` does the same in AI.
+
+### One-time upgrade from v0.4.0 or older
+
+Old versions have no `update` command and no wrapper, so they cannot update themselves. Old Pi+Codex installs share `.agents/skills`, so `auto` may be ambiguous; choose `pi,codex` explicitly. Run the bootstrap once:
+
+```sh
+tmp=$(mktemp)
+if curl -fsSL https://github.com/loofare/ArchRay/releases/latest/download/install.sh -o "$tmp"; then
+  sh "$tmp" . auto --force
+  archray_install_status=$?
+else
+  archray_install_status=$?
+fi
+rm -f "$tmp"
+test "$archray_install_status" -eq 0
+```
+
+If you do not want `auto`, or old Pi+Codex shared `.agents/skills`, name the hosts:
+
+```sh
+tmp=$(mktemp)
+if curl -fsSL https://github.com/loofare/ArchRay/releases/latest/download/install.sh -o "$tmp"; then
+  sh "$tmp" . pi,codex --force
+  archray_install_status=$?
+else
+  archray_install_status=$?
+fi
+rm -f "$tmp"
+test "$archray_install_status" -eq 0
+```
+
+After this, `./.archray/archray update` exists. Back up local edits to generated commands/skills first.
+
+## 6. Uninstall
+
+Preview first:
+
+```sh
+./.archray/archray uninstall --dry-run
+```
+
+The default removes the tool, wrappers and host files but **keeps** `.archray/graph.json`, `view.json` and `index.html`:
+
+```sh
+./.archray/archray uninstall
+```
+
+Remove one host while keeping the others and the shared tool:
+
+```sh
+./.archray/archray uninstall --agent pi
+```
+
+`--purge` deletes the whole `.archray`, including graph/view/index and any files you stored there, and cannot be combined with `--agent`. Back up first:
+
+```sh
+./.archray/archray uninstall --purge
+```
+
+A full uninstall also removes the wrapper, so `./.archray/archray` no longer exists. Back up the graph first.
+
+AI uninstall sentence:
+
+```text
+Uninstall ArchRay from this repository, removing only ArchRay install files; keep .archray/graph.json, view.json and index.html.
+```
+
+---
 
 ## What the HTML gives you
 
-The single HTML embeds the viewer and the graph data, and uses the operating-system font stack; font files are not embedded. It opens offline, including over `file://`. It defaults to the layered stack view and also offers iso/flat. Wheel zoom is cursor-centred; drag pans; right-drag or Alt-drag rotates iso/stack; fullscreen and a minimap make large graphs navigable. It also offers module selection, drill-down, fold/expand and Fit. The health lens adds a score, hotspots and per-layer health; the replaceability lens summarises high/medium/low, lock-in and saved options. Details show full descriptions and source paths; narrow screens use a closable overlay.
+The single HTML embeds the viewer and graph data and uses the OS font stack; it opens offline, including `file://`.
 
-Flow highlighting follows declared directed edges, not observed traffic. Save `view.json`, then import it or embed it with `--view` to restore language, style, motion, projection, lens, focus, collapsed groups, layers, camera (including rotation) and scenario. Invalid or stale view values fall back with warnings.
+- Layered stack view by default; iso/flat also available.
+- Cursor-centred wheel zoom, drag pan, right-drag or Alt-drag rotation.
+- Fullscreen, minimap, module selection, drill-down, fold/expand and Fit.
+- Health overview: score, hotspots and per-layer health.
+- Replaceability overview: high/medium/low/unknown, lock-in and saved options.
+- Save `view.json` to restore language, style, motion, projection, camera (including rotation), focus, layers and scenario.
 
-Export the current camera or the **whole graph** as PNG (2x, capped at a safe canvas size). Ambient particles are stripped from stills so nothing freezes mid-path. A **Record** guide explains the system shortcuts and what to demonstrate; the page never records by itself, so nothing leaves the machine.
+Flow highlighting follows declared directed edges, not observed traffic. Source paths are claims to verify, not runtime monitoring. PNG exports the current camera or the full graph; the page never records by itself.
 
-## Under the hood (CLI)
-
-```sh
-node /path/to/ArchRay/cli/bin/archray.mjs validate .archray/graph.json
-node /path/to/ArchRay/cli/bin/archray.mjs build .archray/graph.json --no-open
-# Open .archray/index.html in a browser, including file://.
-```
-
-If a command stops, the message names the next step:
-
-- `already exists` — keep the file, choose another `--output`, or add `--force` when replacement is intended.
-- `over its input` or `symbolic link` — choose a separate real output path; these are refused even with `--force`.
-- `Cannot read ... file not found` — run `archray init`, then have your agent write `.archray/graph.json`.
-- `...: <path>: <reason>` — invalid graph fields; fix the graph, not the viewer.
-
-The compiled CLI uses Node built-ins only. The HTML embeds the viewer, fonts supplied by the operating system, and graph data. Browsing that artifact does not require an ArchRay service; dependency installation and your AI agent may use the network.
-
-Default init writes only `.archray`. Agent integrations require explicit `--agent claude|cursor|antigravity|all`. Existing outputs are refused; use `--force` deliberately. Input/output aliases and output symlinks are refused even with force. Each output is committed atomically; init checks every destination before writing (it is not a multi-file filesystem transaction).
-
-Other commands:
+## Layers and styles
 
 ```sh
-node /path/to/ArchRay/cli/bin/archray.mjs migrate old-v1.json --output .archray/graph.v2.json
-node /path/to/ArchRay/cli/bin/archray.mjs schema graph
-node /path/to/ArchRay/cli/bin/archray.mjs schema view
-node /path/to/ArchRay/cli/bin/archray.mjs build .archray/graph.json --view .archray/view.json --no-open
+./.archray/archray build .archray/graph.json --layers frontend,data --no-open
+./.archray/archray build .archray/graph.json --style blueprint --lang en --no-open
 ```
 
-v1 migration preserves original evidence under `extensions.migration`, scopes local IDs and refuses ambiguous references. Original files are not overwritten; migration is a format upgrade, not an analysis of the current checkout.
+Layers include `client`, `edge`, `gateway`, `service`, `async`, `data`, `ai`, `external`, `platform`, `observability`; Chinese aliases such as `前端`, `数据`, `网关` work too. Styles are `tech`, `blueprint`, `glass`, `paper`; unknown technologies fall back to a generic icon rather than an invented brand.
 
-Scenarios are target previews; base graph facts remain the basis for impact and prompts. Deletion cascades subtrees, incident edges and flow steps; replacement reparents children and maps flow endpoints. The original input remains unchanged. Prompts request review, migration, rollback and verification plans; implementation requires separate authorization. Clipboard failure exposes selectable text. PNG exports the current camera or the full visible graph.
+## Troubleshooting
 
-No npm release, scan, SaaS, Playground, automatic refactoring, replacement catalog, timeline/watch or poster editor is included.
+- `Cannot read ... file not found`: run `./.archray/archray help`, then have the AI write `.archray/graph.json`.
+- `already exists`: keep the file, choose another output, or use `--force` when replacement is intended.
+- `--purge deletes the whole .archray`: back up `graph.json`, `view.json` and `index.html` first.
+- Update check fails: the old tool remains usable; check network/proxy and retry. Do not delete the old tool first.
 
-Brand names and trademarks belong to their owners. Icons come from Iconify `logos` (CC0) and are used only for identification, without implying affiliation or endorsement. See [NOTICE](NOTICE). See the [changelog](docs/changelog.md) for features and version changes. [MIT](LICENSE).
+## Boundaries
 
-## Upgrade and uninstall
+No npm release, scan service, SaaS, automatic refactoring, replacement catalogue, timeline/watch or poster editor. Analysis is generated by AI from real source or user description; paths, health and replaceability claims need review.
 
-Upgrade with a newer release tarball; `--force` refreshes the vendored tool, skill, commands and templates while keeping `.archray/graph.json`:
-
-```sh
-./archray-<new-version>/install.sh /path/to/your-repo claude --force
-```
-
-Uninstall by removing the installed files (nothing is global). This also deletes `.archray`, including `graph.json`, `view.json` and the built HTML — back them up first if you want to keep them:
-
-```sh
-rm -f /path/to/your-repo/.claude/commands/archray.md /path/to/your-repo/.claude/commands/archray/*.md
-rm -rf /path/to/your-repo/.claude/skills/archray /path/to/your-repo/.archray
-# .archray/tool is inside .archray, so the vendored CLI is removed too
-# Cursor: .cursor/commands/archray*.md and .cursor/rules/archray.mdc
-# Antigravity: .agent/commands/archray*.md and .agent/skills/archray
-# Pi: .pi/prompts/archray.md, .pi/prompts/archray-*.md and .agents/skills/archray
-# Codex: .agents/skills/archray (shared with Pi; delete only the ArchRay directory)
-# Check .pi/prompts and .agents/skills for other tools before deleting
-```
-
-`archray version` prints the bundle version; `archray doctor` checks the viewer template, schemas, skill, commands and knowledge base. Installed commands use the relative `.archray/tool/cli/bin/archray.mjs`, so they keep working after the download is removed or the repository moves.
+Brand names and trademarks belong to their owners. Icons come from Iconify `logos` (CC0) and are used only for identification. See [NOTICE](NOTICE) and the [changelog](docs/changelog.md). [MIT](LICENSE).

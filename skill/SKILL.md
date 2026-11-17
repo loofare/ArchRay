@@ -51,6 +51,18 @@ node "__ARCHRAY_CLI__" build .archray/graph.json --style blueprint --lang en --n
 
 Styles are `tech`, `blueprint`, `glass`, `paper`; motion is `full`, `calm` or `off` (`--motion`). The graph must already contain the requested locale; otherwise report that it is unavailable and keep the default rather than inventing translations. Known technologies get brand marks; unknown ones use a generic kind icon.
 
+## Updating and uninstalling
+
+If the user asks to update ArchRay, resolve the intent before doing anything else and then stop the update branch; do not re-analyse source, validate or rebuild the graph.
+
+- **Check only** (`check for updates`, `update --check`, `只检查`): run `node "__ARCHRAY_CLI__" update --check`. Report the current and available version and state that no update was downloaded or applied. Do not run `update` afterwards.
+- **Apply update** (`update`, `升级到最新版`): run `node "__ARCHRAY_CLI__" update`. Report the old/new version and confirm `.archray/graph.json`, `view.json` and `index.html` were kept.
+- If the check or update fails, report the error and stop. Do not fall back to analysis or building.
+
+A check-only request is not authorization to apply an update. Updates use the release manifest and SHA-256; a failed update leaves the old tool in place.
+
+If the user asks to uninstall, run `node "__ARCHRAY_CLI__" uninstall --dry-run` first, show what will be removed, and wait for explicit confirmation before running `uninstall`. Use `--purge` only when the user explicitly wants to delete graph/view/index too.
+
 ## Safety and outputs
 
 Write only `.archray` artifacts by default. Preserve existing graph/view files unless the user explicitly authorizes replacement. Do not modify application source or agent configuration as part of analysis.

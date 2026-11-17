@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.5.0（2026-11-18）
+
+- 项目内 `archray update` / `update --check`，保留 graph/view/index。
+- `archray uninstall` 默认保留数据，`--purge` 完整清除。
+- 一次性 bootstrap 安装/旧版升级；`.archray/archray` 短命令。
+- 楼层/等轴导航、缩略图、健康度与可替代性总览。
+
 ## v0.4.0（2026-11-17）
 
 - AI 宿主：Claude Code、Cursor、Antigravity、Pi、Codex；`install --agent all` 一次安装。

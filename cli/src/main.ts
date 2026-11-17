@@ -1,13 +1,17 @@
 import {
-  closeSync, cpSync, existsSync, linkSync, lstatSync, mkdirSync, openSync, readFileSync, realpathSync, renameSync, rmSync, statSync, unlinkSync, writeFileSync,
+  chmodSync, closeSync, cpSync, existsSync, linkSync, lstatSync, mkdirSync, openSync, readFileSync, realpathSync, renameSync, rmSync, statSync, unlinkSync, writeFileSync,
 } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 import { validateGraph, validateView } from '../../core/src/validate';
 import { migrateV1 } from '../../core/src/migrate';
 import { graphLayers, parseGraphLayers } from '../../core/src/layers';
 import type { ArchGraph, ViewState } from '../../core/src/schema';
+import {
+  AGENTS, detectAgents, readInstallManifest, resolveAgents, runUpdate, uninstallProject,
+  writeInstallManifest, writeWrappers, wrapperFiles, type Agent,
+} from './update';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 declare const __ARCHRAY_VERSION__: string;
@@ -23,6 +27,8 @@ Usage: archray <command> [options]
   schema [graph|view]       print a JSON schema
   init [options]            write .archray templates for your AI agent
   install [options]         vendor the tool into a project and install commands
+  update [--check]          update this installed project to the latest release
+  uninstall [--purge]       remove ArchRay from this project
   doctor                    check the packaged files and Node version
   version                   print the CLI version
 
@@ -39,14 +45,27 @@ build options:
 
 init options:
   --target <dir>            project directory (default .)
-  --agent <name>            none | claude | cursor | antigravity | pi | codex | all;
-                            installs skills and slash commands (default none)
+  --agent <name>            none | claude | cursor | antigravity | pi | codex | all | auto;
+                            installs skills and slash commands (default none; comma lists accepted)
   --cli <path>              CLI path written into commands (default: this package)
 
 install options:
   --target <dir>            project directory (default .)
-  --agent <name>            none | claude | cursor | antigravity | pi | codex | all (default claude)
-  --force                   update the vendored tool and existing files
+  --agent <name>            claude | cursor | antigravity | pi | codex | all | auto (default claude)
+  --force                   update the vendored tool and refresh registered host files
+
+update options:
+  --check                   only report the available version
+  --manifest <url|path>     release manifest (or ARCHRAY_UPDATE_MANIFEST)
+  --target <dir>            project directory (default: parent of this tool)
+  --agent <name>            fallback host selection when no install manifest exists;
+                            all registered hosts are refreshed
+  --force                   reinstall the same version, or the manifest version if older
+
+uninstall options:
+  --purge                   remove ALL .archray data, including graph/view/index; cannot be combined with --agent
+  --dry-run                 list files without deleting (recommended first)
+  --agent <name>            remove only these hosts (default: installed manifest/detection)
 
 migrate / schema options:
   --output <file>           write to a file instead of stdout / default path
@@ -135,8 +154,36 @@ function guard(path: string, input: string | undefined, args: Args): void {
   }
 }
 
+/** Validate a new install-time path before any directory/file is created. */
+function guardInstallPath(path: string, targetRoot: string, protectedPaths: string[], args: Args, allowExisting = false): void {
+  const abs = resolve(path);
+  const parentReal = identity(dirname(abs));
+  const rootReal = identity(targetRoot);
+  const rel = relative(rootReal, parentReal);
+  if (rel.startsWith(`..${sep}`) || isAbsolute(rel)) {
+    throw new Error(`Refusing install path outside the project: ${abs}`);
+  }
+  try {
+    if (lstatSync(abs).isSymbolicLink()) throw new Error(`Refusing symbolic-link install path: ${abs}`);
+  } catch (e: any) {
+    if (e.code !== 'ENOENT') throw e;
+  }
+  for (const protectedPath of protectedPaths) {
+    if (!existsSync(protectedPath)) continue;
+    if (identity(abs) === identity(protectedPath)) throw new Error(`Refusing install path over user data: ${abs}`);
+    try {
+      if (existsSync(abs) && statSync(abs).ino === statSync(protectedPath).ino && statSync(abs).dev === statSync(protectedPath).dev) {
+        throw new Error(`Refusing install path over user data: ${abs}`);
+      }
+    } catch (e: any) {
+      if (e.code !== 'ENOENT') throw e;
+    }
+  }
+  if (!allowExisting) guard(abs, undefined, args);
+}
+
 /** Write atomically via a same-directory temporary file; never leave a partial output. */
-function writeOutput(path: string, data: string, args: Args, input?: string): void {
+function writeOutput(path: string, data: string, args: Args, input?: string, quiet = false): void {
   const target = resolve(path);
   guard(target, input, args);
   mkdirSync(dirname(target), { recursive: true });
@@ -159,7 +206,7 @@ function writeOutput(path: string, data: string, args: Args, input?: string): vo
   } finally {
     if (existsSync(temp)) unlinkSync(temp);
   }
-  console.log(target);
+  if (!quiet) console.log(target);
 }
 
 const json = (value: unknown) => JSON.stringify(value, null, 2) + '\n';
@@ -217,10 +264,8 @@ const COMMAND_FILES: [string, string][] = [
   ['commands/archray/full.md', 'full.md'],
 ];
 
-const AGENTS = ['none', 'claude', 'cursor', 'antigravity', 'pi', 'codex', 'all'];
-
 /** Files init writes for one target/agent; shared by init, install and doctor. */
-function planInit(target: string, agent: string, cliPath: string): { path: string; data: string }[] {
+function planInit(target: string, agents: string[], cliPath: string): { path: string; data: string }[] {
   const files: [string, string][] = [...CORE_TEMPLATES];
   const integrations: [string, string][] = [
     ['claude', '.claude/skills/archray/SKILL.md'],
@@ -229,9 +274,11 @@ function planInit(target: string, agent: string, cliPath: string): { path: strin
     ['pi', '.agents/skills/archray/SKILL.md'],
     ['codex', '.agents/skills/archray/SKILL.md'],
   ];
+  const wanted = new Set(agents);
+  const all = wanted.has('all');
   const added = new Set<string>();
   for (const [id, destination] of integrations) {
-    if ((agent === id || agent === 'all') && !added.has(destination)) {
+    if ((all || wanted.has(id)) && !added.has(destination)) {
       files.push(['skill/SKILL.md', destination]);
       added.add(destination);
     }
@@ -245,12 +292,12 @@ function planInit(target: string, agent: string, cliPath: string): { path: strin
       files.push([source, destination]);
     }
   };
-  if (agent === 'claude' || agent === 'all') addCommands('.claude/commands', false);
-  if (agent === 'cursor' || agent === 'all') addCommands('.cursor/commands', true);
-  if (agent === 'antigravity' || agent === 'all') addCommands('.agent/commands', true);
+  if (all || wanted.has('claude')) addCommands('.claude/commands', false);
+  if (all || wanted.has('cursor')) addCommands('.cursor/commands', true);
+  if (all || wanted.has('antigravity')) addCommands('.agent/commands', true);
 
   // Pi prompt templates become `/archray` and `/archray-<preset>` commands.
-  if (agent === 'pi' || agent === 'all') {
+  if (all || wanted.has('pi')) {
     for (const [source, name] of COMMAND_FILES) {
       files.push([source, name === 'archray.md' ? '.pi/prompts/archray.md' : `.pi/prompts/archray-${name}`]);
     }
@@ -264,13 +311,11 @@ function planInit(target: string, agent: string, cliPath: string): { path: strin
 
 function cmdInit(args: Args): void {
   const target = resolve(flag(args, 'target', '.'));
-  const agent = flag(args, 'agent', 'none');
-  if (!AGENTS.includes(agent)) {
-    throw new Error(`Unknown --agent value: ${agent}. Use none, claude, cursor, antigravity, pi, codex or all.`);
-  }
+  const agentRaw = flag(args, 'agent', 'none');
+  const agents = agentRaw === 'none' ? [] : resolveAgents(target, agentRaw);
 
   const cliPath = has(args, 'cli') ? flag(args, 'cli', '') : resolve(root, 'cli/bin/archray.mjs');
-  const planned = planInit(target, agent, cliPath);
+  const planned = planInit(target, agents, cliPath);
   // Preflight every destination before writing so a conflict cannot leave a half-written init.
   for (const file of planned) guard(file.path, undefined, args);
   for (const file of planned) writeOutput(file.path, file.data, args);
@@ -281,10 +326,11 @@ function cmdInstall(args: Args): void {
     throw new Error(`Node 20+ is required (running ${process.version}).`);
   }
   const target = resolve(flag(args, 'target', '.'));
-  const agent = flag(args, 'agent', 'claude');
-  if (!AGENTS.includes(agent)) {
-    throw new Error(`Unknown --agent value: ${agent}. Use none, claude, cursor, antigravity, pi, codex or all.`);
-  }
+  const agentRaw = flag(args, 'agent', 'claude');
+  if (agentRaw === 'none') throw new Error('install needs at least one host; use claude, cursor, antigravity, pi, codex, all or auto.');
+  const requested = resolveAgents(target, agentRaw);
+  const existing = readInstallManifest(target)?.agents ?? detectAgents(target);
+  const agents = [...new Set([...existing, ...requested])];
 
   const archrayDir = resolve(target, '.archray');
   const toolDir = resolve(archrayDir, 'tool');
@@ -296,10 +342,15 @@ function cmdInstall(args: Args): void {
   for (const path of [archrayDir, toolDir, ignoreFile]) {
     if (isLink(path)) throw new Error(`Refusing symbolic-link install path: ${path}`);
   }
+  const rootReal = realpathSync(target);
+  const protectedPaths = ['graph.json', 'view.json', 'index.html'].map((name) => resolve(archrayDir, name));
+  guardInstallPath(ignoreFile, rootReal, protectedPaths, args, true);
 
   const cliPath = '.archray/tool/cli/bin/archray.mjs';
-  const planned = planInit(target, agent, cliPath);
-  for (const file of planned) guard(file.path, undefined, args);
+  const planned = planInit(target, agents, cliPath);
+  const extraPaths = [...wrapperFiles(target).map((w) => w.path), resolve(archrayDir, 'install.json')];
+  for (const file of planned) guardInstallPath(file.path, rootReal, protectedPaths, args);
+  for (const path of extraPaths) guardInstallPath(path, rootReal, protectedPaths, args);
   if (existsSync(toolDir) && !has(args, 'force')) {
     throw new Error(`${toolDir} already exists.\nRe-run with --force to update the vendored tool.`);
   }
@@ -328,8 +379,16 @@ function cmdInstall(args: Args): void {
     }
     for (const file of planned) {
       snapshot(file.path);
-      writeOutput(file.path, file.data, args);
+      writeOutput(file.path, file.data, args, undefined, true);
     }
+    for (const wrapper of wrapperFiles(target)) {
+      snapshot(wrapper.path);
+      writeFileSync(wrapper.path, wrapper.data, { mode: wrapper.mode });
+      chmodSync(wrapper.path, wrapper.mode);
+    }
+    const manifestPath = resolve(archrayDir, 'install.json');
+    snapshot(manifestPath);
+    writeInstallManifest(target, VERSION, agents as Agent[]);
 
     snapshot(ignoreFile);
     const existing = existsSync(ignoreFile) ? readFileSync(ignoreFile, 'utf8') : '';
@@ -348,9 +407,15 @@ function cmdInstall(args: Args): void {
     }
     if (hadTool) rmSync(toolBackup, { recursive: true, force: true });
 
-    console.log(`Installed ArchRay into ${target}`);
-    console.log(`Vendored CLI: ${toolDir}/cli/bin/archray.mjs`);
-    console.log('Open the repository in your AI and type /archray');
+    console.log(`Installed ArchRay v${VERSION} into ${target}`);
+    const entry: Record<string, string> = {
+      claude: '/archray', cursor: '/archray', antigravity: '/archray', pi: '/archray (or /skill:archray)', codex: '$archray or /skills',
+    };
+    for (const agent of agents) console.log(`  ${agent}: ${entry[agent] ?? agent}`);
+    console.log('Next: open a new AI session in this repository and use the entry above.');
+    console.log('Short command: ./.archray/archray help | version | doctor | update --check');
+    if (process.platform === 'win32') console.log(String.raw`Windows: .\.archray\archray.cmd help`);
+    console.log('If this host does not show the command, reload the window/session.');
   } catch (error) {
     // Restore the tool first, then every template/skill/ignore file written above.
     if (existsSync(toolBackup)) {
@@ -364,6 +429,36 @@ function cmdInstall(args: Args): void {
   } finally {
     if (existsSync(stage)) rmSync(stage, { recursive: true, force: true });
   }
+}
+
+async function cmdUpdate(args: Args): Promise<void> {
+  const target = resolve(flag(args, 'target', resolve(root, '../..')));
+  if (!existsSync(resolve(target, '.archray/tool/cli/bin/archray.mjs'))) {
+    throw new Error('update must run from an installed project (.archray/tool).\nUse the installed wrapper: .archray/archray update');
+  }
+  await runUpdate({
+    target,
+    currentVersion: VERSION,
+    check: has(args, 'check'),
+    force: has(args, 'force'),
+    manifest: flag(args, 'manifest', process.env.ARCHRAY_UPDATE_MANIFEST ?? 'https://github.com/loofare/ArchRay/releases/latest/download/latest.json'),
+    ...(typeof args.flags.agent === 'string' ? { agent: args.flags.agent } : {}),
+  });
+}
+
+function cmdUninstall(args: Args): void {
+  if (has(args, 'purge') && typeof args.flags.agent === 'string') {
+    throw new Error('--purge removes all ArchRay data and cannot be combined with --agent.\nRun uninstall --agent <host> to remove one host, or uninstall --purge for a full removal.');
+  }
+  const target = resolve(flag(args, 'target', resolve(root, '../..')));
+  if (!existsSync(resolve(target, '.archray/tool/cli/bin/archray.mjs'))) {
+    throw new Error('uninstall must run from an installed project (.archray/tool).\nUse the installed wrapper: .archray/archray uninstall');
+  }
+  uninstallProject(target, {
+    purge: has(args, 'purge'),
+    dry: has(args, 'dry-run'),
+    ...(typeof args.flags.agent === 'string' ? { agent: args.flags.agent } : {}),
+  });
 }
 
 function cmdMigrate(args: Args): void {
@@ -464,7 +559,7 @@ function openInBrowser(path: string): void {
   child.unref();
 }
 
-function main(argv: string[]): void {
+async function main(argv: string[]): Promise<void> {
   const args = parseArgs(argv);
   switch (args.command) {
     case undefined:
@@ -491,6 +586,12 @@ function main(argv: string[]): void {
     case 'install':
       cmdInstall(args);
       break;
+    case 'update':
+      await cmdUpdate(args);
+      break;
+    case 'uninstall':
+      cmdUninstall(args);
+      break;
     case 'migrate':
       cmdMigrate(args);
       break;
@@ -502,9 +603,7 @@ function main(argv: string[]): void {
   }
 }
 
-try {
-  main(process.argv.slice(2));
-} catch (e: any) {
+main(process.argv.slice(2)).catch((e: any) => {
   console.error(e.message);
   process.exitCode = 1;
-}
+});

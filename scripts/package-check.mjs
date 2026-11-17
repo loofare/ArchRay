@@ -4,10 +4,16 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, renameSy
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 
 const version = JSON.parse(readFileSync('package.json', 'utf8')).version;
 const tarball = resolve('dist', `archray-${version}.tgz`);
 assert.ok(existsSync(tarball), `Run npm run package first (missing ${tarball})`);
+const latest = JSON.parse(readFileSync(resolve('dist', 'latest.json'), 'utf8'));
+assert.equal(latest.version, version, 'latest.json names the package version');
+assert.equal(latest.asset, `archray-${version}.tgz`, 'latest.json names the tarball');
+assert.equal(latest.sha256, createHash('sha256').update(readFileSync(tarball)).digest('hex'), 'latest.json sha256 matches the tarball');
+assert.ok(existsSync(resolve('dist', 'install.sh')), 'package emits the bootstrap installer');
 
 const work = mkdtempSync(join(tmpdir(), 'archray-package-'));
 const run = (cmd, args, cwd) => {
@@ -122,6 +128,16 @@ try {
   assert.ok(existsSync(join(projectPi, '.pi/prompts/archray.md')), 'pi install writes /archray');
   assert.ok(existsSync(join(projectPi, '.pi/prompts/archray-frontend.md')), 'pi install writes /archray-frontend');
   assert.ok(!existsSync(join(projectPi, '.claude')), 'pi install does not write Claude files');
+
+  // The bootstrap asset installs from a local release base without GitHub.
+  const projectBoot = join(work, 'project-boot');
+  mkdirSync(projectBoot);
+  const boot = spawnSync('sh', [resolve('dist/install.sh'), projectBoot, 'claude'], {
+    encoding: 'utf8', env: { ...process.env, ARCHRAY_INSTALL_BASE: `file://${resolve('dist')}` },
+  });
+  assert.equal(boot.status, 0, boot.stderr || boot.stdout);
+  assert.ok(existsSync(join(projectBoot, '.archray/tool/cli/bin/archray.mjs')), 'bootstrap installs the vendored tool');
+  assert.ok(existsSync(join(projectBoot, '.archray/archray')), 'bootstrap writes the short update wrapper');
 
   // A controlled rename failure must roll back both the tool and every written template.
   const project6 = join(work, 'project6');
