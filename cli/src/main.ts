@@ -10,6 +10,8 @@ import { graphLayers, parseGraphLayers } from '../../core/src/layers';
 import type { ArchGraph, ViewState } from '../../core/src/schema';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
+declare const __ARCHRAY_VERSION__: string;
+const VERSION = typeof __ARCHRAY_VERSION__ === 'string' ? __ARCHRAY_VERSION__ : 'dev';
 
 const HELP = `ArchRay v2 (source trial)
 
@@ -20,6 +22,8 @@ Usage: archray <command> [options]
   migrate <v1.json>         convert a v1 graph to v2 (original kept)
   schema [graph|view]       print a JSON schema
   init [options]            write .archray templates for your AI agent
+  doctor                    check the packaged files and Node version
+  version                   print the CLI version
 
 build options:
   --input <file>            graph to render (default .archray/graph.json)
@@ -153,6 +157,29 @@ function writeOutput(path: string, data: string, args: Args, input?: string): vo
 
 const json = (value: unknown) => JSON.stringify(value, null, 2) + '\n';
 
+function cmdDoctor(): void {
+  const checks: [string, string][] = [
+    ['viewer template', resolve(root, 'viewer/dist/viewer.html')],
+    ['graph schema', resolve(root, 'schema/graph.schema.json')],
+    ['view schema', resolve(root, 'schema/view.schema.json')],
+    ['skill', resolve(root, 'skill/SKILL.md')],
+    ['commands', resolve(root, 'commands')],
+    ['knowledge base', resolve(root, 'knowledge/tech.json')],
+  ];
+  let ok = Number(process.versions.node.split('.')[0]) >= 20;
+  console.log(`archray ${VERSION} · node ${process.version}${ok ? '' : ' (Node 20+ required)'}`);
+  for (const [label, path] of checks) {
+    const exists = existsSync(path);
+    if (!exists) ok = false;
+    console.log(`${exists ? 'ok  ' : 'MISS'} ${label}: ${path}`);
+  }
+  if (!ok) process.exitCode = 1;
+}
+
+function cmdVersion(): void {
+  console.log(`archray ${VERSION}`);
+}
+
 function cmdValidate(args: Args): void {
   const path = args.positional[0] ?? '.archray/graph.json';
   assertValid(readJson(path));
@@ -177,6 +204,7 @@ function cmdInit(args: Args): void {
     ['schema/graph.schema.json', '.archray/graph.schema.json'],
     ['schema/view.schema.json', '.archray/view.schema.json'],
     ['skill/SKILL.md', '.archray/SKILL.md'],
+    ['knowledge/tech.json', '.archray/tech.json'],
   ];
   const integrations: [string, string][] = [
     ['claude', '.claude/skills/archray/SKILL.md'],
@@ -319,6 +347,12 @@ function main(argv: string[]): void {
   const args = parseArgs(argv);
   switch (args.command) {
     case undefined:
+    case 'version':
+      cmdVersion();
+      break;
+    case 'doctor':
+      cmdDoctor();
+      break;
     case 'help':
     case '--help':
     case '-h':

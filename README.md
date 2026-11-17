@@ -4,22 +4,25 @@ ArchRay is an **AI-first architecture visualiser**: install it once, then type `
 
 ## Quick start (in your AI)
 
-1. Get the tool and build it once (Node 20+):
+**Option A — release package (recommended).** Download `archray-<version>.tgz` from the releases page, then:
+
+```sh
+tar -xzf archray-<version>.tgz
+./archray-<version>/install.sh /path/to/your-repo claude
+```
+
+The installer needs Node 20+ and writes the skill, slash commands and `.archray` templates into that repository. `./archray-<version>/cli/bin/archray.mjs doctor` checks the bundle if something looks missing.
+
+**Option B — from source.** Node 20+:
 
 ```sh
 git clone https://github.com/loofare/ArchRay.git
 cd ArchRay
 npm ci && npm run build
+node /path/to/ArchRay/cli/bin/archray.mjs init --target /path/to/your-repo --agent claude
 ```
 
-2. In the repository you want to map, install the skill and slash commands:
-
-```sh
-node /path/to/ArchRay/cli/bin/archray.mjs init --agent claude
-# claude | cursor | antigravity | all
-```
-
-3. In your AI:
+Then in your AI:
 
 ```text
 /archray
@@ -31,6 +34,8 @@ Claude Code gets `/archray` plus `/archray:frontend`, `:backend`, `:data`, `:net
 The AI inspects real source, writes `.archray/graph.json`, then builds `.archray/index.html`. `init` writes templates and commands only; the graph comes from that analysis. Candidates may be empty; keeping the current implementation is valid. ArchRay does not scan source or verify graph claims.
 
 ## Layers
+
+`init` also writes `.archray/tech.json`: 114 technologies and brands with category, layer and component-kind hints. The AI uses it to classify what it finds; it is a hint, not proof that a technology is present.
 
 Analyse once, then slice the view without re-analysing:
 
@@ -94,3 +99,22 @@ The viewer defaults to flat and also offers stack/iso, module selection, drill-d
 
 Scenarios are target previews; base graph facts remain the basis for impact and prompts. Deletion cascades subtrees, incident edges and flow steps; replacement reparents children and maps flow endpoints. The original input remains unchanged. Prompts request review, migration, rollback and verification plans; implementation requires separate authorization. Clipboard failure exposes selectable text. PNG exports the current camera framing.
 
+
+## Upgrade and uninstall
+
+Upgrade with a newer release tarball; `--force` refreshes the skill, commands and templates while keeping `.archray/graph.json`:
+
+```sh
+./archray-<new-version>/install.sh /path/to/your-repo claude --force
+```
+
+Uninstall by removing the installed files (nothing is global):
+
+```sh
+rm -f /path/to/your-repo/.claude/commands/archray.md /path/to/your-repo/.claude/commands/archray/*.md
+rm -rf /path/to/your-repo/.claude/skills/archray /path/to/your-repo/.archray
+# Cursor: .cursor/commands/archray*.md and .cursor/rules/archray.mdc
+# Antigravity: .agent/commands/archray*.md and .agent/skills/archray
+```
+
+`archray version` prints the bundle version; `archray doctor` checks the viewer template, schemas, skill, commands and knowledge base.

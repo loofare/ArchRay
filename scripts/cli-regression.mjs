@@ -23,6 +23,9 @@ const json = (path) => JSON.parse(read(path));
 /* ---------------------------------------------------------------- init */
 run(['init']);
 assert.deepEqual(readdirSync(workdir), ['.archray'], 'init writes only .archray by default');
+assert.ok(existsSync(join(workdir, '.archray/tech.json')), 'init writes the technology knowledge base');
+const version = run(['version']).stdout.trim();
+assert.match(version, /^archray \d+\.\d+\.\d+$/, 'version prints the packaged version');
 const skill = read('.archray/SKILL.md');
 assert.match(skill, /^---\nname: archray\ndescription: .+\n---/, 'the installed Skill keeps agent-readable frontmatter');
 

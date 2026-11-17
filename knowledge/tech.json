@@ -1,0 +1,1558 @@
+{
+  "version": 1,
+  "updated": "2026-11-17",
+  "note": "Classification hints for AI analysis. Layer ids must exist in the graph; this file is not proof of source usage.",
+  "categories": [
+    "frontend",
+    "backend",
+    "data",
+    "messaging",
+    "infra",
+    "ai",
+    "mobile",
+    "saas",
+    "tooling",
+    "security",
+    "observability"
+  ],
+  "layers": [
+    "client",
+    "edge",
+    "gateway",
+    "service",
+    "async",
+    "data",
+    "ai",
+    "external",
+    "platform",
+    "observability"
+  ],
+  "entries": [
+    {
+      "id": "android",
+      "name": "Android",
+      "category": "mobile",
+      "layers": [
+        "client"
+      ],
+      "kinds": [
+        "client"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "angular",
+      "name": "Angular",
+      "category": "frontend",
+      "layers": [
+        "client"
+      ],
+      "kinds": [
+        "library",
+        "client"
+      ],
+      "aliases": [
+        "angularjs"
+      ]
+    },
+    {
+      "id": "ansible",
+      "name": "Ansible",
+      "category": "infra",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "anthropic",
+      "name": "Anthropic",
+      "category": "ai",
+      "layers": [
+        "ai",
+        "external"
+      ],
+      "kinds": [
+        "ai-model",
+        "external-api"
+      ],
+      "aliases": [
+        "claude"
+      ]
+    },
+    {
+      "id": "apple",
+      "name": "Apple",
+      "category": "mobile",
+      "layers": [
+        "client"
+      ],
+      "kinds": [
+        "client"
+      ],
+      "aliases": [
+        "ios",
+        "macos"
+      ]
+    },
+    {
+      "id": "astro",
+      "name": "Astro",
+      "category": "frontend",
+      "layers": [
+        "client"
+      ],
+      "kinds": [
+        "client"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "auth0",
+      "name": "Auth0",
+      "category": "security",
+      "layers": [
+        "gateway",
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "aws",
+      "name": "AWS",
+      "category": "infra",
+      "layers": [
+        "platform",
+        "external"
+      ],
+      "kinds": [
+        "external-api",
+        "service"
+      ],
+      "aliases": [
+        "amazon",
+        "amazon web services",
+        "s3",
+        "ec2",
+        "lambda"
+      ]
+    },
+    {
+      "id": "azure",
+      "name": "Azure",
+      "category": "infra",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "external-api",
+        "service"
+      ],
+      "aliases": [
+        "microsoft azure"
+      ]
+    },
+    {
+      "id": "bigquery",
+      "name": "BigQuery",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "database"
+      ],
+      "aliases": [
+        "google bigquery"
+      ]
+    },
+    {
+      "id": "bitbucket",
+      "name": "Bitbucket",
+      "category": "tooling",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "bun",
+      "name": "Bun",
+      "category": "backend",
+      "layers": [
+        "service"
+      ],
+      "kinds": [
+        "service"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "cassandra",
+      "name": "Cassandra",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "database"
+      ],
+      "aliases": [
+        "apache cassandra"
+      ]
+    },
+    {
+      "id": "clerk",
+      "name": "Clerk",
+      "category": "saas",
+      "layers": [
+        "external",
+        "gateway"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "clickhouse",
+      "name": "ClickHouse",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "database"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "cloudflare",
+      "name": "Cloudflare",
+      "category": "infra",
+      "layers": [
+        "edge",
+        "gateway"
+      ],
+      "kinds": [
+        "gateway",
+        "external-api"
+      ],
+      "aliases": [
+        "cf"
+      ]
+    },
+    {
+      "id": "cypress",
+      "name": "Cypress",
+      "category": "tooling",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "datadog",
+      "name": "Datadog",
+      "category": "observability",
+      "layers": [
+        "observability"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "deno",
+      "name": "Deno",
+      "category": "backend",
+      "layers": [
+        "service"
+      ],
+      "kinds": [
+        "service"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "discord",
+      "name": "Discord",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "django",
+      "name": "Django",
+      "category": "backend",
+      "layers": [
+        "service",
+        "data"
+      ],
+      "kinds": [
+        "service"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "docker",
+      "name": "Docker",
+      "category": "infra",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "dotnet",
+      "name": ".NET",
+      "category": "backend",
+      "layers": [
+        "service"
+      ],
+      "kinds": [
+        "service"
+      ],
+      "aliases": [
+        ".net",
+        "net"
+      ]
+    },
+    {
+      "id": "elasticsearch",
+      "name": "Elasticsearch",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "search",
+        "database"
+      ],
+      "aliases": [
+        "elastic",
+        "es"
+      ]
+    },
+    {
+      "id": "eslint",
+      "name": "ESLint",
+      "category": "tooling",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "expo",
+      "name": "Expo",
+      "category": "mobile",
+      "layers": [
+        "client"
+      ],
+      "kinds": [
+        "client",
+        "service"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "fastapi",
+      "name": "FastAPI",
+      "category": "backend",
+      "layers": [
+        "service"
+      ],
+      "kinds": [
+        "service"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "figma",
+      "name": "Figma",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "firebase",
+      "name": "Firebase",
+      "category": "data",
+      "layers": [
+        "data",
+        "service"
+      ],
+      "kinds": [
+        "database",
+        "service"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "flask",
+      "name": "Flask",
+      "category": "backend",
+      "layers": [
+        "service"
+      ],
+      "kinds": [
+        "service"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "flutter",
+      "name": "Flutter",
+      "category": "mobile",
+      "layers": [
+        "client"
+      ],
+      "kinds": [
+        "client"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "gcp",
+      "name": "Google Cloud",
+      "category": "infra",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "external-api",
+        "service"
+      ],
+      "aliases": [
+        "google cloud",
+        "google cloud platform"
+      ]
+    },
+    {
+      "id": "gemini",
+      "name": "Google Gemini",
+      "category": "ai",
+      "layers": [
+        "ai",
+        "external"
+      ],
+      "kinds": [
+        "ai-model",
+        "external-api"
+      ],
+      "aliases": [
+        "google gemini"
+      ]
+    },
+    {
+      "id": "git",
+      "name": "Git",
+      "category": "tooling",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "github",
+      "name": "GitHub",
+      "category": "tooling",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "githubactions",
+      "name": "GitHub Actions",
+      "category": "infra",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "worker"
+      ],
+      "aliases": [
+        "gha",
+        "github actions"
+      ]
+    },
+    {
+      "id": "gitlab",
+      "name": "GitLab",
+      "category": "tooling",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "go",
+      "name": "Go",
+      "category": "backend",
+      "layers": [
+        "service"
+      ],
+      "kinds": [
+        "service"
+      ],
+      "aliases": [
+        "golang"
+      ]
+    },
+    {
+      "id": "grafana",
+      "name": "Grafana",
+      "category": "observability",
+      "layers": [
+        "observability"
+      ],
+      "kinds": [
+        "client"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "graphql",
+      "name": "GraphQL",
+      "category": "backend",
+      "layers": [
+        "service"
+      ],
+      "kinds": [
+        "service"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "groq",
+      "name": "Groq",
+      "category": "ai",
+      "layers": [
+        "ai",
+        "external"
+      ],
+      "kinds": [
+        "ai-model",
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "grpc",
+      "name": "gRPC",
+      "category": "backend",
+      "layers": [
+        "service"
+      ],
+      "kinds": [
+        "service"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "hubspot",
+      "name": "HubSpot",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "huggingface",
+      "name": "Hugging Face",
+      "category": "ai",
+      "layers": [
+        "ai"
+      ],
+      "kinds": [
+        "ai-model"
+      ],
+      "aliases": [
+        "hugging face",
+        "hf"
+      ]
+    },
+    {
+      "id": "insomnia",
+      "name": "Insomnia",
+      "category": "tooling",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "intercom",
+      "name": "Intercom",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "ionic",
+      "name": "Ionic",
+      "category": "mobile",
+      "layers": [
+        "client"
+      ],
+      "kinds": [
+        "library",
+        "client"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "java",
+      "name": "Java",
+      "category": "backend",
+      "layers": [
+        "service"
+      ],
+      "kinds": [
+        "service"
+      ],
+      "aliases": [
+        "openjdk",
+        "jdk"
+      ]
+    },
+    {
+      "id": "javascript",
+      "name": "JavaScript",
+      "category": "frontend",
+      "layers": [
+        "client",
+        "service"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "js"
+      ]
+    },
+    {
+      "id": "jest",
+      "name": "Jest",
+      "category": "tooling",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "kafka",
+      "name": "Kafka",
+      "category": "messaging",
+      "layers": [
+        "async"
+      ],
+      "kinds": [
+        "queue"
+      ],
+      "aliases": [
+        "apache kafka"
+      ]
+    },
+    {
+      "id": "kotlin",
+      "name": "Kotlin",
+      "category": "mobile",
+      "layers": [
+        "client"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "kubernetes",
+      "name": "Kubernetes",
+      "category": "infra",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "service"
+      ],
+      "aliases": [
+        "k8s"
+      ]
+    },
+    {
+      "id": "langchain",
+      "name": "LangChain",
+      "category": "ai",
+      "layers": [
+        "ai",
+        "service"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "laravel",
+      "name": "Laravel",
+      "category": "backend",
+      "layers": [
+        "service"
+      ],
+      "kinds": [
+        "service"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "linux",
+      "name": "Linux",
+      "category": "infra",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "mariadb",
+      "name": "MariaDB",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "database"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "mistral",
+      "name": "Mistral AI",
+      "category": "ai",
+      "layers": [
+        "ai",
+        "external"
+      ],
+      "kinds": [
+        "ai-model",
+        "external-api"
+      ],
+      "aliases": [
+        "mistral ai"
+      ]
+    },
+    {
+      "id": "mongodb",
+      "name": "MongoDB",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "database"
+      ],
+      "aliases": [
+        "mongo"
+      ]
+    },
+    {
+      "id": "mysql",
+      "name": "MySQL",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "database"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "nats",
+      "name": "NATS",
+      "category": "messaging",
+      "layers": [
+        "async"
+      ],
+      "kinds": [
+        "queue"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "nestjs",
+      "name": "NestJS",
+      "category": "backend",
+      "layers": [
+        "service"
+      ],
+      "kinds": [
+        "service"
+      ],
+      "aliases": [
+        "nest.js"
+      ]
+    },
+    {
+      "id": "netlify",
+      "name": "Netlify",
+      "category": "infra",
+      "layers": [
+        "edge",
+        "platform"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "nextjs",
+      "name": "Next.js",
+      "category": "frontend",
+      "layers": [
+        "client",
+        "service"
+      ],
+      "kinds": [
+        "client",
+        "service"
+      ],
+      "aliases": [
+        "next",
+        "next.js"
+      ]
+    },
+    {
+      "id": "nginx",
+      "name": "Nginx",
+      "category": "infra",
+      "layers": [
+        "edge",
+        "gateway"
+      ],
+      "kinds": [
+        "gateway"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "nodejs",
+      "name": "Node.js",
+      "category": "backend",
+      "layers": [
+        "service",
+        "async"
+      ],
+      "kinds": [
+        "service",
+        "worker"
+      ],
+      "aliases": [
+        "node",
+        "node.js"
+      ]
+    },
+    {
+      "id": "notion",
+      "name": "Notion",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "numpy",
+      "name": "NumPy",
+      "category": "ai",
+      "layers": [
+        "ai"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "nuxt",
+      "name": "Nuxt",
+      "category": "frontend",
+      "layers": [
+        "client",
+        "service"
+      ],
+      "kinds": [
+        "client",
+        "service"
+      ],
+      "aliases": [
+        "nuxtjs"
+      ]
+    },
+    {
+      "id": "okta",
+      "name": "Okta",
+      "category": "security",
+      "layers": [
+        "gateway",
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "ollama",
+      "name": "Ollama",
+      "category": "ai",
+      "layers": [
+        "ai"
+      ],
+      "kinds": [
+        "ai-model"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "openai",
+      "name": "OpenAI",
+      "category": "ai",
+      "layers": [
+        "ai",
+        "external"
+      ],
+      "kinds": [
+        "ai-model",
+        "external-api"
+      ],
+      "aliases": [
+        "open ai",
+        "chatgpt",
+        "gpt"
+      ]
+    },
+    {
+      "id": "pandas",
+      "name": "pandas",
+      "category": "ai",
+      "layers": [
+        "ai",
+        "data"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "php",
+      "name": "PHP",
+      "category": "backend",
+      "layers": [
+        "service"
+      ],
+      "kinds": [
+        "service"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "playwright",
+      "name": "Playwright",
+      "category": "tooling",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "postgresql",
+      "name": "PostgreSQL",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "database"
+      ],
+      "aliases": [
+        "postgres",
+        "psql",
+        "pg"
+      ]
+    },
+    {
+      "id": "postman",
+      "name": "Postman",
+      "category": "tooling",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "prettier",
+      "name": "Prettier",
+      "category": "tooling",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "prisma",
+      "name": "Prisma",
+      "category": "data",
+      "layers": [
+        "data",
+        "service"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "prometheus",
+      "name": "Prometheus",
+      "category": "observability",
+      "layers": [
+        "observability"
+      ],
+      "kinds": [
+        "service"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "python",
+      "name": "Python",
+      "category": "backend",
+      "layers": [
+        "service",
+        "ai"
+      ],
+      "kinds": [
+        "service",
+        "worker"
+      ],
+      "aliases": [
+        "py"
+      ]
+    },
+    {
+      "id": "pytorch",
+      "name": "PyTorch",
+      "category": "ai",
+      "layers": [
+        "ai"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "torch"
+      ]
+    },
+    {
+      "id": "rabbitmq",
+      "name": "RabbitMQ",
+      "category": "messaging",
+      "layers": [
+        "async"
+      ],
+      "kinds": [
+        "queue"
+      ],
+      "aliases": [
+        "rabbit mq"
+      ]
+    },
+    {
+      "id": "rails",
+      "name": "Ruby on Rails",
+      "category": "backend",
+      "layers": [
+        "service",
+        "data"
+      ],
+      "kinds": [
+        "service"
+      ],
+      "aliases": [
+        "rubyonrails"
+      ]
+    },
+    {
+      "id": "react",
+      "name": "React",
+      "category": "frontend",
+      "layers": [
+        "client"
+      ],
+      "kinds": [
+        "library",
+        "client"
+      ],
+      "aliases": [
+        "reactjs",
+        "react.js",
+        "react native",
+        "reactnative"
+      ]
+    },
+    {
+      "id": "redis",
+      "name": "Redis",
+      "category": "data",
+      "layers": [
+        "data",
+        "async"
+      ],
+      "kinds": [
+        "cache",
+        "queue"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "redux",
+      "name": "Redux",
+      "category": "frontend",
+      "layers": [
+        "client"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "reduxjs"
+      ]
+    },
+    {
+      "id": "ruby",
+      "name": "Ruby",
+      "category": "backend",
+      "layers": [
+        "service"
+      ],
+      "kinds": [
+        "service"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "rust",
+      "name": "Rust",
+      "category": "backend",
+      "layers": [
+        "service"
+      ],
+      "kinds": [
+        "service"
+      ],
+      "aliases": [
+        "rustlang"
+      ]
+    },
+    {
+      "id": "salesforce",
+      "name": "Salesforce",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "sendgrid",
+      "name": "SendGrid",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "sentry",
+      "name": "Sentry",
+      "category": "observability",
+      "layers": [
+        "observability"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "shopify",
+      "name": "Shopify",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "slack",
+      "name": "Slack",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "snowflake",
+      "name": "Snowflake",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "database"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "spring",
+      "name": "Spring",
+      "category": "backend",
+      "layers": [
+        "service"
+      ],
+      "kinds": [
+        "service"
+      ],
+      "aliases": [
+        "springboot",
+        "spring boot"
+      ]
+    },
+    {
+      "id": "sqlite",
+      "name": "SQLite",
+      "category": "data",
+      "layers": [
+        "data"
+      ],
+      "kinds": [
+        "database"
+      ],
+      "aliases": [
+        "sqlite3"
+      ]
+    },
+    {
+      "id": "storybook",
+      "name": "Storybook",
+      "category": "tooling",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "stripe",
+      "name": "Stripe",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "supabase",
+      "name": "Supabase",
+      "category": "data",
+      "layers": [
+        "data",
+        "service"
+      ],
+      "kinds": [
+        "database",
+        "service"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "svelte",
+      "name": "Svelte",
+      "category": "frontend",
+      "layers": [
+        "client"
+      ],
+      "kinds": [
+        "library",
+        "client"
+      ],
+      "aliases": [
+        "sveltekit"
+      ]
+    },
+    {
+      "id": "swift",
+      "name": "Swift",
+      "category": "mobile",
+      "layers": [
+        "client"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "tailwindcss",
+      "name": "Tailwind CSS",
+      "category": "frontend",
+      "layers": [
+        "client"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "tailwind"
+      ]
+    },
+    {
+      "id": "tensorflow",
+      "name": "TensorFlow",
+      "category": "ai",
+      "layers": [
+        "ai"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "tf"
+      ]
+    },
+    {
+      "id": "terraform",
+      "name": "Terraform",
+      "category": "infra",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "hcl"
+      ]
+    },
+    {
+      "id": "trpc",
+      "name": "tRPC",
+      "category": "backend",
+      "layers": [
+        "service"
+      ],
+      "kinds": [
+        "service"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "twilio",
+      "name": "Twilio",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "typescript",
+      "name": "TypeScript",
+      "category": "frontend",
+      "layers": [
+        "client",
+        "service"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "ts"
+      ]
+    },
+    {
+      "id": "ubuntu",
+      "name": "Ubuntu",
+      "category": "infra",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "vercel",
+      "name": "Vercel",
+      "category": "infra",
+      "layers": [
+        "edge",
+        "platform"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "vite",
+      "name": "Vite",
+      "category": "frontend",
+      "layers": [
+        "client"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": [
+        "vitejs"
+      ]
+    },
+    {
+      "id": "vitest",
+      "name": "Vitest",
+      "category": "tooling",
+      "layers": [
+        "platform"
+      ],
+      "kinds": [
+        "library"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "vue",
+      "name": "Vue",
+      "category": "frontend",
+      "layers": [
+        "client"
+      ],
+      "kinds": [
+        "library",
+        "client"
+      ],
+      "aliases": [
+        "vuejs",
+        "vue.js"
+      ]
+    },
+    {
+      "id": "zendesk",
+      "name": "Zendesk",
+      "category": "saas",
+      "layers": [
+        "external"
+      ],
+      "kinds": [
+        "external-api"
+      ],
+      "aliases": []
+    }
+  ]
+}

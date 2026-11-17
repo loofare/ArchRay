@@ -9,3 +9,6 @@ viewer/dist/
 .archray/self.html
 .archray/self-legacy.html
 .archray/browser-check/
+
+# Release artifacts
+dist/

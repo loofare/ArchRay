@@ -29,6 +29,8 @@ Scenarios describe a target state. Patches execute in order and must preserve va
 
 ## Layered views
 
+Read `.archray/tech.json` when classifying a technology: it lists categories, canonical layers and component kinds. Use it as a hint, not as evidence that the technology is present.
+
 Give each node a `layer` using this canonical set (or the closest existing graph layer): `client` (前端/客户端), `edge` (网络/传输), `gateway` (安全/网关), `service` (后端/中间层), `async` (异步/任务), `data` (数据/存储), `ai` (AI/模型), `external` (外部/SaaS), `platform` (平台/基础设施), `observability` (可观测).
 
 Analyse once, then slice the view instead of re-analysing:

@@ -1,0 +1,148 @@
+/**
+ * Generate knowledge/tech.json — the technology hints the AI reads during analysis.
+ * Kept small and explicit; brand icons are generated separately by gen-brands.mjs.
+ */
+import { mkdirSync, writeFileSync } from 'node:fs';
+
+const CATEGORIES = ['frontend', 'backend', 'data', 'messaging', 'infra', 'ai', 'mobile', 'saas', 'tooling', 'security', 'observability'];
+const LAYERS = ['client', 'edge', 'gateway', 'service', 'async', 'data', 'ai', 'external', 'platform', 'observability'];
+
+// [id, name, category, layers, kinds, aliases]
+const T = [
+  ['react', 'React', 'frontend', ['client'], ['library', 'client'], ['reactjs', 'react.js', 'react native', 'reactnative']],
+  ['nextjs', 'Next.js', 'frontend', ['client', 'service'], ['client', 'service'], ['next', 'next.js']],
+  ['vue', 'Vue', 'frontend', ['client'], ['library', 'client'], ['vuejs', 'vue.js']],
+  ['nuxt', 'Nuxt', 'frontend', ['client', 'service'], ['client', 'service'], ['nuxtjs']],
+  ['angular', 'Angular', 'frontend', ['client'], ['library', 'client'], ['angularjs']],
+  ['svelte', 'Svelte', 'frontend', ['client'], ['library', 'client'], ['sveltekit']],
+  ['astro', 'Astro', 'frontend', ['client'], ['client'], []],
+  ['tailwindcss', 'Tailwind CSS', 'frontend', ['client'], ['library'], ['tailwind']],
+  ['typescript', 'TypeScript', 'frontend', ['client', 'service'], ['library'], ['ts']],
+  ['javascript', 'JavaScript', 'frontend', ['client', 'service'], ['library'], ['js']],
+  ['vite', 'Vite', 'frontend', ['client'], ['library'], ['vitejs']],
+  ['redux', 'Redux', 'frontend', ['client'], ['library'], ['reduxjs']],
+  ['flutter', 'Flutter', 'mobile', ['client'], ['client'], []],
+  ['swift', 'Swift', 'mobile', ['client'], ['library'], []],
+  ['kotlin', 'Kotlin', 'mobile', ['client'], ['library'], []],
+  ['android', 'Android', 'mobile', ['client'], ['client'], []],
+  ['apple', 'Apple', 'mobile', ['client'], ['client'], ['ios', 'macos']],
+  ['expo', 'Expo', 'mobile', ['client'], ['client', 'service'], []],
+  ['ionic', 'Ionic', 'mobile', ['client'], ['library', 'client'], []],
+  ['nodejs', 'Node.js', 'backend', ['service', 'async'], ['service', 'worker'], ['node', 'node.js']],
+  ['deno', 'Deno', 'backend', ['service'], ['service'], []],
+  ['bun', 'Bun', 'backend', ['service'], ['service'], []],
+  ['python', 'Python', 'backend', ['service', 'ai'], ['service', 'worker'], ['py']],
+  ['django', 'Django', 'backend', ['service', 'data'], ['service'], []],
+  ['flask', 'Flask', 'backend', ['service'], ['service'], []],
+  ['fastapi', 'FastAPI', 'backend', ['service'], ['service'], []],
+  ['nestjs', 'NestJS', 'backend', ['service'], ['service'], ['nest.js']],
+  ['go', 'Go', 'backend', ['service'], ['service'], ['golang']],
+  ['rust', 'Rust', 'backend', ['service'], ['service'], ['rustlang']],
+  ['ruby', 'Ruby', 'backend', ['service'], ['service'], []],
+  ['rails', 'Ruby on Rails', 'backend', ['service', 'data'], ['service'], ['rubyonrails']],
+  ['php', 'PHP', 'backend', ['service'], ['service'], []],
+  ['laravel', 'Laravel', 'backend', ['service'], ['service'], []],
+  ['dotnet', '.NET', 'backend', ['service'], ['service'], ['.net', 'net']],
+  ['java', 'Java', 'backend', ['service'], ['service'], ['openjdk', 'jdk']],
+  ['spring', 'Spring', 'backend', ['service'], ['service'], ['springboot', 'spring boot']],
+  ['graphql', 'GraphQL', 'backend', ['service'], ['service'], []],
+  ['grpc', 'gRPC', 'backend', ['service'], ['service'], []],
+  ['trpc', 'tRPC', 'backend', ['service'], ['service'], []],
+  ['postgresql', 'PostgreSQL', 'data', ['data'], ['database'], ['postgres', 'psql', 'pg']],
+  ['mysql', 'MySQL', 'data', ['data'], ['database'], []],
+  ['mariadb', 'MariaDB', 'data', ['data'], ['database'], []],
+  ['sqlite', 'SQLite', 'data', ['data'], ['database'], ['sqlite3']],
+  ['mongodb', 'MongoDB', 'data', ['data'], ['database'], ['mongo']],
+  ['redis', 'Redis', 'data', ['data', 'async'], ['cache', 'queue'], []],
+  ['elasticsearch', 'Elasticsearch', 'data', ['data'], ['search', 'database'], ['elastic', 'es']],
+  ['clickhouse', 'ClickHouse', 'data', ['data'], ['database'], []],
+  ['snowflake', 'Snowflake', 'data', ['data'], ['database'], []],
+  ['bigquery', 'BigQuery', 'data', ['data'], ['database'], ['google bigquery']],
+  ['cassandra', 'Cassandra', 'data', ['data'], ['database'], ['apache cassandra']],
+  ['supabase', 'Supabase', 'data', ['data', 'service'], ['database', 'service'], []],
+  ['firebase', 'Firebase', 'data', ['data', 'service'], ['database', 'service'], []],
+  ['prisma', 'Prisma', 'data', ['data', 'service'], ['library'], []],
+  ['kafka', 'Kafka', 'messaging', ['async'], ['queue'], ['apache kafka']],
+  ['rabbitmq', 'RabbitMQ', 'messaging', ['async'], ['queue'], ['rabbit mq']],
+  ['nats', 'NATS', 'messaging', ['async'], ['queue'], []],
+  ['aws', 'AWS', 'infra', ['platform', 'external'], ['external-api', 'service'], ['amazon', 'amazon web services', 's3', 'ec2', 'lambda']],
+  ['azure', 'Azure', 'infra', ['platform'], ['external-api', 'service'], ['microsoft azure']],
+  ['gcp', 'Google Cloud', 'infra', ['platform'], ['external-api', 'service'], ['google cloud', 'google cloud platform']],
+  ['cloudflare', 'Cloudflare', 'infra', ['edge', 'gateway'], ['gateway', 'external-api'], ['cf']],
+  ['vercel', 'Vercel', 'infra', ['edge', 'platform'], ['external-api'], []],
+  ['netlify', 'Netlify', 'infra', ['edge', 'platform'], ['external-api'], []],
+  ['docker', 'Docker', 'infra', ['platform'], ['library'], []],
+  ['kubernetes', 'Kubernetes', 'infra', ['platform'], ['service'], ['k8s']],
+  ['terraform', 'Terraform', 'infra', ['platform'], ['library'], ['hcl']],
+  ['ansible', 'Ansible', 'infra', ['platform'], ['library'], []],
+  ['nginx', 'Nginx', 'infra', ['edge', 'gateway'], ['gateway'], []],
+  ['githubactions', 'GitHub Actions', 'infra', ['platform'], ['worker'], ['gha', 'github actions']],
+  ['prometheus', 'Prometheus', 'observability', ['observability'], ['service'], []],
+  ['grafana', 'Grafana', 'observability', ['observability'], ['client'], []],
+  ['datadog', 'Datadog', 'observability', ['observability'], ['external-api'], []],
+  ['sentry', 'Sentry', 'observability', ['observability'], ['external-api'], []],
+  ['linux', 'Linux', 'infra', ['platform'], ['library'], []],
+  ['ubuntu', 'Ubuntu', 'infra', ['platform'], ['library'], []],
+  ['openai', 'OpenAI', 'ai', ['ai', 'external'], ['ai-model', 'external-api'], ['open ai', 'chatgpt', 'gpt']],
+  ['anthropic', 'Anthropic', 'ai', ['ai', 'external'], ['ai-model', 'external-api'], ['claude']],
+  ['huggingface', 'Hugging Face', 'ai', ['ai'], ['ai-model'], ['hugging face', 'hf']],
+  ['langchain', 'LangChain', 'ai', ['ai', 'service'], ['library'], []],
+  ['ollama', 'Ollama', 'ai', ['ai'], ['ai-model'], []],
+  ['pytorch', 'PyTorch', 'ai', ['ai'], ['library'], ['torch']],
+  ['tensorflow', 'TensorFlow', 'ai', ['ai'], ['library'], ['tf']],
+  ['numpy', 'NumPy', 'ai', ['ai'], ['library'], []],
+  ['pandas', 'pandas', 'ai', ['ai', 'data'], ['library'], []],
+  ['gemini', 'Google Gemini', 'ai', ['ai', 'external'], ['ai-model', 'external-api'], ['google gemini']],
+  ['mistral', 'Mistral AI', 'ai', ['ai', 'external'], ['ai-model', 'external-api'], ['mistral ai']],
+  ['groq', 'Groq', 'ai', ['ai', 'external'], ['ai-model', 'external-api'], []],
+  ['stripe', 'Stripe', 'saas', ['external'], ['external-api'], []],
+  ['clerk', 'Clerk', 'saas', ['external', 'gateway'], ['external-api'], []],
+  ['auth0', 'Auth0', 'security', ['gateway', 'external'], ['external-api'], []],
+  ['okta', 'Okta', 'security', ['gateway', 'external'], ['external-api'], []],
+  ['twilio', 'Twilio', 'saas', ['external'], ['external-api'], []],
+  ['sendgrid', 'SendGrid', 'saas', ['external'], ['external-api'], []],
+  ['shopify', 'Shopify', 'saas', ['external'], ['external-api'], []],
+  ['salesforce', 'Salesforce', 'saas', ['external'], ['external-api'], []],
+  ['hubspot', 'HubSpot', 'saas', ['external'], ['external-api'], []],
+  ['notion', 'Notion', 'saas', ['external'], ['external-api'], []],
+  ['slack', 'Slack', 'saas', ['external'], ['external-api'], []],
+  ['discord', 'Discord', 'saas', ['external'], ['external-api'], []],
+  ['figma', 'Figma', 'saas', ['external'], ['external-api'], []],
+  ['zendesk', 'Zendesk', 'saas', ['external'], ['external-api'], []],
+  ['intercom', 'Intercom', 'saas', ['external'], ['external-api'], []],
+  ['git', 'Git', 'tooling', ['platform'], ['library'], []],
+  ['github', 'GitHub', 'tooling', ['platform'], ['external-api'], []],
+  ['gitlab', 'GitLab', 'tooling', ['platform'], ['external-api'], []],
+  ['bitbucket', 'Bitbucket', 'tooling', ['platform'], ['external-api'], []],
+  ['postman', 'Postman', 'tooling', ['platform'], ['external-api'], []],
+  ['insomnia', 'Insomnia', 'tooling', ['platform'], ['external-api'], []],
+  ['eslint', 'ESLint', 'tooling', ['platform'], ['library'], []],
+  ['prettier', 'Prettier', 'tooling', ['platform'], ['library'], []],
+  ['vitest', 'Vitest', 'tooling', ['platform'], ['library'], []],
+  ['jest', 'Jest', 'tooling', ['platform'], ['library'], []],
+  ['playwright', 'Playwright', 'tooling', ['platform'], ['library'], []],
+  ['cypress', 'Cypress', 'tooling', ['platform'], ['library'], []],
+  ['storybook', 'Storybook', 'tooling', ['platform'], ['library'], []],
+];
+
+const entries = T.map(([id, name, category, layers, kinds, aliases]) => ({ id, name, category, layers, kinds, aliases }))
+  .sort((a, b) => a.id.localeCompare(b.id));
+
+for (const e of entries) {
+  if (!CATEGORIES.includes(e.category)) throw new Error(`Unknown category: ${e.category}`);
+  for (const l of e.layers) if (!LAYERS.includes(l)) throw new Error(`Unknown layer ${l} in ${e.id}`);
+  if (!e.kinds.length) throw new Error(`No kind for ${e.id}`);
+}
+
+const data = {
+  version: 1,
+  updated: '2026-11-17',
+  note: 'Classification hints for AI analysis. Layer ids must exist in the graph; this file is not proof of source usage.',
+  categories: CATEGORIES,
+  layers: LAYERS,
+  entries,
+};
+
+mkdirSync('knowledge', { recursive: true });
+writeFileSync('knowledge/tech.json', JSON.stringify(data, null, 2) + '\n');
+console.log(`Wrote ${entries.length} technology entries to knowledge/tech.json`);

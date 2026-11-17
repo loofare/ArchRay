@@ -6746,6 +6746,7 @@ function migrateV1(v1, locale = "en") {
 
 // cli/src/main.ts
 var root = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+var VERSION = true ? "0.3.0" : "dev";
 var HELP = `ArchRay v2 (source trial)
 
 Usage: archray <command> [options]
@@ -6755,6 +6756,8 @@ Usage: archray <command> [options]
   migrate <v1.json>         convert a v1 graph to v2 (original kept)
   schema [graph|view]       print a JSON schema
   init [options]            write .archray templates for your AI agent
+  doctor                    check the packaged files and Node version
+  version                   print the CLI version
 
 build options:
   --input <file>            graph to render (default .archray/graph.json)
@@ -6869,6 +6872,27 @@ function writeOutput(path, data, args, input) {
   console.log(target);
 }
 var json = (value) => JSON.stringify(value, null, 2) + "\n";
+function cmdDoctor() {
+  const checks = [
+    ["viewer template", resolve(root, "viewer/dist/viewer.html")],
+    ["graph schema", resolve(root, "schema/graph.schema.json")],
+    ["view schema", resolve(root, "schema/view.schema.json")],
+    ["skill", resolve(root, "skill/SKILL.md")],
+    ["commands", resolve(root, "commands")],
+    ["knowledge base", resolve(root, "knowledge/tech.json")]
+  ];
+  let ok = Number(process.versions.node.split(".")[0]) >= 20;
+  console.log(`archray ${VERSION} \xB7 node ${process.version}${ok ? "" : " (Node 20+ required)"}`);
+  for (const [label, path] of checks) {
+    const exists = existsSync(path);
+    if (!exists) ok = false;
+    console.log(`${exists ? "ok  " : "MISS"} ${label}: ${path}`);
+  }
+  if (!ok) process.exitCode = 1;
+}
+function cmdVersion() {
+  console.log(`archray ${VERSION}`);
+}
 function cmdValidate(args) {
   const path = args.positional[0] ?? ".archray/graph.json";
   assertValid(readJson(path));
@@ -6889,7 +6913,8 @@ function cmdInit(args) {
   const files = [
     ["schema/graph.schema.json", ".archray/graph.schema.json"],
     ["schema/view.schema.json", ".archray/view.schema.json"],
-    ["skill/SKILL.md", ".archray/SKILL.md"]
+    ["skill/SKILL.md", ".archray/SKILL.md"],
+    ["knowledge/tech.json", ".archray/tech.json"]
   ];
   const integrations = [
     ["claude", ".claude/skills/archray/SKILL.md"],
@@ -7020,6 +7045,12 @@ function main(argv) {
   const args = parseArgs(argv);
   switch (args.command) {
     case void 0:
+    case "version":
+      cmdVersion();
+      break;
+    case "doctor":
+      cmdDoctor();
+      break;
     case "help":
     case "--help":
     case "-h":

@@ -1,6 +1,6 @@
 {
   "name": "archray",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "AI-first architecture visualiser: a Skill + CLI that turns a repository into layered, interactive, offline HTML views.",
   "private": true,
   "type": "module",
@@ -18,10 +18,13 @@
     "gen:schema": "node --import tsx scripts/gen-schema.ts",
     "build:viewer": "npm --workspace=viewer run build",
     "build:cli": "node --import tsx scripts/build-cli.ts",
-    "build": "npm run gen:schema && npm run gen:brands && npm run build:viewer && npm run build:cli",
+    "build": "npm run gen:schema && npm run gen:brands && npm run gen:knowledge && npm run build:viewer && npm run build:cli",
     "self-analyze": "node scripts/self-analyze.mjs",
     "gen:brands": "node scripts/gen-brands.mjs",
-    "check:sensitive": "node scripts/check-sensitive.mjs"
+    "check:sensitive": "node scripts/check-sensitive.mjs",
+    "gen:knowledge": "node scripts/gen-knowledge.mjs",
+    "package": "npm run build && node scripts/package.mjs",
+    "test:package": "npm run package && node scripts/package-check.mjs"
   },
   "keywords": [
     "architecture",
