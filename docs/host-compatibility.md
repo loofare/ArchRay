@@ -45,12 +45,21 @@ skill:archray [skill]
 
 ## 安装示例
 
+v0.3.0 发布包只支持 Claude/Cursor/Antigravity：
+
 ```sh
 ./archray-0.3.0/install.sh /path/to/repo claude
-./archray-0.3.0/install.sh /path/to/repo pi
-./archray-0.3.0/install.sh /path/to/repo codex
-./archray-0.3.0/install.sh /path/to/repo all
 ```
+
+Pi/Codex/all 已进入源码，随 v0.4.0 发布；在 v0.4.0 发布前，从 ArchRay 源码目录运行：
+
+```sh
+node cli/bin/archray.mjs install --target /path/to/repo --agent pi
+node cli/bin/archray.mjs install --target /path/to/repo --agent codex
+node cli/bin/archray.mjs install --target /path/to/repo --agent all
+```
+
+v0.4.0 发布后，可把上面的 `node cli/bin/archray.mjs install` 换成 `./archray-0.4.0/install.sh /path/to/repo <agent>`。
 
 Pi 首次打开项目时会要求信任项目文件；信任后 `/archray` 可用；编辑 prompt 后用 `/reload`。
 
