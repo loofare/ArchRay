@@ -71,7 +71,7 @@ p-limit 没有 client/edge/security 层，`frontend`、`network`、`security` �
 
 ## 发布决定（最终）
 
-首轮试用后曾暂缓发布。T1–T4 已修复，R3/R4 的安装器问题（符号链接、失败重装、gitignore 换行、ignore 链接、替换失败回滚）也已修复；**R5 复审 PASS，P0/P1/P2 = 0**。结论：**v0.3.0 为发布候选**，剩余动作是创建 GitHub Release 并上传 `archray-0.3.0.tgz`；T5（全栈预设对库项目）与 T6（320px 层名发现性）写入 Release Notes 作为已知限制。
+首轮试用后曾暂缓发布。T1–T4 已修复，R3/R4 的安装器问题（符号链接、失败重装、gitignore 换行、ignore 链接、替换失败回滚）也已修复；**R5 复审 PASS，P0/P1/P2 = 0**。结论：**v0.3.0 已发布**（[GitHub Release](https://github.com/loofare/ArchRay/releases/tag/v0.3.0)，资产 `archray-0.3.0.tgz`）；T5（全栈预设对库项目）与 T6（320px 层名发现性）写入 Release Notes 作为已知限制。
 
 ## 复现材料
 
