@@ -6775,13 +6775,13 @@ build options:
 
 init options:
   --target <dir>            project directory (default .)
-  --agent <name>            none | claude | cursor | antigravity | all; installs
-                            skills and /archray slash commands (default none)
+  --agent <name>            none | claude | cursor | antigravity | pi | codex | all;
+                            installs skills and slash commands (default none)
   --cli <path>              CLI path written into commands (default: this package)
 
 install options:
   --target <dir>            project directory (default .)
-  --agent <name>            none | claude | cursor | antigravity | all (default claude)
+  --agent <name>            none | claude | cursor | antigravity | pi | codex | all (default claude)
   --force                   update the vendored tool and existing files
 
 migrate / schema options:
@@ -6928,16 +6928,22 @@ var COMMAND_FILES = [
   ["commands/archray/security.md", "security.md"],
   ["commands/archray/full.md", "full.md"]
 ];
-var AGENTS = ["none", "claude", "cursor", "antigravity", "all"];
+var AGENTS = ["none", "claude", "cursor", "antigravity", "pi", "codex", "all"];
 function planInit(target, agent, cliPath) {
   const files = [...CORE_TEMPLATES];
   const integrations = [
     ["claude", ".claude/skills/archray/SKILL.md"],
     ["cursor", ".cursor/rules/archray.mdc"],
-    ["antigravity", ".agent/skills/archray/SKILL.md"]
+    ["antigravity", ".agent/skills/archray/SKILL.md"],
+    ["pi", ".agents/skills/archray/SKILL.md"],
+    ["codex", ".agents/skills/archray/SKILL.md"]
   ];
+  const added = /* @__PURE__ */ new Set();
   for (const [id, destination] of integrations) {
-    if (agent === id || agent === "all") files.push(["skill/SKILL.md", destination]);
+    if ((agent === id || agent === "all") && !added.has(destination)) {
+      files.push(["skill/SKILL.md", destination]);
+      added.add(destination);
+    }
   }
   const addCommands = (base, flat) => {
     for (const [source, name] of COMMAND_FILES) {
@@ -6948,6 +6954,11 @@ function planInit(target, agent, cliPath) {
   if (agent === "claude" || agent === "all") addCommands(".claude/commands", false);
   if (agent === "cursor" || agent === "all") addCommands(".cursor/commands", true);
   if (agent === "antigravity" || agent === "all") addCommands(".agent/commands", true);
+  if (agent === "pi" || agent === "all") {
+    for (const [source, name] of COMMAND_FILES) {
+      files.push([source, name === "archray.md" ? ".pi/prompts/archray.md" : `.pi/prompts/archray-${name}`]);
+    }
+  }
   return files.map(([source, destination]) => ({
     path: resolve(target, destination),
     data: readFileSync(resolve(root, source), "utf8").replaceAll("__ARCHRAY_CLI__", cliPath)
@@ -6957,7 +6968,7 @@ function cmdInit(args) {
   const target = resolve(flag(args, "target", "."));
   const agent = flag(args, "agent", "none");
   if (!AGENTS.includes(agent)) {
-    throw new Error(`Unknown --agent value: ${agent}. Use none, claude, cursor, antigravity or all.`);
+    throw new Error(`Unknown --agent value: ${agent}. Use none, claude, cursor, antigravity, pi, codex or all.`);
   }
   const cliPath = has(args, "cli") ? flag(args, "cli", "") : resolve(root, "cli/bin/archray.mjs");
   const planned = planInit(target, agent, cliPath);
@@ -6971,7 +6982,7 @@ function cmdInstall(args) {
   const target = resolve(flag(args, "target", "."));
   const agent = flag(args, "agent", "claude");
   if (!AGENTS.includes(agent)) {
-    throw new Error(`Unknown --agent value: ${agent}. Use none, claude, cursor, antigravity or all.`);
+    throw new Error(`Unknown --agent value: ${agent}. Use none, claude, cursor, antigravity, pi, codex or all.`);
   }
   const archrayDir = resolve(target, ".archray");
   const toolDir = resolve(archrayDir, "tool");

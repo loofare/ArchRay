@@ -111,6 +111,15 @@ try {
   assert.notEqual(ignoreLink.status, 0, 'symlinked gitignore is refused');
   assert.equal(readFileSync(externalIgnore, 'utf8'), 'OUTSIDE IGNORE\n', 'external gitignore is untouched');
 
+  // Pi installation uses the Agent Skills location + project prompt templates.
+  const projectPi = join(work, 'project-pi');
+  mkdirSync(projectPi);
+  run('sh', [join(pkg, 'install.sh'), projectPi, 'pi']);
+  assert.ok(existsSync(join(projectPi, '.agents/skills/archray/SKILL.md')), 'pi install writes the Agent Skill');
+  assert.ok(existsSync(join(projectPi, '.pi/prompts/archray.md')), 'pi install writes /archray');
+  assert.ok(existsSync(join(projectPi, '.pi/prompts/archray-frontend.md')), 'pi install writes /archray-frontend');
+  assert.ok(!existsSync(join(projectPi, '.claude')), 'pi install does not write Claude files');
+
   // A controlled rename failure must roll back both the tool and every written template.
   const project6 = join(work, 'project6');
   mkdirSync(project6);

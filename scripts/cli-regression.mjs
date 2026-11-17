@@ -30,6 +30,23 @@ const skill = read('.archray/SKILL.md');
 assert.ok(!skill.includes('__ARCHRAY_CLI__'), 'installed skill resolves the CLI path');
 assert.match(skill, /^---\nname: archray\ndescription: .+\n---/, 'the installed Skill keeps agent-readable frontmatter');
 
+const piDir = join(workdir, 'pi-agent');
+mkdirSync(piDir);
+run(['init', '--target', piDir, '--agent', 'pi']);
+assert.ok(existsSync(join(piDir, '.agents/skills/archray/SKILL.md')), 'pi init writes the Agent Skill');
+assert.ok(existsSync(join(piDir, '.pi/prompts/archray.md')), 'pi init writes /archray');
+assert.ok(existsSync(join(piDir, '.pi/prompts/archray-frontend.md')), 'pi init writes /archray-frontend');
+assert.match(readFileSync(join(piDir, '.pi/prompts/archray.md'), 'utf8'), /\$ARGUMENTS/, 'pi prompt keeps argument substitution');
+
+const allDir = join(workdir, 'all-agents');
+mkdirSync(allDir);
+run(['init', '--target', allDir, '--agent', 'all']);
+for (const file of [
+  '.claude/commands/archray.md', '.cursor/commands/archray-frontend.md',
+  '.agent/commands/archray-backend.md', '.agents/skills/archray/SKILL.md',
+  '.pi/prompts/archray.md', '.pi/prompts/archray-data.md',
+]) assert.ok(existsSync(join(allDir, file)), `all agents install ${file}`);
+
 const agentDir = join(workdir, 'agent');
 mkdirSync(agentDir);
 run(['init', '--target', agentDir, '--agent', 'claude']);

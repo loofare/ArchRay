@@ -10,7 +10,7 @@ Copy this to an AI that can run commands:
 
 > Install ArchRay in this repository and start using it: download `archray-0.3.0.tgz` from https://github.com/loofare/ArchRay/releases/tag/v0.3.0, extract it, run `./archray-0.3.0/install.sh . claude`, then follow `.archray/SKILL.md` to generate `.archray/graph.json`, build the HTML, and show me how to use `/archray`.
 
-Open a new AI session and type `/archray`. For Cursor or Antigravity, replace `claude` with `cursor` or `antigravity`.
+Open a new AI session and type `/archray`. For Cursor, Antigravity, Pi or Codex, replace `claude` with `cursor`, `antigravity`, `pi` or `codex`.
 
 ## Quick start (in your AI)
 
@@ -39,7 +39,7 @@ Then in your AI:
 /archray 前端,数据
 ```
 
-Claude Code gets `/archray` plus `/archray:frontend`, `:backend`, `:data`, `:network`, `:security`, `:full`. Cursor and Antigravity get flat `archray-*.md` commands. Codex, Pi/Managed host and other Skill hosts can read `.archray/SKILL.md` and use the same layer keywords.
+Claude Code gets `/archray` plus `/archray:frontend`, `:backend`, `:data`, `:network`, `:security`, `:full`. Cursor and Antigravity get flat `archray-*.md` commands. Pi uses `/archray`, `/archray-frontend` and `/skill:archray`; Codex reads `.agents/skills` and uses `$archray` or `/skills`. Install with `--agent claude|cursor|antigravity|pi|codex`. See the [host compatibility matrix](docs/host-compatibility.md); Managed host uses a managed Skill (same document).
 
 The AI inspects real source, writes `.archray/graph.json`, then builds `.archray/index.html`. `init` writes templates and commands only; the graph comes from that analysis. Candidates may be empty; keeping the current implementation is valid. ArchRay does not scan source or verify graph claims.
 

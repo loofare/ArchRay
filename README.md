@@ -10,7 +10,7 @@ ArchRay 是 **AI 优先的架构可视化工具**：安装一次，之后在 AI 
 
 > 请把 ArchRay 安装到当前仓库并开始使用：从 https://github.com/loofare/ArchRay/releases/tag/v0.3.0 下载 `archray-0.3.0.tgz`，解压后运行 `./archray-0.3.0/install.sh . claude`；然后按 `.archray/SKILL.md` 生成 `.archray/graph.json`，构建 HTML，并告诉我 `/archray` 怎么用。
 
-安装后新开一个 AI 会话，输入 `/archray`。用 Cursor 或 Antigravity 时，把命令里的 `claude` 换成 `cursor` 或 `antigravity`。
+安装后新开一个 AI 会话，输入 `/archray`。用 Cursor、Antigravity、Pi 或 Codex 时，把命令里的 `claude` 换成 `cursor`、`antigravity`、`pi` 或 `codex`。
 
 ## 快速开始（在 AI 里）
 
@@ -39,7 +39,7 @@ node /path/to/ArchRay/cli/bin/archray.mjs init --target /path/to/your-repo --age
 /archray 前端,数据
 ```
 
-Claude Code 会得到 `/archray` 以及 `/archray:frontend`、`:backend`、`:data`、`:network`、`:security`、`:full`。Cursor 和 Antigravity 使用扁平的 `archray-*.md` 命令。Codex、Pi/Managed host 等 Skill 宿主可以读取 `.archray/SKILL.md`，使用同一套层关键词。
+Claude Code 会得到 `/archray` 以及 `/archray:frontend`、`:backend`、`:data`、`:network`、`:security`、`:full`。Cursor 和 Antigravity 使用扁平的 `archray-*.md` 命令。Pi 使用 `/archray`、`/archray-frontend` 和 `/skill:archray`；Codex 通过 `.agents/skills` 使用 `$archray` 或 `/skills`。安装时分别用 `--agent claude|cursor|antigravity|pi|codex`。完整矩阵见[宿主兼容性](docs/host-compatibility.md)。Managed host 使用托管 Skill，见同一文档。
 
 AI 会检查真实源码，写入 `.archray/graph.json`，再构建 `.archray/index.html`。`init` 只写模板和命令；图来自这次分析。候选可以为空，保持现状也是有效选择。ArchRay 不自行扫描源码，也不验证图中的声明。
 
