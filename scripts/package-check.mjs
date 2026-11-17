@@ -1,6 +1,6 @@
 /** Extract the release tarball and run install → doctor → build without the source tree. */
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -32,6 +32,15 @@ try {
   assert.match(versionOut, new RegExp(`^archray ${version.replace(/\./g, '\\.')}$`));
   run(process.execPath, [cli, 'doctor']);
   assert.ok(!existsSync(join(pkg, 'node_modules')), 'package has no node_modules');
+
+  // doctor must fail when an install file is missing, not just when a directory is missing.
+  const mainCommand = join(pkg, 'commands/archray.md');
+  renameSync(mainCommand, `${mainCommand}.bak`);
+  const broken = spawnSync(process.execPath, [cli, 'doctor'], { encoding: 'utf8' });
+  renameSync(`${mainCommand}.bak`, mainCommand);
+  assert.notEqual(broken.status, 0, 'doctor fails when a command file is missing');
+  assert.match(broken.stdout, /MISS command commands\/archray\.md/, 'doctor names the missing command');
+  run(process.execPath, [cli, 'doctor']);
 
   const graph = {
     schemaVersion: '2.0',

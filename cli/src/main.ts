@@ -159,20 +159,20 @@ const json = (value: unknown) => JSON.stringify(value, null, 2) + '\n';
 
 function cmdDoctor(): void {
   const checks: [string, string][] = [
-    ['viewer template', resolve(root, 'viewer/dist/viewer.html')],
-    ['graph schema', resolve(root, 'schema/graph.schema.json')],
-    ['view schema', resolve(root, 'schema/view.schema.json')],
-    ['skill', resolve(root, 'skill/SKILL.md')],
-    ['commands', resolve(root, 'commands')],
-    ['knowledge base', resolve(root, 'knowledge/tech.json')],
+    ['cli bundle', 'cli/bin/archray.mjs'],
+    ['viewer template', 'viewer/dist/viewer.html'],
+    ...CORE_TEMPLATES.map(([source]) => [`template ${source}`, source] as [string, string]),
+    ...COMMAND_FILES.map(([source]) => [`command ${source}`, source] as [string, string]),
   ];
   let ok = Number(process.versions.node.split('.')[0]) >= 20;
   console.log(`archray ${VERSION} · node ${process.version}${ok ? '' : ' (Node 20+ required)'}`);
-  for (const [label, path] of checks) {
+  for (const [label, file] of checks) {
+    const path = resolve(root, file);
     const exists = existsSync(path);
     if (!exists) ok = false;
     console.log(`${exists ? 'ok  ' : 'MISS'} ${label}: ${path}`);
   }
+  if (!ok) console.log('Missing files: re-extract the release package or rebuild with npm run build.');
   if (!ok) process.exitCode = 1;
 }
 
@@ -193,6 +193,23 @@ function cmdSchema(args: Args): void {
   else process.stdout.write(data);
 }
 
+const CORE_TEMPLATES: [string, string][] = [
+  ['schema/graph.schema.json', '.archray/graph.schema.json'],
+  ['schema/view.schema.json', '.archray/view.schema.json'],
+  ['skill/SKILL.md', '.archray/SKILL.md'],
+  ['knowledge/tech.json', '.archray/tech.json'],
+];
+
+const COMMAND_FILES: [string, string][] = [
+  ['commands/archray.md', 'archray.md'],
+  ['commands/archray/frontend.md', 'frontend.md'],
+  ['commands/archray/backend.md', 'backend.md'],
+  ['commands/archray/data.md', 'data.md'],
+  ['commands/archray/network.md', 'network.md'],
+  ['commands/archray/security.md', 'security.md'],
+  ['commands/archray/full.md', 'full.md'],
+];
+
 function cmdInit(args: Args): void {
   const target = resolve(flag(args, 'target', '.'));
   const agent = flag(args, 'agent', 'none');
@@ -200,12 +217,7 @@ function cmdInit(args: Args): void {
     throw new Error(`Unknown --agent value: ${agent}. Use none, claude, cursor, antigravity or all.`);
   }
 
-  const files: [string, string][] = [
-    ['schema/graph.schema.json', '.archray/graph.schema.json'],
-    ['schema/view.schema.json', '.archray/view.schema.json'],
-    ['skill/SKILL.md', '.archray/SKILL.md'],
-    ['knowledge/tech.json', '.archray/tech.json'],
-  ];
+  const files: [string, string][] = [...CORE_TEMPLATES];
   const integrations: [string, string][] = [
     ['claude', '.claude/skills/archray/SKILL.md'],
     ['cursor', '.cursor/rules/archray.mdc'],
@@ -217,17 +229,8 @@ function cmdInit(args: Args): void {
 
   // Slash commands: `/archray` plus focused presets. Claude namespaces subdirectories;
   // other hosts get flat `archray-<preset>.md` files.
-  const commandFiles: [string, string][] = [
-    ['commands/archray.md', 'archray.md'],
-    ['commands/archray/frontend.md', 'frontend.md'],
-    ['commands/archray/backend.md', 'backend.md'],
-    ['commands/archray/data.md', 'data.md'],
-    ['commands/archray/network.md', 'network.md'],
-    ['commands/archray/security.md', 'security.md'],
-    ['commands/archray/full.md', 'full.md'],
-  ];
   const addCommands = (base: string, flat: boolean) => {
-    for (const [source, name] of commandFiles) {
+    for (const [source, name] of COMMAND_FILES) {
       const destination = name === 'archray.md' ? `${base}/archray.md` : flat ? `${base}/archray-${name}` : `${base}/archray/${name}`;
       files.push([source, destination]);
     }

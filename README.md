@@ -108,7 +108,7 @@ Upgrade with a newer release tarball; `--force` refreshes the skill, commands an
 ./archray-<new-version>/install.sh /path/to/your-repo claude --force
 ```
 
-Uninstall by removing the installed files (nothing is global):
+Uninstall by removing the installed files (nothing is global). This also deletes `.archray`, including `graph.json`, `view.json` and the built HTML — back them up first if you want to keep them:
 
 ```sh
 rm -f /path/to/your-repo/.claude/commands/archray.md /path/to/your-repo/.claude/commands/archray/*.md
