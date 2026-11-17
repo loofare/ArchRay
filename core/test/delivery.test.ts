@@ -252,3 +252,22 @@ describe('custom and collapsed layer edges', () => {
     expect(noEdges.context.size).toBe(0);
   });
 });
+
+it('does not pull platform/tooling nodes into layer context', () => {
+  const graph: ArchGraph = {
+    schemaVersion: '2.0',
+    meta: { name: 'platform-context', locales: ['en'], generatedAt: '2026-11-17T00:00:00Z' },
+    layers: [
+      { id: 'client', name: 'Client', order: 0 },
+      { id: 'platform', name: 'Platform', order: 1 },
+    ],
+    nodes: [
+      { id: 'ui', name: 'UI', kind: 'client', layer: 'client' },
+      { id: 'tool', name: 'Tooling', kind: 'config', layer: 'platform' },
+    ],
+    edges: [{ id: 'ui-tool', source: 'ui', target: 'tool' }],
+  };
+  const vis = visibleGraph(indexGraph(graph), { layers: ['client'] });
+  expect(vis.nodes.map((n) => n.id)).toEqual(['ui']);
+  expect(vis.context.size).toBe(0);
+});

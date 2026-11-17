@@ -55,6 +55,7 @@ assert.ok(existsSync(join(agentDir, '.claude/commands/archray/frontend.md')), 'a
 const command = readFileSync(join(agentDir, '.claude/commands/archray.md'), 'utf8');
 assert.ok(!command.includes('__ARCHRAY_CLI__'), 'command templates resolve the CLI path');
 assert.ok(command.includes(cli.replaceAll('\\', '/')) || command.includes(cli), 'commands call this checkout');
+assert.match(readFileSync(join(agentDir, '.claude/commands/archray/frontend.md'), 'utf8'), /remove the missing layer/, 'preset explains partial layer fallback');
 
 const duplicate = run(['init'], { ok: false });
 assert.match(duplicate.stderr, /already exists[\s\S]*--force/, 'repeat init explains how to overwrite');

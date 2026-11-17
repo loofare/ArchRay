@@ -172,9 +172,13 @@ function emptyVisible(): VisibleGraph {
  */
 function filterLayers(idx: GraphIndex, base: VisibleGraph, selected: Set<string>): VisibleGraph {
   const context = new Set<string>();
+  const addContext = (id: string) => {
+    // Platform/tooling nodes are dev concerns; keep them hidden unless explicitly selected.
+    if (graphLayerKey(idx.graph, layerOf(idx, id)) !== 'platform') context.add(id);
+  };
   for (const e of idx.graph.edges) {
-    if (selected.has(e.source) && !selected.has(e.target)) context.add(e.target);
-    if (selected.has(e.target) && !selected.has(e.source)) context.add(e.source);
+    if (selected.has(e.source) && !selected.has(e.target)) addContext(e.target);
+    if (selected.has(e.target) && !selected.has(e.source)) addContext(e.source);
   }
 
   const ancestorIds = new Set<string>();
