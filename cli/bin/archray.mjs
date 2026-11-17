@@ -39,16 +39,16 @@ function t(text, locale, fallback) {
 
 // core/src/layers.ts
 var LAYERS = [
-  { id: "client", order: 0, label: { en: "Clients & frontend", zh: "\u5BA2\u6237\u7AEF\u4E0E\u524D\u7AEF" }, aliases: ["\u524D\u7AEF", "\u5BA2\u6237\u7AEF", "\u7528\u6237\u7AEF", "\u754C\u9762", "ui", "frontend", "front-end", "web", "mobile", "client", "presentation", "spa"] },
-  { id: "edge", order: 1, label: { en: "Network & delivery", zh: "\u7F51\u7EDC\u4E0E\u4F20\u8F93" }, aliases: ["\u7F51\u7EDC", "\u4F20\u8F93", "\u7F51\u7EDC\u5C42", "\u4F20\u8F93\u5C42", "\u5206\u53D1", "\u9759\u6001\u8D44\u6E90", "\u63A5\u5165\u5C42", "network", "transport", "edge", "cdn", "dns", "delivery", "http", "access", "access-layer"] },
-  { id: "gateway", order: 2, label: { en: "Security & gateway", zh: "\u5B89\u5168\u4E0E\u7F51\u5173" }, aliases: ["\u7F51\u5173", "\u5B89\u5168", "\u5B89\u5168\u7F51\u5173", "\u9274\u6743", "\u6743\u9650", "gateway", "security", "auth", "waf", "proxy", "ingress", "loadbalancer", "load-balancer", "lb"] },
-  { id: "service", order: 3, label: { en: "Backend & middleware", zh: "\u540E\u7AEF\u4E0E\u4E2D\u95F4\u5C42" }, aliases: ["\u540E\u7AEF", "\u670D\u52A1", "\u4E2D\u95F4\u5C42", "\u4E1A\u52A1", "\u4E1A\u52A1\u5C42", "\u5E94\u7528\u5C42", "\u5E94\u7528\u670D\u52A1", "\u5E94\u7528\u670D\u52A1\u5C42", "backend", "service", "services", "server", "api", "middleware", "microservice", "domain", "application", "application-services"] },
-  { id: "async", order: 4, label: { en: "Async & automation", zh: "\u5F02\u6B65\u4E0E\u81EA\u52A8\u5316" }, aliases: ["\u5F02\u6B65", "\u4EFB\u52A1", "\u961F\u5217", "\u6D88\u606F", "\u8C03\u5EA6", "async", "worker", "job", "jobs", "queue", "messaging", "event", "events", "stream", "cron", "automation"] },
-  { id: "data", order: 5, label: { en: "Data & storage", zh: "\u6570\u636E\u4E0E\u5B58\u50A8" }, aliases: ["\u6570\u636E", "\u5B58\u50A8", "\u6570\u636E\u5C42", "\u6570\u636E\u5E93", "\u7F13\u5B58", "\u6570\u4ED3", "data", "storage", "database", "db", "cache", "warehouse", "lake", "search", "vector"] },
-  { id: "ai", order: 6, label: { en: "AI & models", zh: "AI \u4E0E\u6A21\u578B" }, aliases: ["ai", "\u6A21\u578B", "\u667A\u80FD", "\u7B97\u6CD5", "ml", "model", "models", "llm", "inference", "embedding", "agent"] },
-  { id: "external", order: 7, label: { en: "External & SaaS", zh: "\u5916\u90E8\u4E0E SaaS" }, aliases: ["\u5916\u90E8", "\u7B2C\u4E09\u65B9", "\u5546\u4E1A", "saas", "external", "third-party", "thirdparty", "vendor", "partner", "api-external"] },
-  { id: "platform", order: 8, label: { en: "Platform & infra", zh: "\u5E73\u53F0\u4E0E\u57FA\u7840\u8BBE\u65BD" }, aliases: ["\u5E73\u53F0", "\u57FA\u7840\u8BBE\u65BD", "\u90E8\u7F72", "\u8FD0\u7EF4", "infra", "infrastructure", "platform", "devops", "cloud", "k8s", "kubernetes", "container", "hosting", "ci"] },
-  { id: "observability", order: 9, label: { en: "Observability", zh: "\u53EF\u89C2\u6D4B" }, aliases: ["\u76D1\u63A7", "\u65E5\u5FD7", "\u53EF\u89C2\u6D4B", "\u544A\u8B66", "observability", "monitoring", "logging", "tracing", "metrics", "alerting"] }
+  { id: "client", order: 0, label: { en: "Clients & frontend", zh: "\u5BA2\u6237\u7AEF\u4E0E\u524D\u7AEF" }, short: { en: "Client", zh: "\u524D\u7AEF" }, aliases: ["\u524D\u7AEF", "\u5BA2\u6237\u7AEF", "\u7528\u6237\u7AEF", "\u754C\u9762", "ui", "frontend", "front-end", "web", "mobile", "client", "presentation", "spa"] },
+  { id: "edge", order: 1, label: { en: "Network & delivery", zh: "\u7F51\u7EDC\u4E0E\u4F20\u8F93" }, short: { en: "Network", zh: "\u7F51\u7EDC" }, aliases: ["\u7F51\u7EDC", "\u4F20\u8F93", "\u7F51\u7EDC\u5C42", "\u4F20\u8F93\u5C42", "\u5206\u53D1", "\u9759\u6001\u8D44\u6E90", "\u63A5\u5165\u5C42", "network", "transport", "edge", "cdn", "dns", "delivery", "http", "access", "access-layer"] },
+  { id: "gateway", order: 2, label: { en: "Security & gateway", zh: "\u5B89\u5168\u4E0E\u7F51\u5173" }, short: { en: "Gateway", zh: "\u7F51\u5173" }, aliases: ["\u7F51\u5173", "\u5B89\u5168", "\u5B89\u5168\u7F51\u5173", "\u9274\u6743", "\u6743\u9650", "gateway", "security", "auth", "waf", "proxy", "ingress", "loadbalancer", "load-balancer", "lb"] },
+  { id: "service", order: 3, label: { en: "Backend & middleware", zh: "\u540E\u7AEF\u4E0E\u4E2D\u95F4\u5C42" }, short: { en: "Backend", zh: "\u540E\u7AEF" }, aliases: ["\u540E\u7AEF", "\u670D\u52A1", "\u4E2D\u95F4\u5C42", "\u4E1A\u52A1", "\u4E1A\u52A1\u5C42", "\u5E94\u7528\u5C42", "\u5E94\u7528\u670D\u52A1", "\u5E94\u7528\u670D\u52A1\u5C42", "backend", "service", "services", "server", "api", "middleware", "microservice", "domain", "application", "application-services"] },
+  { id: "async", order: 4, label: { en: "Async & automation", zh: "\u5F02\u6B65\u4E0E\u81EA\u52A8\u5316" }, short: { en: "Async", zh: "\u5F02\u6B65" }, aliases: ["\u5F02\u6B65", "\u4EFB\u52A1", "\u961F\u5217", "\u6D88\u606F", "\u8C03\u5EA6", "async", "worker", "job", "jobs", "queue", "messaging", "event", "events", "stream", "cron", "automation"] },
+  { id: "data", order: 5, label: { en: "Data & storage", zh: "\u6570\u636E\u4E0E\u5B58\u50A8" }, short: { en: "Data", zh: "\u6570\u636E" }, aliases: ["\u6570\u636E", "\u5B58\u50A8", "\u6570\u636E\u5C42", "\u6570\u636E\u5E93", "\u7F13\u5B58", "\u6570\u4ED3", "data", "storage", "database", "db", "cache", "warehouse", "lake", "search", "vector"] },
+  { id: "ai", order: 6, label: { en: "AI & models", zh: "AI \u4E0E\u6A21\u578B" }, short: { en: "AI", zh: "AI" }, aliases: ["ai", "\u6A21\u578B", "\u667A\u80FD", "\u7B97\u6CD5", "ml", "model", "models", "llm", "inference", "embedding", "agent"] },
+  { id: "external", order: 7, label: { en: "External & SaaS", zh: "\u5916\u90E8\u4E0E SaaS" }, short: { en: "External", zh: "\u5916\u90E8" }, aliases: ["\u5916\u90E8", "\u7B2C\u4E09\u65B9", "\u5546\u4E1A", "saas", "external", "third-party", "thirdparty", "vendor", "partner", "api-external"] },
+  { id: "platform", order: 8, label: { en: "Platform & infra", zh: "\u5E73\u53F0\u4E0E\u57FA\u7840\u8BBE\u65BD" }, short: { en: "Platform", zh: "\u5E73\u53F0" }, aliases: ["\u5E73\u53F0", "\u57FA\u7840\u8BBE\u65BD", "\u90E8\u7F72", "\u8FD0\u7EF4", "infra", "infrastructure", "platform", "devops", "cloud", "k8s", "kubernetes", "container", "hosting", "ci"] },
+  { id: "observability", order: 9, label: { en: "Observability", zh: "\u53EF\u89C2\u6D4B" }, short: { en: "Monitoring", zh: "\u76D1\u63A7" }, aliases: ["\u76D1\u63A7", "\u65E5\u5FD7", "\u53EF\u89C2\u6D4B", "\u544A\u8B66", "observability", "monitoring", "logging", "tracing", "metrics", "alerting"] }
 ];
 var BY_ID = new Map(LAYERS.map((l) => [l.id, l]));
 var BY_ALIAS = /* @__PURE__ */ new Map();
@@ -6774,6 +6774,7 @@ init options:
   --target <dir>            project directory (default .)
   --agent <name>            none | claude | cursor | antigravity | all; installs
                             skills and /archray slash commands (default none)
+  --cli <path>              CLI path written into commands (default: this package)
 
 migrate / schema options:
   --output <file>           write to a file instead of stdout / default path
@@ -6943,7 +6944,7 @@ function cmdInit(args) {
   if (agent === "claude" || agent === "all") addCommands(".claude/commands", false);
   if (agent === "cursor" || agent === "all") addCommands(".cursor/commands", true);
   if (agent === "antigravity" || agent === "all") addCommands(".agent/commands", true);
-  const cliPath = resolve(root, "cli/bin/archray.mjs");
+  const cliPath = has(args, "cli") ? flag(args, "cli", "") : resolve(root, "cli/bin/archray.mjs");
   const planned = files.map(([source, destination]) => ({
     path: resolve(target, destination),
     data: readFileSync(resolve(root, source), "utf8").replaceAll("__ARCHRAY_CLI__", cliPath)
@@ -6977,7 +6978,8 @@ Choose a different --output.`);
     if (parsed.unknown.length) {
       throw new Error(
         `Unknown layer: ${parsed.unknown.join(", ")}.
-This graph has: ${graphLayers(graph).join(", ")}. Alias such as \u524D\u7AEF, \u6570\u636E also work.`
+This graph has: ${graphLayers(graph).join(", ")}.
+Omit --layers to show all layers; aliases such as \u524D\u7AEF, \u6570\u636E also work.`
       );
     }
     layers = parsed.layers;

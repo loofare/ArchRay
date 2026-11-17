@@ -27,6 +27,7 @@ assert.ok(existsSync(join(workdir, '.archray/tech.json')), 'init writes the tech
 const version = run(['version']).stdout.trim();
 assert.match(version, /^archray \d+\.\d+\.\d+$/, 'version prints the packaged version');
 const skill = read('.archray/SKILL.md');
+assert.ok(!skill.includes('__ARCHRAY_CLI__'), 'installed skill resolves the CLI path');
 assert.match(skill, /^---\nname: archray\ndescription: .+\n---/, 'the installed Skill keeps agent-readable frontmatter');
 
 const agentDir = join(workdir, 'agent');

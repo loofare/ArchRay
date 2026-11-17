@@ -248,7 +248,7 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
   /* ------------------------------------------------------- layer focus */
   page = await open({ width: 1440, height: 900 }, '?layers=前端,数据&locale=zh-CN');
   const pressed = async () => (await page.locator('.ar-layers button[aria-pressed="true"]').allInnerTexts()).map((t) => t.trim()).sort();
-  assert.deepEqual(await pressed(), ['客户端与前端', '数据与存储'].sort(), 'URL layers activate chips');
+  assert.deepEqual(await pressed(), ['客户端', '数据与存储'].sort(), 'URL layers activate chips');
   const layerScene = await page.locator('#archray-scene').textContent();
   assert.match(layerScene, /API 网关/, 'one-hop context stays visible');
   assert.match(layerScene, /PostgreSQL/, 'selected data layer stays visible');
@@ -261,7 +261,7 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
   assert.equal(await opacityOf('PostgreSQL'), 1, 'selected layer is fully visible');
   await page.screenshot({ path: path.join(shots, 'layers-zh.png') });
 
-  await page.locator('.ar-layers button', { hasText: '客户端与前端' }).click();
+  await page.locator('.ar-layers button', { hasText: '客户端' }).click();
   await page.waitForTimeout(700);
   assert.ok(!/Web 控制台/.test(await page.locator('#archray-scene').textContent()), 'chip toggle removes a layer');
 
@@ -277,6 +277,10 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
   await page.waitForTimeout(700);
   assert.deepEqual(await pressed(), ['数据与存储'], 'import restores the layer focus');
   await page.screenshot({ path: path.join(shots, 'layers-restored-zh.png') });
+  await page.close();
+
+  page = await open({ width: 1000, height: 700 }, '?layers=ghost&locale=en');
+  assert.match(await page.locator('[role=alert]').innerText(), /not in this graph/, 'unknown layers name the real reason');
   await page.close();
 
   /* --------------------------------------------------- invalid view input */

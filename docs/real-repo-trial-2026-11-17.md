@@ -85,3 +85,21 @@ p-limit 没有 client/edge/security 层，`frontend`、`network`、`security` �
 - 截图：`dist/trial/shots/`（desktop-en、desktop-data、desktop-glass、layer-fallback、narrow-320、full）
 - 发布包：`dist/archray-0.3.0.tgz`
 - 试用脚本：`dist/trial/trial-check.cjs`（仅本地证据，不进入发布包）
+
+## 修复与复测（同日）
+
+按试用结论完成 T1–T4：
+
+- **T1**：`noticeText` 增加 `stale:layers` 分支；`?layers=frontend` 现在提示“部分层不在图中”，不再误报折叠分组。
+- **T2**：五个带层的预设命令增加“若 CLI 报 Unknown layer，则不带 `--layers` 重建并说明该层不存在”。
+- **T3**：层 chip 改为“具体名 + 通用类”，例如 `Public API & limiter · Backend`、`Queue state · Data`；当具体名已含通用词或本身就是层别名时保持简短。
+- **T4**：`install.sh` 把 CLI/viewer/Skill/命令/知识库复制到 `.archray/tool/`，命令改用相对路径 `.archray/tool/cli/bin/archray.mjs`，并写入 `.archray/.gitignore` 的 `tool/`。删除或移动下载包后，仓库内命令仍可用。
+
+复测：
+
+- 对 p-limit 重新 `install.sh --force`，`graph.json` 哈希不变；`.archray/tool` 完整；命令引用相对路径。
+- 移走下载包后，自带 CLI 的 `version`、`doctor`、`build` 仍通过。
+- 浏览器复测：层标签显示具体 + 通用；`?layers=frontend` 文案正确；层过滤、三套风格、整图 PNG、录屏、320px、view 导入通过。
+- 27 项核心测试、typecheck、build、CLI 回归、包级回归（含移走下载包）、浏览器检查、脱敏扫描通过。
+
+剩余：T5（全栈预设对库项目不适用）、T6（320px 层名首屏可见性）作为已知限制；M4 修复待代码审计伙伴 R3 复审，PASS 后再创建公开 Release。

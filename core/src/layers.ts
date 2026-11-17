@@ -8,21 +8,23 @@ import { t } from './i18n';
 export interface LayerDef {
   id: string;
   label: LocalizedText;
+  /** Short class name shown after a graph-specific layer name. */
+  short: LocalizedText;
   order: number;
   aliases: string[];
 }
 
 export const LAYERS: LayerDef[] = [
-  { id: 'client', order: 0, label: { en: 'Clients & frontend', zh: '客户端与前端' }, aliases: ['前端', '客户端', '用户端', '界面', 'ui', 'frontend', 'front-end', 'web', 'mobile', 'client', 'presentation', 'spa'] },
-  { id: 'edge', order: 1, label: { en: 'Network & delivery', zh: '网络与传输' }, aliases: ['网络', '传输', '网络层', '传输层', '分发', '静态资源', '接入层', 'network', 'transport', 'edge', 'cdn', 'dns', 'delivery', 'http', 'access', 'access-layer'] },
-  { id: 'gateway', order: 2, label: { en: 'Security & gateway', zh: '安全与网关' }, aliases: ['网关', '安全', '安全网关', '鉴权', '权限', 'gateway', 'security', 'auth', 'waf', 'proxy', 'ingress', 'loadbalancer', 'load-balancer', 'lb'] },
-  { id: 'service', order: 3, label: { en: 'Backend & middleware', zh: '后端与中间层' }, aliases: ['后端', '服务', '中间层', '业务', '业务层', '应用层', '应用服务', '应用服务层', 'backend', 'service', 'services', 'server', 'api', 'middleware', 'microservice', 'domain', 'application', 'application-services'] },
-  { id: 'async', order: 4, label: { en: 'Async & automation', zh: '异步与自动化' }, aliases: ['异步', '任务', '队列', '消息', '调度', 'async', 'worker', 'job', 'jobs', 'queue', 'messaging', 'event', 'events', 'stream', 'cron', 'automation'] },
-  { id: 'data', order: 5, label: { en: 'Data & storage', zh: '数据与存储' }, aliases: ['数据', '存储', '数据层', '数据库', '缓存', '数仓', 'data', 'storage', 'database', 'db', 'cache', 'warehouse', 'lake', 'search', 'vector'] },
-  { id: 'ai', order: 6, label: { en: 'AI & models', zh: 'AI 与模型' }, aliases: ['ai', '模型', '智能', '算法', 'ml', 'model', 'models', 'llm', 'inference', 'embedding', 'agent'] },
-  { id: 'external', order: 7, label: { en: 'External & SaaS', zh: '外部与 SaaS' }, aliases: ['外部', '第三方', '商业', 'saas', 'external', 'third-party', 'thirdparty', 'vendor', 'partner', 'api-external'] },
-  { id: 'platform', order: 8, label: { en: 'Platform & infra', zh: '平台与基础设施' }, aliases: ['平台', '基础设施', '部署', '运维', 'infra', 'infrastructure', 'platform', 'devops', 'cloud', 'k8s', 'kubernetes', 'container', 'hosting', 'ci'] },
-  { id: 'observability', order: 9, label: { en: 'Observability', zh: '可观测' }, aliases: ['监控', '日志', '可观测', '告警', 'observability', 'monitoring', 'logging', 'tracing', 'metrics', 'alerting'] },
+  { id: 'client', order: 0, label: { en: 'Clients & frontend', zh: '客户端与前端' }, short: { en: 'Client', zh: '前端' }, aliases: ['前端', '客户端', '用户端', '界面', 'ui', 'frontend', 'front-end', 'web', 'mobile', 'client', 'presentation', 'spa'] },
+  { id: 'edge', order: 1, label: { en: 'Network & delivery', zh: '网络与传输' }, short: { en: 'Network', zh: '网络' }, aliases: ['网络', '传输', '网络层', '传输层', '分发', '静态资源', '接入层', 'network', 'transport', 'edge', 'cdn', 'dns', 'delivery', 'http', 'access', 'access-layer'] },
+  { id: 'gateway', order: 2, label: { en: 'Security & gateway', zh: '安全与网关' }, short: { en: 'Gateway', zh: '网关' }, aliases: ['网关', '安全', '安全网关', '鉴权', '权限', 'gateway', 'security', 'auth', 'waf', 'proxy', 'ingress', 'loadbalancer', 'load-balancer', 'lb'] },
+  { id: 'service', order: 3, label: { en: 'Backend & middleware', zh: '后端与中间层' }, short: { en: 'Backend', zh: '后端' }, aliases: ['后端', '服务', '中间层', '业务', '业务层', '应用层', '应用服务', '应用服务层', 'backend', 'service', 'services', 'server', 'api', 'middleware', 'microservice', 'domain', 'application', 'application-services'] },
+  { id: 'async', order: 4, label: { en: 'Async & automation', zh: '异步与自动化' }, short: { en: 'Async', zh: '异步' }, aliases: ['异步', '任务', '队列', '消息', '调度', 'async', 'worker', 'job', 'jobs', 'queue', 'messaging', 'event', 'events', 'stream', 'cron', 'automation'] },
+  { id: 'data', order: 5, label: { en: 'Data & storage', zh: '数据与存储' }, short: { en: 'Data', zh: '数据' }, aliases: ['数据', '存储', '数据层', '数据库', '缓存', '数仓', 'data', 'storage', 'database', 'db', 'cache', 'warehouse', 'lake', 'search', 'vector'] },
+  { id: 'ai', order: 6, label: { en: 'AI & models', zh: 'AI 与模型' }, short: { en: 'AI', zh: 'AI' }, aliases: ['ai', '模型', '智能', '算法', 'ml', 'model', 'models', 'llm', 'inference', 'embedding', 'agent'] },
+  { id: 'external', order: 7, label: { en: 'External & SaaS', zh: '外部与 SaaS' }, short: { en: 'External', zh: '外部' }, aliases: ['外部', '第三方', '商业', 'saas', 'external', 'third-party', 'thirdparty', 'vendor', 'partner', 'api-external'] },
+  { id: 'platform', order: 8, label: { en: 'Platform & infra', zh: '平台与基础设施' }, short: { en: 'Platform', zh: '平台' }, aliases: ['平台', '基础设施', '部署', '运维', 'infra', 'infrastructure', 'platform', 'devops', 'cloud', 'k8s', 'kubernetes', 'container', 'hosting', 'ci'] },
+  { id: 'observability', order: 9, label: { en: 'Observability', zh: '可观测' }, short: { en: 'Monitoring', zh: '监控' }, aliases: ['监控', '日志', '可观测', '告警', 'observability', 'monitoring', 'logging', 'tracing', 'metrics', 'alerting'] },
 ];
 
 const BY_ID = new Map(LAYERS.map((l) => [l.id, l]));
@@ -108,6 +110,28 @@ export function graphLayerLabel(graph: ArchGraph, id: string, locale: string): s
   const layer = graph.layers?.find((l) => l.id === id);
   if (layer) return t(layer.name, locale, 'en');
   return id;
+}
+
+export function layerShortLabel(id: string, locale: string): string {
+  const def = BY_ID.get(id);
+  return def ? t(def.short, locale, 'en') : id;
+}
+
+/**
+ * Toolbar label: keep the graph author's specific name and add the generic class
+ * when it adds information (e.g. `Public API & limiter · Backend`).
+ */
+export function graphLayerChipLabel(graph: ArchGraph, id: string, locale: string): string {
+  const layer = graph.layers?.find((l) => l.id === id);
+  if (!layer) return layerLabel(id, locale);
+  const specific = t(layer.name, locale, 'en');
+  if (!specific || specific === id) return layerLabel(id, locale);
+  if (canonicalLayer(specific) === id) return specific;
+  if (!BY_ID.has(id)) return specific;
+  const short = layerShortLabel(id, locale);
+  if (!short || short === id) return specific;
+  if (specific.toLowerCase().includes(short.toLowerCase())) return specific;
+  return `${specific} · ${short}`;
 }
 
 const layerKeys = (layer: ArchLayer) => [layer.id, t(layer.name, 'en', 'en'), t(layer.name, 'zh-CN', 'en')]

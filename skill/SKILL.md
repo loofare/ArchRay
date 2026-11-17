@@ -36,7 +36,7 @@ Give each node a `layer` using this canonical set (or the closest existing graph
 Analyse once, then slice the view instead of re-analysing:
 
 ```sh
-node /path/to/ArchRay/cli/bin/archray.mjs build .archray/graph.json --layers frontend,data --no-open
+node "__ARCHRAY_CLI__" build .archray/graph.json --layers frontend,data --no-open
 ```
 
 Chinese and English aliases are accepted (`前端`, `数据`, `gateway`, …). Selected layers stay fully visible; one-hop neighbours are dimmed as cross-layer context. When installed with `--agent`, the presets are `/archray`, `/archray:frontend`, `/archray:backend`, `/archray:data`, `/archray:network`, `/archray:security` and `/archray:full`.
@@ -46,7 +46,7 @@ Chinese and English aliases are accepted (`前端`, `数据`, `gateway`, …). S
 When the user asks for a look or language, pass it at build time instead of editing the graph:
 
 ```sh
-node /path/to/ArchRay/cli/bin/archray.mjs build .archray/graph.json --style blueprint --lang en --no-open
+node "__ARCHRAY_CLI__" build .archray/graph.json --style blueprint --lang en --no-open
 ```
 
 Styles are `tech`, `blueprint`, `glass`, `paper`; motion is `full`, `calm` or `off` (`--motion`). The graph must already contain the requested locale; otherwise report that it is unavailable and keep the default rather than inventing translations. Known technologies get brand marks; unknown ones use a generic kind icon.
@@ -58,8 +58,8 @@ Write only `.archray` artifacts by default. Preserve existing graph/view files u
 Validate and build from the target repository, using the absolute path to the tool:
 
 ```sh
-node /path/to/ArchRay/cli/bin/archray.mjs validate .archray/graph.json
-node /path/to/ArchRay/cli/bin/archray.mjs build .archray/graph.json --no-open
+node "__ARCHRAY_CLI__" validate .archray/graph.json
+node "__ARCHRAY_CLI__" build .archray/graph.json --no-open
 ```
 
 Obtain and build the tool separately. `build` refuses to overwrite by default; use `--force` only after the user agrees.

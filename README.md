@@ -11,7 +11,7 @@ tar -xzf archray-<version>.tgz
 ./archray-<version>/install.sh /path/to/your-repo claude
 ```
 
-The installer needs Node 20+ and writes the skill, slash commands and `.archray` templates into that repository. `./archray-<version>/cli/bin/archray.mjs doctor` checks the bundle if something looks missing.
+The installer needs Node 20+. It vendors a self-contained copy of the CLI, viewer, skill, commands and knowledge base into `.archray/tool/`, writes the slash commands and templates, and adds `tool/` to `.archray/.gitignore`. The downloaded `archray-<version>/` folder is no longer needed after installation (about 2.1 MB per repository). Run `node .archray/tool/cli/bin/archray.mjs doctor` inside the repository if something looks missing.
 
 **Option B — from source.** Node 20+:
 
@@ -102,7 +102,7 @@ Scenarios are target previews; base graph facts remain the basis for impact and 
 
 ## Upgrade and uninstall
 
-Upgrade with a newer release tarball; `--force` refreshes the skill, commands and templates while keeping `.archray/graph.json`:
+Upgrade with a newer release tarball; `--force` refreshes the vendored tool, skill, commands and templates while keeping `.archray/graph.json`:
 
 ```sh
 ./archray-<new-version>/install.sh /path/to/your-repo claude --force
@@ -113,8 +113,9 @@ Uninstall by removing the installed files (nothing is global). This also deletes
 ```sh
 rm -f /path/to/your-repo/.claude/commands/archray.md /path/to/your-repo/.claude/commands/archray/*.md
 rm -rf /path/to/your-repo/.claude/skills/archray /path/to/your-repo/.archray
+# .archray/tool is inside .archray, so the vendored CLI is removed too
 # Cursor: .cursor/commands/archray*.md and .cursor/rules/archray.mdc
 # Antigravity: .agent/commands/archray*.md and .agent/skills/archray
 ```
 
-`archray version` prints the bundle version; `archray doctor` checks the viewer template, schemas, skill, commands and knowledge base.
+`archray version` prints the bundle version; `archray doctor` checks the viewer template, schemas, skill, commands and knowledge base. Installed commands use the relative `.archray/tool/cli/bin/archray.mjs`, so they keep working after the download is removed or the repository moves.

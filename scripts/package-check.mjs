@@ -1,4 +1,4 @@
-/** Extract the release tarball and run install → doctor → build without the source tree. */
+/** Extract the release tarball, install it, and prove the project works without the download. */
 import assert from 'node:assert/strict';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -19,28 +19,34 @@ const run = (cmd, args, cwd) => {
 try {
   run('tar', ['-xzf', tarball, '-C', work]);
   const pkg = join(work, `archray-${version}`);
+  const movedPkg = `${pkg}.moved`;
   const project = join(work, 'project');
   mkdirSync(project);
 
   run('sh', [join(pkg, 'install.sh'), project, 'claude']);
+  assert.ok(existsSync(join(project, '.archray/tool/cli/bin/archray.mjs')), 'install vendors the CLI');
   assert.ok(existsSync(join(project, '.archray/tech.json')), 'install copies the knowledge base');
   assert.ok(existsSync(join(project, '.claude/commands/archray.md')), 'install writes slash commands');
   assert.ok(existsSync(join(project, '.claude/skills/archray/SKILL.md')), 'install writes the skill');
+  assert.match(readFileSync(join(project, '.archray/.gitignore'), 'utf8'), /^tool\/$/m, 'vendored tool is git-ignored');
 
-  const cli = join(pkg, 'cli/bin/archray.mjs');
-  const versionOut = run(process.execPath, [cli, 'version']).stdout.trim();
+  const command = readFileSync(join(project, '.claude/commands/archray.md'), 'utf8');
+  assert.ok(command.includes('.archray/tool/cli/bin/archray.mjs'), 'commands use the vendored relative path');
+  assert.ok(!command.includes(pkg), 'commands do not point at the download directory');
+
+  const cli = join(project, '.archray/tool/cli/bin/archray.mjs');
+  const versionOut = run(process.execPath, [cli, 'version'], project).stdout.trim();
   assert.match(versionOut, new RegExp(`^archray ${version.replace(/\./g, '\\.')}$`));
-  run(process.execPath, [cli, 'doctor']);
-  assert.ok(!existsSync(join(pkg, 'node_modules')), 'package has no node_modules');
+  run(process.execPath, [cli, 'doctor'], project);
 
   // doctor must fail when an install file is missing, not just when a directory is missing.
-  const mainCommand = join(pkg, 'commands/archray.md');
+  const mainCommand = join(project, '.archray/tool/commands/archray.md');
   renameSync(mainCommand, `${mainCommand}.bak`);
-  const broken = spawnSync(process.execPath, [cli, 'doctor'], { encoding: 'utf8' });
+  const broken = spawnSync(process.execPath, [cli, 'doctor'], { cwd: project, encoding: 'utf8' });
   renameSync(`${mainCommand}.bak`, mainCommand);
   assert.notEqual(broken.status, 0, 'doctor fails when a command file is missing');
   assert.match(broken.stdout, /MISS command commands\/archray\.md/, 'doctor names the missing command');
-  run(process.execPath, [cli, 'doctor']);
+  run(process.execPath, [cli, 'doctor'], project);
 
   const graph = {
     schemaVersion: '2.0',
@@ -50,9 +56,20 @@ try {
     edges: [],
   };
   writeFileSync(join(project, '.archray/graph.json'), JSON.stringify(graph));
-  run(process.execPath, [cli, 'build', join(project, '.archray/graph.json'), '--output', join(project, '.archray/index.html'), '--no-open'], project);
+  run(process.execPath, [cli, 'build', join(project, '.archray/graph.json'), '--output', join(project, '.archray/index.html'), '--force', '--no-open'], project);
+
+  // The extracted download is no longer needed once the project is installed.
+  renameSync(pkg, movedPkg);
+  try {
+    run(process.execPath, [cli, 'version'], project);
+    run(process.execPath, [cli, 'doctor'], project);
+    run(process.execPath, [cli, 'build', join(project, '.archray/graph.json'), '--output', join(project, '.archray/index.html'), '--force', '--no-open'], project);
+  } finally {
+    renameSync(movedPkg, pkg);
+  }
+
   const html = readFileSync(join(project, '.archray/index.html'), 'utf8');
-  assert.ok(html.includes('window.__ARCHRAY_DATA__'), 'package build embeds graph data');
+  assert.ok(html.includes('window.__ARCHRAY_DATA__'), 'vendored build embeds graph data');
   assert.ok(!html.includes('window.__ARCHRAY_VIEW__={'), 'no view is embedded unless requested');
   console.log('Package check passed:', tarball);
 } finally {

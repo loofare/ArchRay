@@ -28,7 +28,17 @@ here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 target=\${1:-.}
 agent=\${2:-claude}
 shift 2 2>/dev/null || true
-node "$here/cli/bin/archray.mjs" init --target "$target" --agent "$agent" "$@"
+
+# Vendor the tool into the project so commands keep working after the download is removed.
+mkdir -p "$target/.archray/tool"
+for dir in cli schema skill commands knowledge viewer; do
+  rm -rf "$target/.archray/tool/$dir"
+  cp -R "$here/$dir" "$target/.archray/tool/$dir"
+done
+touch "$target/.archray/.gitignore"
+grep -qx 'tool/' "$target/.archray/.gitignore" || printf 'tool/\n' >> "$target/.archray/.gitignore"
+
+node "$here/cli/bin/archray.mjs" init --target "$target" --agent "$agent" --cli ".archray/tool/cli/bin/archray.mjs" "$@"
 echo ""
 echo "Installed. Open $target in your AI and type /archray"
 `, { mode: 0o755 });

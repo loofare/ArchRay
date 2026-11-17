@@ -40,6 +40,7 @@ init options:
   --target <dir>            project directory (default .)
   --agent <name>            none | claude | cursor | antigravity | all; installs
                             skills and /archray slash commands (default none)
+  --cli <path>              CLI path written into commands (default: this package)
 
 migrate / schema options:
   --output <file>           write to a file instead of stdout / default path
@@ -240,7 +241,7 @@ function cmdInit(args: Args): void {
   if (agent === 'antigravity' || agent === 'all') addCommands('.agent/commands', true);
 
   // Preflight every destination before writing so a conflict cannot leave a half-written init.
-  const cliPath = resolve(root, 'cli/bin/archray.mjs');
+  const cliPath = has(args, 'cli') ? flag(args, 'cli', '') : resolve(root, 'cli/bin/archray.mjs');
   const planned = files.map(([source, destination]) => ({
     path: resolve(target, destination),
     data: readFileSync(resolve(root, source), 'utf8').replaceAll('__ARCHRAY_CLI__', cliPath),
@@ -277,7 +278,8 @@ function cmdBuild(args: Args): void {
     if (parsed.unknown.length) {
       throw new Error(
         `Unknown layer: ${parsed.unknown.join(', ')}.\n` +
-        `This graph has: ${graphLayers(graph).join(', ')}. Alias such as 前端, 数据 also work.`,
+        `This graph has: ${graphLayers(graph).join(', ')}.\n` +
+        `Omit --layers to show all layers; aliases such as 前端, 数据 also work.`,
       );
     }
     layers = parsed.layers;

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import {
-  parseView, applyScenario, computeLayout, graphLayerLabel, graphLayers, graphLocales, impactOf, indexGraph,
+  parseView, applyScenario, computeLayout, graphLayerChipLabel, graphLayers, graphLocales, impactOf, indexGraph,
   negotiateLocale, replacementPrompt, t, ui, validateGraph, visibleGraph,
   type ArchGraph, type PlanarLayout, type ProjectionId, type UiKey,
 } from '@archray/core';
@@ -43,6 +43,7 @@ function noticeText(code: string, U: (k: UiKey) => string, locale: string): stri
       if (field === 'focus') return U('notice.staleFocus');
       if (field === 'scenario') return U('notice.staleScenario');
       if (field === 'locale') return U('notice.staleLocale');
+      if (field === 'layers') return U('notice.staleLayers');
       return U('notice.staleCollapsed');
     case 'reserved': return U('notice.reserved');
     case 'layout': return U('notice.layoutFailed');
@@ -264,7 +265,7 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
               <button key={id} aria-pressed={layers.includes(id)} onClick={() => setLayers((cur) => cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id])}
                 title={layers.length ? U('layers.hint') : undefined}
                 style={{ ...buttonStyle(layers.includes(id)), padding: '4px 9px', fontSize: 11 }}>
-                {graphLayerLabel(base, id, locale)}
+                {graphLayerChipLabel(base, id, locale)}
               </button>
             ))}
           </div>
