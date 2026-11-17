@@ -26,7 +26,7 @@ node /path/to/ArchRay/cli/bin/archray.mjs init --agent claude
 /archray 前端,数据
 ```
 
-Claude Code gets `/archray` plus `/archray:frontend`, `:backend`, `:data`, `:network`, `:security`, `:full`. Cursor and Antigravity get flat `archray-*.md` commands. Hosts without slash commands can read `.archray/SKILL.md` and use the same layer keywords.
+Claude Code gets `/archray` plus `/archray:frontend`, `:backend`, `:data`, `:network`, `:security`, `:full`. Cursor and Antigravity get flat `archray-*.md` commands. Codex, Pi/Managed host and other Skill hosts can read `.archray/SKILL.md` and use the same layer keywords.
 
 The AI inspects real source, writes `.archray/graph.json`, then builds `.archray/index.html`. `init` writes templates and commands only; the graph comes from that analysis. Candidates may be empty; keeping the current implementation is valid. ArchRay does not scan source or verify graph claims.
 
