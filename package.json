@@ -15,11 +15,11 @@
     "dev": "npm --workspace=viewer run dev",
     "test": "npm --workspace=core run test",
     "typecheck": "npm --workspace=core run typecheck && npm --workspace=viewer run typecheck",
-    "gen:schema": "tsx scripts/gen-schema.ts",
+    "gen:schema": "node --import tsx scripts/gen-schema.ts",
     "build:viewer": "npm --workspace=viewer run build",
-    "build:cli": "tsx scripts/build-cli.ts",
+    "build:cli": "node --import tsx scripts/build-cli.ts",
     "build": "npm run gen:schema && npm run build:viewer && npm run build:cli",
-    "self-analyze": "node ./cli/dist/archray.mjs build .archray/graph.json --no-open"
+    "self-analyze": "node cli/bin/archray.mjs build .archray/graph.json --no-open"
   },
   "keywords": [
     "architecture",

@@ -448,8 +448,7 @@
           "alternatives": {
             "type": "object",
             "required": [
-              "replaceability",
-              "options"
+              "replaceability"
             ],
             "properties": {
               "replaceability": {
@@ -1238,8 +1237,7 @@
                         "alternatives": {
                           "type": "object",
                           "required": [
-                            "replaceability",
-                            "options"
+                            "replaceability"
                           ],
                           "properties": {
                             "replaceability": {
@@ -1796,8 +1794,7 @@
                         "alternatives": {
                           "type": "object",
                           "required": [
-                            "replaceability",
-                            "options"
+                            "replaceability"
                           ],
                           "properties": {
                             "replaceability": {

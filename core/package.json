@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@sinclair/typebox": "^0.34.52"
+    "@sinclair/typebox": "^0.34.52",
+    "elkjs": "^0.9.3"
   },
   "devDependencies": {
     "@types/node": "^22.20.5",
