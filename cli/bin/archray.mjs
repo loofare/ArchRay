@@ -11,6 +11,75 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
 
+// core/src/graph.ts
+function applyScenario(graph, scenario) {
+  const working = structuredClone(graph);
+  let nodes = working.nodes;
+  let edges = working.edges;
+  let flows = working.flows ?? [];
+  const diff = { added: /* @__PURE__ */ new Set(), removed: /* @__PURE__ */ new Set(), changed: /* @__PURE__ */ new Set(), addedEdges: /* @__PURE__ */ new Set(), removedEdges: /* @__PURE__ */ new Set() };
+  const fail = (i, message) => {
+    throw Error(`scenario ${scenario.id} patch ${i}: ${message}`);
+  };
+  scenario.patch.forEach((p, i) => {
+    if (["removeNode", "updateNode", "replaceNode"].includes(p.op) && !nodes.some((n) => n.id === p.id)) fail(i, "unknown node");
+    if (p.op === "addNode" && nodes.some((n) => n.id === p.node.id)) fail(i, "duplicate node");
+    if (p.op === "replaceNode" && p.with.id !== p.id && nodes.some((n) => n.id === p.with.id)) fail(i, "duplicate replacement id");
+    if (p.op === "addEdge" && edges.some((e) => e.id === p.edge.id)) fail(i, "duplicate edge");
+    if (p.op === "removeEdge" && !edges.some((e) => e.id === p.id)) fail(i, "unknown edge");
+    switch (p.op) {
+      case "addNode":
+        nodes.push({ ...p.node, lifecycle: p.node.lifecycle ?? "planned" });
+        diff.added.add(p.node.id);
+        break;
+      case "updateNode":
+        if ("id" in p.set) fail(i, "update cannot change id");
+        nodes = nodes.map((n) => n.id === p.id ? { ...n, ...p.set } : n);
+        diff.changed.add(p.id);
+        break;
+      case "replaceNode": {
+        const old = nodes.find((n) => n.id === p.id);
+        const next = { ...p.with, parent: p.with.parent ?? old.parent, layer: p.with.layer ?? old.layer, lifecycle: p.with.lifecycle ?? "planned" };
+        nodes = nodes.filter((n) => n.id !== p.id).map((n) => n.parent === p.id ? { ...n, parent: next.id } : n);
+        nodes.push(next);
+        edges = edges.map((e) => ({ ...e, source: e.source === p.id ? next.id : e.source, target: e.target === p.id ? next.id : e.target }));
+        flows = flows.map((f) => ({ ...f, steps: f.steps.map((s) => ({ ...s, from: s.from === p.id ? next.id : s.from, to: s.to === p.id ? next.id : s.to })) }));
+        diff.removed.add(p.id);
+        diff.added.add(next.id);
+        break;
+      }
+      case "removeNode": {
+        const removed = /* @__PURE__ */ new Set([p.id]);
+        let count = -1;
+        while (count !== removed.size) {
+          count = removed.size;
+          for (const n of nodes) if (n.parent && removed.has(n.parent)) removed.add(n.id);
+        }
+        for (const id of removed) diff.removed.add(id);
+        const cut = new Set(edges.filter((e) => removed.has(e.source) || removed.has(e.target)).map((e) => e.id));
+        for (const id of cut) diff.removedEdges.add(id);
+        nodes = nodes.filter((n) => !removed.has(n.id));
+        edges = edges.filter((e) => !cut.has(e.id));
+        flows = flows.map((f) => ({ ...f, steps: f.steps.filter((s) => !removed.has(s.from) && !removed.has(s.to) && !cut.has(s.edge ?? "")) }));
+        break;
+      }
+      case "addEdge":
+        edges.push({ ...p.edge, lifecycle: p.edge.lifecycle ?? "planned" });
+        diff.addedEdges.add(p.edge.id);
+        break;
+      case "removeEdge":
+        edges = edges.filter((e) => e.id !== p.id);
+        flows = flows.map((f) => ({ ...f, steps: f.steps.filter((s) => s.edge !== p.id) }));
+        diff.removedEdges.add(p.id);
+        break;
+    }
+    flows = flows.filter((f) => f.steps.length > 0);
+    const result = validateGraph({ ...working, nodes, edges, flows }, false);
+    if (!result.ok) fail(i, result.errors.map((e) => `${e.path}: ${e.message}`).join("; "));
+  });
+  return { graph: { ...working, nodes: nodes.map((n) => ({ ...n, alternatives: n.alternatives ? { ...n.alternatives, options: n.alternatives.options?.map((o) => ({ ...o, scenario: void 0 })) } : void 0 })), edges, flows, scenarios: [] }, diff };
+}
+
 // node_modules/@sinclair/typebox/build/esm/type/guard/value.mjs
 var value_exports = {};
 __export(value_exports, {
@@ -1060,7 +1129,7 @@ function Literal(value, options) {
 }
 
 // node_modules/@sinclair/typebox/build/esm/type/boolean/boolean.mjs
-function Boolean(options) {
+function Boolean2(options) {
   return CreateType({ [Kind]: "Boolean", type: "boolean" }, options);
 }
 
@@ -1082,7 +1151,7 @@ function String2(options) {
 // node_modules/@sinclair/typebox/build/esm/type/template-literal/syntax.mjs
 function* FromUnion(syntax) {
   const trim = syntax.trim().replace(/"|'/g, "");
-  return trim === "boolean" ? yield Boolean() : trim === "number" ? yield Number2() : trim === "bigint" ? yield BigInt2() : trim === "string" ? yield String2() : yield (() => {
+  return trim === "boolean" ? yield Boolean2() : trim === "number" ? yield Number2() : trim === "bigint" ? yield BigInt2() : trim === "string" ? yield String2() : yield (() => {
     const literals = trim.split("|").map((literal) => Literal(literal.trim()));
     return literals.length === 0 ? Never() : literals.length === 1 ? literals[0] : UnionEvaluated(literals);
   })();
@@ -2698,7 +2767,7 @@ __export(type_exports3, {
   AsyncIterator: () => AsyncIterator,
   Awaited: () => Awaited,
   BigInt: () => BigInt2,
-  Boolean: () => Boolean,
+  Boolean: () => Boolean2,
   Capitalize: () => Capitalize,
   Composite: () => Composite,
   Const: () => Const,
@@ -6308,7 +6377,7 @@ var ViewState = Open(Type.Object({
 
 // core/src/validate.ts
 if (!format_exports.Has("date-time")) format_exports.Set("date-time", (v) => !Number.isNaN(Date.parse(v)));
-function validateGraph(input) {
+function validateGraph(input, scenarios = true) {
   const issues = [];
   if (input && typeof input === "object" && input.version === "1.0") {
     issues.push({ level: "error", path: "/version", message: "This is a v1 graph. Run `archray migrate <file>` to upgrade to v2." });
@@ -6320,6 +6389,19 @@ function validateGraph(input) {
   }
   if (issues.length > 0) return finalize(issues);
   semantic(input, issues);
+  if (scenarios && !issues.some((i) => i.level === "error")) {
+    const g = input;
+    const ids = /* @__PURE__ */ new Set();
+    (g.scenarios ?? []).forEach((s, i) => {
+      if (ids.has(s.id)) issues.push({ level: "error", path: `/scenarios/${i}/id`, message: "duplicate scenario id" });
+      ids.add(s.id);
+      try {
+        applyScenario(g, s);
+      } catch (e) {
+        issues.push({ level: "error", path: `/scenarios/${i}/patch`, message: String(e) });
+      }
+    });
+  }
   return finalize(issues);
 }
 function validateView(input) {
@@ -6386,6 +6468,8 @@ function semantic(g, issues) {
     f.steps.forEach((s, j) => {
       if (!nodeIds.has(s.from)) err(`/flows/${i}/steps/${j}/from`, `unknown node "${s.from}"`);
       if (!nodeIds.has(s.to)) err(`/flows/${i}/steps/${j}/to`, `unknown node "${s.to}"`);
+      const linked = g.edges.find((e) => e.id === s.edge);
+      if (linked && (linked.source !== s.from || linked.target !== s.to)) err(`/flows/${i}/steps/${j}/edge`, "edge direction must match flow step");
       if (s.edge && !edgeIds.has(s.edge)) err(`/flows/${i}/steps/${j}/edge`, `unknown edge "${s.edge}"`);
     });
   });
@@ -6398,6 +6482,56 @@ function semantic(g, issues) {
 
 // core/src/migrate.ts
 function migrateV1(v1, locale = "en") {
+  if (v1?.version !== "1.0" || !Array.isArray(v1.nodes)) throw Error("Expected v1 version 1.0 and nodes array");
+  const original = structuredClone(v1);
+  v1 = structuredClone(v1);
+  const nodeRefs = /* @__PURE__ */ new Map(), edgeRefs = /* @__PURE__ */ new Map();
+  const scopes = /* @__PURE__ */ new Map();
+  const register = (map3, key, id) => map3.set(key, [...map3.get(key) ?? [], id]);
+  const collect = (g, path, parent) => {
+    const scope = { nodes: /* @__PURE__ */ new Map(), edges: /* @__PURE__ */ new Map(), parent };
+    scopes.set(g, scope);
+    for (const n of g.nodes ?? []) {
+      const old = n.id;
+      if (scope.nodes.has(old)) throw Error(`Duplicate node ${old} in ${path}`);
+      const id = path ? `${path}/${encodeURIComponent(old).replace(/%/g, "-")}` : old;
+      scope.nodes.set(old, id);
+      register(nodeRefs, old, id);
+      n.id = id;
+      if (n.children) collect(n.children, id, g);
+    }
+    for (const e of g.edges ?? []) {
+      const old = e.id;
+      if (scope.edges.has(old)) throw Error(`Duplicate edge ${old} in ${path}`);
+      const id = path ? `${path}/${encodeURIComponent(old).replace(/%/g, "-")}` : old;
+      scope.edges.set(old, id);
+      register(edgeRefs, old, id);
+      e.id = id;
+    }
+  };
+  collect(v1, "");
+  const lookup = (g, key, edge = false) => {
+    for (let cur = g; cur; cur = scopes.get(cur)?.parent) {
+      const hit = (edge ? scopes.get(cur)?.edges : scopes.get(cur)?.nodes)?.get(key);
+      if (hit) return hit;
+    }
+    const hits = (edge ? edgeRefs : nodeRefs).get(key) ?? [];
+    if (hits.length !== 1) throw Error(`Ambiguous or missing ${edge ? "edge" : "node"} reference: ${key}`);
+    return hits[0];
+  };
+  const rewrite = (g) => {
+    for (const e of g.edges ?? []) {
+      e.source = lookup(g, e.source);
+      e.target = lookup(g, e.target);
+    }
+    for (const f of g.flows ?? []) for (const st of f.steps ?? []) {
+      st.from = lookup(g, st.from);
+      st.to = lookup(g, st.to);
+      if (st.edgeId) st.edgeId = lookup(g, st.edgeId, true);
+    }
+    for (const n of g.nodes ?? []) if (n.children) rewrite(n.children);
+  };
+  rewrite(v1);
   const nodes = [];
   const edges = [];
   const statusMap = (s) => {
@@ -6458,6 +6592,7 @@ function migrateV1(v1, locale = "en") {
   const stats = {};
   for (const [k, v] of Object.entries(v1.meta?.stats ?? {})) if (typeof v === "number") stats[k] = { value: v, origin: "estimated" };
   return {
+    extensions: { migration: { sourceVersion: "1.0", original, warnings: ["Original fields preserved here; health and metrics converted as estimates, not verified measurements."] } },
     schemaVersion: SCHEMA_VERSION,
     meta: {
       name: v1.meta?.name ?? "Untitled",

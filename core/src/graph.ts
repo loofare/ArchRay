@@ -1,3 +1,4 @@
+import { validateGraph } from './validate';
 import type { ArchEdge, ArchGraph, ArchNode, Scenario } from './schema';
 
 export interface GraphIndex {
@@ -128,52 +129,48 @@ export interface ScenarioDiff {
 
 /** Apply a scenario patch → new graph + diff (for overlay rendering). Pure. */
 export function applyScenario(graph: ArchGraph, scenario: Scenario): { graph: ArchGraph; diff: ScenarioDiff } {
-  let nodes = graph.nodes.map((n) => ({ ...n }));
-  let edges = graph.edges.map((e) => ({ ...e }));
+  const working = structuredClone(graph);
+  let nodes = working.nodes;
+  let edges = working.edges;
+  let flows = working.flows ?? [];
   const diff: ScenarioDiff = { added: new Set(), removed: new Set(), changed: new Set(), addedEdges: new Set(), removedEdges: new Set() };
-
-  for (const p of scenario.patch) {
-    switch (p.op) {
-      case 'addNode':
-        nodes.push({ ...p.node, lifecycle: p.node.lifecycle ?? 'planned' });
-        diff.added.add(p.node.id);
-        break;
-      case 'removeNode':
-        diff.removed.add(p.id);
-        break;
+  const fail = (i: number, message: string): never => { throw Error(`scenario ${scenario.id} patch ${i}: ${message}`); };
+  scenario.patch.forEach((p, i) => {
+    if (['removeNode', 'updateNode', 'replaceNode'].includes(p.op) && !nodes.some(n => n.id === (p as any).id)) fail(i, 'unknown node');
+    if (p.op === 'addNode' && nodes.some(n => n.id === p.node.id)) fail(i, 'duplicate node');
+    if (p.op === 'replaceNode' && p.with.id !== p.id && nodes.some(n => n.id === p.with.id)) fail(i, 'duplicate replacement id');
+    if (p.op === 'addEdge' && edges.some(e => e.id === p.edge.id)) fail(i, 'duplicate edge');
+    if (p.op === 'removeEdge' && !edges.some(e => e.id === p.id)) fail(i, 'unknown edge');
+    switch(p.op) {
+      case 'addNode': nodes.push({...p.node, lifecycle:p.node.lifecycle ?? 'planned'}); diff.added.add(p.node.id); break;
       case 'updateNode':
-        nodes = nodes.map((n) => (n.id === p.id ? { ...n, ...(p.set as object) } : n));
-        diff.changed.add(p.id);
-        break;
+        if ('id' in p.set) fail(i, 'update cannot change id');
+        nodes = nodes.map(n => n.id === p.id ? {...n, ...p.set} : n); diff.changed.add(p.id); break;
       case 'replaceNode': {
-        const old = nodes.find((n) => n.id === p.id);
-        const next = { ...p.with, lifecycle: p.with.lifecycle ?? 'planned', parent: p.with.parent ?? old?.parent, layer: p.with.layer ?? old?.layer };
-        nodes.push(next);
-        diff.removed.add(p.id);
-        diff.added.add(next.id);
-        // rewire edges from old to new
-        edges = edges.map((e) => {
-          if (e.source !== p.id && e.target !== p.id) return e;
-          const ne = { ...e, id: `${e.id}.${next.id}`, source: e.source === p.id ? next.id : e.source, target: e.target === p.id ? next.id : e.target, lifecycle: 'planned' as const };
-          diff.addedEdges.add(ne.id);
-          diff.removedEdges.add(e.id);
-          return ne;
-        });
-        break;
+        const old = nodes.find(n => n.id === p.id)!;
+        const next = {...p.with, parent:p.with.parent ?? old.parent, layer:p.with.layer ?? old.layer, lifecycle:p.with.lifecycle ?? 'planned'};
+        nodes = nodes.filter(n => n.id !== p.id).map(n => n.parent === p.id ? {...n,parent:next.id} : n); nodes.push(next);
+        edges = edges.map(e => ({...e,source:e.source === p.id ? next.id : e.source,target:e.target === p.id ? next.id : e.target}));
+        flows = flows.map(f=>({...f,steps:f.steps.map(s=>({...s,from:s.from === p.id ? next.id : s.from,to:s.to === p.id ? next.id : s.to}))}));
+        diff.removed.add(p.id); diff.added.add(next.id); break;
       }
-      case 'addEdge':
-        edges.push({ ...p.edge, lifecycle: p.edge.lifecycle ?? 'planned' });
-        diff.addedEdges.add(p.edge.id);
-        break;
-      case 'removeEdge':
-        diff.removedEdges.add(p.id);
-        break;
+      case 'removeNode': {
+        const removed = new Set([p.id]);
+        let count=-1; while(count !== removed.size) {count=removed.size; for(const n of nodes) if(n.parent && removed.has(n.parent)) removed.add(n.id);}
+        for(const id of removed) diff.removed.add(id);
+        const cut = new Set(edges.filter(e=>removed.has(e.source)||removed.has(e.target)).map(e=>e.id));
+        for(const id of cut) diff.removedEdges.add(id);
+        nodes=nodes.filter(n=>!removed.has(n.id)); edges=edges.filter(e=>!cut.has(e.id));
+        flows=flows.map(f=>({...f,steps:f.steps.filter(s=>!removed.has(s.from)&&!removed.has(s.to)&&!cut.has(s.edge ?? ''))})); break;
+      }
+      case 'addEdge': edges.push({...p.edge,lifecycle:p.edge.lifecycle ?? 'planned'}); diff.addedEdges.add(p.edge.id); break;
+      case 'removeEdge': edges=edges.filter(e=>e.id!==p.id); flows=flows.map(f=>({...f,steps:f.steps.filter(s=>s.edge!==p.id)})); diff.removedEdges.add(p.id); break;
     }
-  }
-  // Removed nodes stay in the graph (rendered as ghosts) but edges are cut.
-  nodes = nodes.map((n) => (diff.removed.has(n.id) ? { ...n, lifecycle: 'deprecated' as const } : n));
-  edges = edges.filter((e) => !diff.removedEdges.has(e.id) || false);
-  return { graph: { ...graph, nodes, edges }, diff };
+    flows=flows.filter(f=>f.steps.length>0);
+    const result=validateGraph({...working,nodes,edges,flows}, false);
+    if(!result.ok) fail(i,result.errors.map(e=>`${e.path}: ${e.message}`).join('; '));
+  });
+  return {graph:{...working,nodes:nodes.map(n=>({...n,alternatives:n.alternatives ? {...n.alternatives,options:n.alternatives.options?.map(o=>({...o,scenario:undefined}))}:undefined})),edges,flows,scenarios:[]},diff};
 }
 
 /* --------------------------------------------------------------- impact */

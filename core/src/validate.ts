@@ -1,3 +1,4 @@
+import { applyScenario } from './graph';
 import { FormatRegistry } from '@sinclair/typebox';
 import { Value } from '@sinclair/typebox/value';
 import { Graph, ViewState, SCHEMA_VERSION, type ArchGraph } from './schema';
@@ -17,7 +18,7 @@ export interface ValidationResult {
 }
 
 /** Structural (schema) + semantic (referential integrity) validation. Pure; works in Node & browser. */
-export function validateGraph(input: unknown): ValidationResult {
+export function validateGraph(input: unknown, scenarios = true): ValidationResult {
   const issues: Issue[] = [];
 
   if (input && typeof input === 'object' && (input as any).version === '1.0') {
@@ -32,6 +33,14 @@ export function validateGraph(input: unknown): ValidationResult {
   if (issues.length > 0) return finalize(issues);
 
   semantic(input as ArchGraph, issues);
+  if(scenarios && !issues.some(i=>i.level==='error')) {
+    const g=input as ArchGraph; const ids=new Set<string>();
+    (g.scenarios ?? []).forEach((s,i)=>{
+      if(ids.has(s.id)) issues.push({level:'error',path:`/scenarios/${i}/id`,message:'duplicate scenario id'});
+      ids.add(s.id);
+      try { applyScenario(g,s); } catch(e) { issues.push({level:'error',path:`/scenarios/${i}/patch`,message:String(e)}); }
+    });
+  }
   return finalize(issues);
 }
 
@@ -108,6 +117,8 @@ function semantic(g: ArchGraph, issues: Issue[]) {
     f.steps.forEach((s, j) => {
       if (!nodeIds.has(s.from)) err(`/flows/${i}/steps/${j}/from`, `unknown node "${s.from}"`);
       if (!nodeIds.has(s.to)) err(`/flows/${i}/steps/${j}/to`, `unknown node "${s.to}"`);
+      const linked=g.edges.find(e=>e.id===s.edge);
+      if(linked && (linked.source!==s.from || linked.target!==s.to)) err(`/flows/${i}/steps/${j}/edge`, 'edge direction must match flow step');
       if (s.edge && !edgeIds.has(s.edge)) err(`/flows/${i}/steps/${j}/edge`, `unknown edge "${s.edge}"`);
     });
   });

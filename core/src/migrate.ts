@@ -1,7 +1,22 @@
 import { SCHEMA_VERSION, type ArchEdge, type ArchGraph, type ArchNode, type HealthLevel, type Lifecycle } from './schema';
 
-/** Upgrade a v1 graph (initial prototype) to v2. Lossless for all v1 fields. */
+/** Upgrade scoped v1 graphs; preserve original evidence in extensions. */
 export function migrateV1(v1: any, locale = 'en'): ArchGraph {
+  if(v1?.version !== '1.0' || !Array.isArray(v1.nodes)) throw Error('Expected v1 version 1.0 and nodes array');
+  const original=structuredClone(v1);
+  v1=structuredClone(v1);
+  const nodeRefs=new Map<string,string[]>(), edgeRefs=new Map<string,string[]>();
+  const scopes=new Map<any,{nodes:Map<string,string>;edges:Map<string,string>;parent?:any}>();
+  const register=(map:Map<string,string[]>,key:string,id:string)=>map.set(key,[...(map.get(key)??[]),id]);
+  const collect=(g:any,path:string,parent?:any)=>{
+    const scope={nodes:new Map<string,string>(),edges:new Map<string,string>(),parent}; scopes.set(g,scope);
+    for(const n of g.nodes??[]) {const old=n.id;if(scope.nodes.has(old))throw Error(`Duplicate node ${old} in ${path}`);const id=path?`${path}/${encodeURIComponent(old).replace(/%/g,'-')}`:old;scope.nodes.set(old,id);register(nodeRefs,old,id);n.id=id;if(n.children)collect(n.children,id,g);}
+    for(const e of g.edges??[]) {const old=e.id;if(scope.edges.has(old))throw Error(`Duplicate edge ${old} in ${path}`);const id=path?`${path}/${encodeURIComponent(old).replace(/%/g,'-')}`:old;scope.edges.set(old,id);register(edgeRefs,old,id);e.id=id;}
+  };
+  collect(v1,'');
+  const lookup=(g:any,key:string,edge=false):string=>{for(let cur=g;cur;cur=scopes.get(cur)?.parent){const hit=(edge?scopes.get(cur)?.edges:scopes.get(cur)?.nodes)?.get(key);if(hit)return hit;}const hits=(edge?edgeRefs:nodeRefs).get(key)??[];if(hits.length!==1)throw Error(`Ambiguous or missing ${edge?'edge':'node'} reference: ${key}`);return hits[0]!;};
+  const rewrite=(g:any)=>{for(const e of g.edges??[]){e.source=lookup(g,e.source);e.target=lookup(g,e.target);}for(const f of g.flows??[])for(const st of f.steps??[]){st.from=lookup(g,st.from);st.to=lookup(g,st.to);if(st.edgeId)st.edgeId=lookup(g,st.edgeId,true);}for(const n of g.nodes??[])if(n.children)rewrite(n.children);};
+  rewrite(v1);
   const nodes: ArchNode[] = [];
   const edges: ArchEdge[] = [];
 
@@ -66,6 +81,7 @@ export function migrateV1(v1: any, locale = 'en'): ArchGraph {
   for (const [k, v] of Object.entries(v1.meta?.stats ?? {})) if (typeof v === 'number') stats[k] = { value: v, origin: 'estimated' };
 
   return {
+    extensions: { migration: { sourceVersion:'1.0', original, warnings:['Original fields preserved here; health and metrics converted as estimates, not verified measurements.'] } },
     schemaVersion: SCHEMA_VERSION,
     meta: {
       name: v1.meta?.name ?? 'Untitled',
