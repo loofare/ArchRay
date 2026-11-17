@@ -113,3 +113,12 @@ p-limit 没有 client/edge/security 层，`frontend`、`network`、`security` �
 - **R3-03（P2）**：`.archray/.gitignore` 无末尾换行时先补分隔换行，再追加 `tool/`；保留原有规则。
 
 安装逻辑从 shell 复制迁到 `archray install`（Node），`install.sh` 只做 Node 版本检查与调用；包级回归新增“无 force 哨兵”“tool 符号链接”“无换行 gitignore”三个负例。修复待 R4 复审。
+
+## R4 复审后的恢复修复
+
+R4 复审在安装器上又发现两项 P2：
+
+- **ignore 链接**：`.archray/.gitignore` 为符号链接时曾被跟随写入项目外文件；现在与 `.archray`、`.archray/tool` 一起在安装前拒绝符号链接（含悬空链接）。
+- **替换失败回滚**：模板/命令先写入、tool 替换失败时只恢复旧 tool，会留下“新模板 + 旧工具”。现在安装前对每个模板/命令/ignore 做快照，失败时按逆序恢复；包级回归用注入 rename 失败验证模板、工具与哨兵全部还原且无暂存残留。
+
+正常安装、无 force 失败、tool/ignore 链接、gitignore 换行、移动下载包等复测继续通过。待 R5 复审。

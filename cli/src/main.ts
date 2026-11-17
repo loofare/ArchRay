@@ -275,11 +275,13 @@ function cmdInstall(args: Args): void {
 
   const archrayDir = resolve(target, '.archray');
   const toolDir = resolve(archrayDir, 'tool');
-  // Never follow a symlinked install path: rm/cp under it could touch files outside the project.
-  for (const path of [archrayDir, toolDir]) {
-    if (existsSync(path) && lstatSync(path).isSymbolicLink()) {
-      throw new Error(`Refusing symbolic-link install path: ${path}`);
-    }
+  const ignoreFile = resolve(archrayDir, '.gitignore');
+  const isLink = (path: string) => {
+    try { return lstatSync(path).isSymbolicLink(); } catch { return false; }
+  };
+  // Never follow a symlinked install path: writes/removals under it could touch files outside the project.
+  for (const path of [archrayDir, toolDir, ignoreFile]) {
+    if (isLink(path)) throw new Error(`Refusing symbolic-link install path: ${path}`);
   }
 
   const cliPath = '.archray/tool/cli/bin/archray.mjs';
@@ -292,36 +294,60 @@ function cmdInstall(args: Args): void {
   mkdirSync(archrayDir, { recursive: true });
   const stage = resolve(archrayDir, `.tool-stage-${process.pid}-${Date.now()}`);
   mkdirSync(stage, { recursive: true });
+  const snapshots = new Map<string, { existed: boolean; data?: Buffer }>();
+  const snapshot = (path: string) => {
+    if (!snapshots.has(path)) snapshots.set(path, existsSync(path) ? { existed: true, data: readFileSync(path) } : { existed: false });
+  };
+  const restore = () => {
+    for (const [path, before] of [...snapshots].reverse()) {
+      if (before.existed) writeFileSync(path, before.data!);
+      else if (existsSync(path)) unlinkSync(path);
+    }
+  };
+  const toolBackup = resolve(archrayDir, `.tool-old-${process.pid}-${Date.now()}`);
+  const hadTool = existsSync(toolDir);
+
   try {
     for (const dir of ['cli', 'schema', 'skill', 'commands', 'knowledge', 'viewer']) {
       const source = resolve(root, dir);
       if (!existsSync(source)) throw new Error(`Missing package directory: ${source}`);
       cpSync(source, resolve(stage, dir), { recursive: true });
     }
-    for (const file of planned) writeOutput(file.path, file.data, args);
-
-    const backup = resolve(archrayDir, `.tool-old-${process.pid}-${Date.now()}`);
-    const hadTool = existsSync(toolDir);
-    if (hadTool) renameSync(toolDir, backup);
-    try {
-      renameSync(stage, toolDir);
-    } catch (error) {
-      if (hadTool) renameSync(backup, toolDir);
-      throw error;
+    for (const file of planned) {
+      snapshot(file.path);
+      writeOutput(file.path, file.data, args);
     }
-    if (hadTool) rmSync(backup, { recursive: true, force: true });
 
-    const ignore = resolve(archrayDir, '.gitignore');
-    const existing = existsSync(ignore) ? readFileSync(ignore, 'utf8') : '';
+    snapshot(ignoreFile);
+    const existing = existsSync(ignoreFile) ? readFileSync(ignoreFile, 'utf8') : '';
     const eol = existing.includes('\r\n') ? '\r\n' : '\n';
     if (!existing.split(/\r?\n/).some((line) => line.trim() === 'tool/')) {
       const prefix = existing.length === 0 || existing.endsWith('\n') ? existing : `${existing}${eol}`;
-      writeFileSync(ignore, `${prefix}tool/${eol}`);
+      writeFileSync(ignoreFile, `${prefix}tool/${eol}`);
     }
+
+    if (hadTool) renameSync(toolDir, toolBackup);
+    try {
+      renameSync(stage, toolDir);
+    } catch (error) {
+      if (hadTool) renameSync(toolBackup, toolDir);
+      throw error;
+    }
+    if (hadTool) rmSync(toolBackup, { recursive: true, force: true });
 
     console.log(`Installed ArchRay into ${target}`);
     console.log(`Vendored CLI: ${toolDir}/cli/bin/archray.mjs`);
     console.log('Open the repository in your AI and type /archray');
+  } catch (error) {
+    // Restore the tool first, then every template/skill/ignore file written above.
+    if (existsSync(toolBackup)) {
+      if (existsSync(toolDir)) rmSync(toolDir, { recursive: true, force: true });
+      renameSync(toolBackup, toolDir);
+    } else if (!hadTool && existsSync(toolDir)) {
+      rmSync(toolDir, { recursive: true, force: true });
+    }
+    restore();
+    throw error;
   } finally {
     if (existsSync(stage)) rmSync(stage, { recursive: true, force: true });
   }

@@ -1,6 +1,6 @@
 /** Extract the release tarball, install it, and prove the project works without the download. */
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, renameSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -100,6 +100,43 @@ try {
   run('sh', [join(pkg, 'install.sh'), project4, 'claude']);
   const ignore = readFileSync(join(project4, '.archray/.gitignore'), 'utf8');
   assert.equal(ignore, 'custom/\ntool/\n', 'gitignore keeps its rule and adds tool/ on a new line');
+
+  // A symlinked .gitignore is another output boundary and must be refused.
+  const project5 = join(work, 'project5');
+  const externalIgnore = join(work, 'external-ignore');
+  mkdirSync(join(project5, '.archray'), { recursive: true });
+  writeFileSync(externalIgnore, 'OUTSIDE IGNORE\n');
+  symlinkSync(externalIgnore, join(project5, '.archray/.gitignore'));
+  const ignoreLink = spawnSync('sh', [join(pkg, 'install.sh'), project5, 'claude'], { encoding: 'utf8' });
+  assert.notEqual(ignoreLink.status, 0, 'symlinked gitignore is refused');
+  assert.equal(readFileSync(externalIgnore, 'utf8'), 'OUTSIDE IGNORE\n', 'external gitignore is untouched');
+
+  // A controlled rename failure must roll back both the tool and every written template.
+  const project6 = join(work, 'project6');
+  mkdirSync(project6);
+  run('sh', [join(pkg, 'install.sh'), project6, 'claude']);
+  writeFileSync(join(project6, '.archray/SKILL.md'), 'OLD SKILL\n');
+  writeFileSync(join(project6, '.archray/tool/commands/archray.md'), 'TOOL SENTINEL\n');
+  const preload = join(work, 'preload.cjs');
+  writeFileSync(preload, `const fs = require('node:fs');
+const original = fs.renameSync;
+fs.renameSync = (from, to, ...rest) => {
+  if (String(from).includes('.tool-stage-') && String(to).endsWith('/tool')) {
+    const error = new Error('injected rename failure');
+    error.code = 'EACCES';
+    throw error;
+  }
+  return original(from, to, ...rest);
+};
+`);
+  const failedSwap = spawnSync('sh', [join(pkg, 'install.sh'), project6, 'claude', '--force'], {
+    encoding: 'utf8',
+    env: { ...process.env, NODE_OPTIONS: `--require ${preload}` },
+  });
+  assert.notEqual(failedSwap.status, 0, 'a failed tool swap returns non-zero');
+  assert.equal(readFileSync(join(project6, '.archray/SKILL.md'), 'utf8'), 'OLD SKILL\n', 'failed swap restores the template');
+  assert.equal(readFileSync(join(project6, '.archray/tool/commands/archray.md'), 'utf8'), 'TOOL SENTINEL\n', 'failed swap restores the tool');
+  assert.ok(!readdirSync(join(project6, '.archray')).some((name) => name.startsWith('.tool-')), 'failed swap leaves no stage/backup');
 
   console.log('Package check passed:', tarball);
 } finally {
