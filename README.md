@@ -8,14 +8,16 @@ ArchRay 是 **AI 优先的架构可视化工具**：安装一次，之后在 AI 
 
 把下面这句复制给能执行命令的 AI：
 
-> 请把 ArchRay 安装到当前仓库并开始使用：从 https://github.com/loofare/ArchRay/releases/tag/v0.4.0 下载 `archray-0.3.0.tgz`，解压后运行 `./archray-0.3.0/install.sh . claude`；然后按 `.archray/SKILL.md` 生成 `.archray/graph.json`，构建 HTML，并告诉我 `/archray` 怎么用。
+> 请把 ArchRay 安装到当前仓库并开始使用：从 https://github.com/loofare/ArchRay/releases/tag/v0.4.0 下载 `archray-0.4.0.tgz`，解压后运行 `./archray-0.4.0/install.sh . claude`；然后按 `.archray/SKILL.md` 生成 `.archray/graph.json`，构建 HTML，并告诉我 `/archray` 怎么用。
 
 安装后新开一个 AI 会话：
 
 - **Claude Code / Cursor / Antigravity / Pi**：输入 `/archray`。Pi 的预设是 `/archray-frontend` 等，也可用 `/skill:archray`。
 - **Codex**：输入 `$archray` 或 `/skills`，没有 `/archray` 斜杠命令。
 
-用 Cursor、Antigravity、Pi 或 Codex 时，把安装命令里的 `claude` 换成对应值。## 快速开始（在 AI 里）
+用 Cursor、Antigravity、Pi 或 Codex 时，把安装命令里的 `claude` 换成对应值。
+
+## 快速开始（在 AI 里）
 
 **方式 A —— 发布包（推荐）。** 从 Releases 下载 `archray-<version>.tgz`，然后：
 

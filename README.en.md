@@ -8,14 +8,16 @@ ArchRay is an **AI-first architecture visualiser**: install it once, then type `
 
 Copy this to an AI that can run commands:
 
-> Install ArchRay in this repository and start using it: download `archray-0.3.0.tgz` from https://github.com/loofare/ArchRay/releases/tag/v0.4.0, extract it, run `./archray-0.3.0/install.sh . claude`, then follow `.archray/SKILL.md` to generate `.archray/graph.json`, build the HTML, and show me how to use `/archray`.
+> Install ArchRay in this repository and start using it: download `archray-0.4.0.tgz` from https://github.com/loofare/ArchRay/releases/tag/v0.4.0, extract it, run `./archray-0.4.0/install.sh . claude`, then follow `.archray/SKILL.md` to generate `.archray/graph.json`, build the HTML, and show me how to use `/archray`.
 
 Open a new AI session:
 
 - **Claude Code / Cursor / Antigravity / Pi**: type `/archray`. Pi presets are `/archray-frontend` etc.; `/skill:archray` also works.
 - **Codex**: type `$archray` or `/skills`; there is no `/archray` slash command.
 
-For Cursor, Antigravity, Pi or Codex, replace `claude` with the matching value in the install command. ## Quick start (in your AI)
+For Cursor, Antigravity, Pi or Codex, replace `claude` with the matching value in the install command.
+
+## Quick start (in your AI)
 
 **Option A — release package (recommended).** Download `archray-<version>.tgz` from the releases page, then:
 
