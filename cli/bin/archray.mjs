@@ -66,9 +66,6 @@ function layerOrder(id) {
   return BY_ID.get(id)?.order ?? 99;
 }
 var ALL_TOKENS = /* @__PURE__ */ new Set(["all", "*", "\u5168\u90E8", "\u6240\u6709", "\u5168\u90E8\u5C42", "everything"]);
-function splitLayers(input) {
-  return (Array.isArray(input) ? input : [input ?? ""]).flatMap((v) => String(v).split(/[,\s，、+/]+/)).filter(Boolean);
-}
 function graphLayerEntries(graph) {
   const declared = /* @__PURE__ */ new Map();
   for (const l of graph.layers ?? []) if (!declared.has(l.id)) declared.set(l.id, l);
@@ -106,14 +103,24 @@ function parseGraphLayers(graph, input) {
   const order = new Map(entries.map((l, i) => [l.id, i]));
   const layers = [];
   const unknown = [];
-  for (const token of splitLayers(input)) {
-    if (ALL_TOKENS.has(token.toLowerCase())) continue;
+  const add = (token) => {
+    if (ALL_TOKENS.has(token.toLowerCase())) return;
     const id = resolveGraphLayer(graph, token);
     if (id && available.has(id)) {
       if (!layers.includes(id)) layers.push(id);
     } else {
       unknown.push(token);
     }
+  };
+  const atoms = Array.isArray(input) ? input.map(String) : [input ?? ""];
+  for (const atom of atoms) {
+    const value = atom.trim();
+    if (!value) continue;
+    if (resolveGraphLayer(graph, value)) {
+      add(value);
+      continue;
+    }
+    for (const token of value.split(/[,\s，、+]+/).filter(Boolean)) add(token);
   }
   layers.sort((a, b) => (order.get(a) ?? 99) - (order.get(b) ?? 99));
   return { layers, unknown };

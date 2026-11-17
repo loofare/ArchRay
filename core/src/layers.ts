@@ -59,7 +59,7 @@ const ALL_TOKENS = new Set(['all', '*', '全部', '所有', '全部层', 'everyt
 
 function splitLayers(input: string | string[] | undefined): string[] {
   return (Array.isArray(input) ? input : [input ?? ''])
-    .flatMap((v) => String(v).split(/[,\s，、+/]+/))
+    .flatMap((v) => String(v).split(/[,\s，、+]+/))
     .filter(Boolean);
 }
 
@@ -145,14 +145,26 @@ export function parseGraphLayers(graph: ArchGraph, input: string | string[] | un
   const order = new Map(entries.map((l, i) => [l.id, i]));
   const layers: string[] = [];
   const unknown: string[] = [];
-  for (const token of splitLayers(input)) {
-    if (ALL_TOKENS.has(token.toLowerCase())) continue;
+  const add = (token: string) => {
+    if (ALL_TOKENS.has(token.toLowerCase())) return;
     const id = resolveGraphLayer(graph, token);
     if (id && available.has(id)) {
       if (!layers.includes(id)) layers.push(id);
     } else {
       unknown.push(token);
     }
+  };
+  // Array members are atomic graph ids first: namespaced ids such as `business/core`
+  // must not be split by the list syntax meant for command strings.
+  const atoms = Array.isArray(input) ? input.map(String) : [input ?? ''];
+  for (const atom of atoms) {
+    const value = atom.trim();
+    if (!value) continue;
+    if (resolveGraphLayer(graph, value)) {
+      add(value);
+      continue;
+    }
+    for (const token of value.split(/[,\s，、+]+/).filter(Boolean)) add(token);
   }
   layers.sort((a, b) => (order.get(a) ?? 99) - (order.get(b) ?? 99));
   return { layers, unknown };

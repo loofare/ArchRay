@@ -95,19 +95,19 @@ assert.match(badLang.stderr, /Language fr is not in this graph/);
 const custom = {
   schemaVersion: '2.0',
   meta: { name: 'Custom layers', locales: ['en'], generatedAt: '2026-11-17T00:00:00Z' },
-  layers: [{ id: 'business', name: { en: 'Business', zh: '业务' }, order: 0 }, { id: 'data', name: 'Data', order: 1 }],
+  layers: [{ id: 'business/core', name: { en: 'Business core', zh: '业务核心' }, order: 0 }, { id: 'data', name: 'Data', order: 1 }],
   nodes: [
-    { id: 'b', name: 'B', kind: 'service', layer: 'business' },
+    { id: 'b', name: 'B', kind: 'service', layer: 'business/core' },
     { id: 'd', name: 'D', kind: 'database', layer: 'data' },
   ],
   edges: [{ id: 'bd', source: 'b', target: 'd' }],
 };
 writeFileSync(join(workdir, 'custom.json'), JSON.stringify(custom));
-run(['build', 'custom.json', '--layers', '业务', '--force', '--no-open']);
+run(['build', 'custom.json', '--layers', 'business/core', '--force', '--no-open']);
 const customView = JSON.parse(read('.archray/index.html').match(/window\.__ARCHRAY_VIEW__=(.*?);<\/script>/)[1]);
-assert.deepEqual(customView.layers, ['business'], 'custom layer ids survive --layers');
+assert.deepEqual(customView.layers, ['business/core'], 'namespaced layer ids survive --layers');
 const missingCustom = run(['build', 'custom.json', '--layers', 'platform', '--force', '--no-open'], { ok: false });
-assert.match(missingCustom.stderr, /Unknown layer: platform[\s\S]*business/);
+assert.match(missingCustom.stderr, /Unknown layer: platform[\s\S]*business\/core/);
 
 // An unwritable directory fails the atomic commit without leaving a partial or empty output.
 const readonly = join(workdir, 'readonly');

@@ -211,6 +211,21 @@ describe('custom and collapsed layer edges', () => {
     expect(parseView({ layers: '业务' }, customGraph()).view.layers).toEqual(['business']);
   });
 
+  it('keeps namespaced layer ids atomic in arrays and urls', () => {
+    const graph: ArchGraph = {
+      schemaVersion: '2.0',
+      meta: { name: 'ns', locales: ['en'], generatedAt: '2026-11-17T00:00:00Z' },
+      layers: [{ id: 'business/core', name: { en: 'Business core', zh: '业务核心' }, order: 0 }],
+      nodes: [{ id: 'b', name: 'B', kind: 'service', layer: 'business/core' }],
+      edges: [],
+    };
+    expect(graphLayers(graph)).toEqual(['business/core']);
+    expect(parseGraphLayers(graph, 'business/core')).toEqual({ layers: ['business/core'], unknown: [] });
+    expect(parseGraphLayers(graph, ['business/core'])).toEqual({ layers: ['business/core'], unknown: [] });
+    expect(parseView({ viewVersion: '1', layers: ['business/core'] }, graph).view.layers).toEqual(['business/core']);
+    expect(parseView({ layers: 'business/core' }, graph).view.layers).toEqual(['business/core']);
+  });
+
   it('auto-expands a collapsed group that hides a selected layer', () => {
     const graph: ArchGraph = {
       schemaVersion: '2.0',

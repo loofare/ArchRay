@@ -50,7 +50,7 @@ node /path/to/ArchRay/cli/bin/archray.mjs build .archray/graph.json --style blue
 
 Styles: `tech` (default), `blueprint`, `glass`, `paper`. Language uses the graph's locales; a missing locale is reported and falls back instead of inventing text. Known technologies (Postgres, React, Kubernetes, AWS, Stripe, …) get a brand mark on the node; unknown ones fall back to a generic component icon.
 
-Motion is `full`, `calm` or `off`, via `--motion` or the toolbar. `full` adds ambient current and travelling particles; `calm` keeps slow dashes; `off` stops ambient motion. When the operating system asks for reduced motion, the view is clamped to `calm`, even for a saved or URL `full` setting; choosing a level in the toolbar is an explicit override.
+Motion is `full`, `calm` or `off`, via `--motion` or the toolbar. `full` adds ambient current and travelling particles; `calm` keeps slow dashes; `off` stops ambient motion. When the operating system asks for reduced motion, a saved or URL `full` setting is clamped to `calm`; `calm` and `off` are preserved. Choosing a level in the toolbar is an explicit override.
 
 ## What the HTML gives you
 

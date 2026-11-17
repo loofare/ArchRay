@@ -90,7 +90,7 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
   const [motionOverride, setMotionOverride] = useState(false);
   const [motion, setMotion] = useState<'full' | 'calm' | 'off'>(() =>
     v0.motion ?? (window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'calm' : 'full'));
-  const activeMotion = systemReduced && !motionOverride ? 'calm' : motion;
+  const activeMotion = systemReduced && !motionOverride && motion === 'full' ? 'calm' : motion;
   useEffect(() => { if (systemReduced) setMotionOverride(false); }, [systemReduced]);
   const [flowId, setFlowId] = useState<string | null>(null);
   const [showRecord, setShowRecord] = useState(false);
