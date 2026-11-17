@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import {
   parseView, applyScenario, computeLayout, graphLayerChipLabel, graphLayers, graphLocales, impactOf, indexGraph,
   negotiateLocale, replacementPrompt, t, ui, validateGraph, visibleGraph,
@@ -110,6 +110,7 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
   const showNotice = (code: string) => setNotices([code]);
   const resetCamera = () => setCamera({ x: 0, y: 0, zoom: 1 });
 
+  const autoZoomed = useRef(false);
   const scen = base.scenarios?.find((s) => s.id === scenarioId) ?? null;
   const { graph, diff } = useMemo(() => (scen ? applyScenario(base, scen) : { graph: base, diff: null }), [base, scen]);
   const idx = useMemo(() => indexGraph(graph), [graph]);
@@ -161,6 +162,17 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
     }
     return { activeEdges: ae, flowNodes: fn };
   }, [flow, step, vis, idx]);
+
+  useEffect(() => {
+    if (autoZoomed.current || v0.camera || !layout) return;
+    autoZoomed.current = true;
+    if (base.nodes.length < 25 || window.innerWidth < 900 || (v0.layers?.length ?? 0) > 0 || v0.focus) return;
+    const viewportWidth = Math.max(320, window.innerWidth - 80);
+    const viewportHeight = Math.max(240, window.innerHeight - 220);
+    const fit = Math.min(viewportWidth / layout.bounds.w, viewportHeight / layout.bounds.h);
+    const zoom = Math.min(4, Math.max(1.5, (11 / 15) / Math.max(0.05, fit)));
+    setCamera({ x: 0, y: 0, zoom: +zoom.toFixed(2) });
+  }, [layout, base.nodes.length, v0.camera, v0.layers, v0.focus]);
 
   const impact = useMemo(() => (selected && baseIdx.byId.has(selected) ? impactOf(baseIdx, selected) : null), [baseIdx, selected]);
   const highlight = useMemo(() => {
@@ -236,7 +248,7 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
   );
 
   return (
-    <div className={`ar-shell ar-motion-${activeMotion}`} data-motion={activeMotion}
+    <div className={`ar-shell ar-motion-${activeMotion}`} data-motion={activeMotion} data-zoom={camera.zoom}
       style={{ background: th.bg, color: th.text, ...background, ['--ar-accent' as string]: th.accent } as CSSProperties}>
       <div className="ar-toolbar">
         <div style={{ marginRight: 8 }}>
@@ -260,9 +272,9 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
         {availableLayers.length > 1 && (
           <div className="ar-layers" role="group" aria-label={U('layers.label')}>
             <span style={{ fontSize: 11, color: th.faint, marginRight: 2 }}>{U('layers.label')}</span>
-            <button aria-pressed={layers.length === 0} onClick={() => setLayers([])} title={U('layers.all')} style={{ ...buttonStyle(layers.length === 0), padding: '4px 9px', fontSize: 11 }}>{U('layers.all')}</button>
+            <button aria-pressed={layers.length === 0} onClick={() => { setLayers([]); resetCamera(); }} title={U('layers.all')} style={{ ...buttonStyle(layers.length === 0), padding: '4px 9px', fontSize: 11 }}>{U('layers.all')}</button>
             {availableLayers.map((id) => (
-              <button key={id} aria-pressed={layers.includes(id)} onClick={() => setLayers((cur) => cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id])}
+              <button key={id} aria-pressed={layers.includes(id)} onClick={() => { setLayers((cur) => cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]); resetCamera(); }}
                 title={layers.length ? U('layers.hint') : undefined}
                 style={{ ...buttonStyle(layers.includes(id)), padding: '4px 9px', fontSize: 11 }}>
                 {graphLayerChipLabel(base, id, locale)}

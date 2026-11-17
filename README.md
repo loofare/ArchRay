@@ -58,7 +58,7 @@ AI 会检查真实源码，写入 `.archray/graph.json`，再构建 `.archray/in
 node /path/to/ArchRay/cli/bin/archray.mjs build .archray/graph.json --layers frontend,data --no-open
 ```
 
-层包括 `client`、`edge`、`gateway`、`service`、`async`、`data`、`ai`、`external`、`platform`、`observability`；中文别名如 `前端`、`数据`、`网关` 也可用。图可以声明自己的层 id，它们仍可选择，并按自己的 id 保存。选中的层完整显示，一跳运行时邻居淡显为跨层上下文；平台/工具链节点除非被选中，否则不进入上下文。`/archray` 接受同样的关键词。
+层包括 `client`、`edge`、`gateway`、`service`、`async`、`data`、`ai`、`external`、`platform`、`observability`；中文别名如 `前端`、`数据`、`网关` 也可用。图可以声明自己的层 id，它们仍可选择，并按自己的 id 保存。选中的层完整显示，一跳运行时邻居淡显为跨层上下文；平台/工具链节点除非被选中，否则不进入上下文。25 个模块以上的图在宽屏上会以可读字号打开，点“全图”回到整体视图。`/archray` 接受同样的关键词。
 
 ## 风格与语言
 
