@@ -90,7 +90,9 @@
       'proof.fourMeta': '健康度与可替代性',
 
       'detector.title': '精准消除传统架构图的五大乱象。',
-      'detector.subtitle': '点击右侧呼吸开关，对比通用 AI 草图默认缺陷与 ArchRay 确定性空间引擎的处理结果。',
+      'detector.subtitle': '一次切换，五格同时从通用 AI 草图缺陷变为 ArchRay 的确定性解法。',
+      'detector.countBefore': '5 个待解决问题',
+      'detector.countAfter': '5 / 5 已解决',
       'detector.sideBefore': '传统通病',
       'detector.sideAfter': '✦ ArchRay 解法',
 
@@ -270,7 +272,9 @@
       'proof.fourMeta': 'Health & replaceability',
 
       'detector.title': 'Detects and removes architecture diagram slop.',
-      'detector.subtitle': 'Click the breathing toggle to compare generic AI diagram failure modes against ArchRay’s deterministic spatial engine.',
+      'detector.subtitle': 'One switch turns all five specimens from generic AI failure modes into deterministic ArchRay answers.',
+      'detector.countBefore': '5 problems to resolve',
+      'detector.countAfter': '5 / 5 resolved',
       'detector.sideBefore': 'Traditional Slop',
       'detector.sideAfter': '✦ ArchRay Engine',
 
@@ -802,6 +806,11 @@
     if (pod) pod.setAttribute('data-state', detectorResolved ? 'after' : 'before');
     if (btnBefore) btnBefore.classList.toggle('is-active', !detectorResolved);
     if (btnAfter) btnAfter.classList.toggle('is-active', detectorResolved);
+
+    const count = document.getElementById('detectorCount');
+    if (count) count.textContent = detectorResolved ? t('detector.countAfter') : t('detector.countBefore');
+    const dots = document.getElementById('detectorDots');
+    if (dots) [...dots.children].forEach((dot) => dot.classList.toggle('is-done', detectorResolved));
 
     const items = SPECIMENS[lang][detectorResolved ? 'after' : 'before'];
     items.forEach((item, idx) => {

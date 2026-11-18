@@ -21,8 +21,8 @@
   <noscript>
     <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Alumni+Sans:wght@200;300;400;600&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet" />
   </noscript>
-  <link rel="stylesheet" href="./styles/tokens.css?v=057" />
-  <link rel="stylesheet" href="./styles/site.css?v=057" />
+  <link rel="stylesheet" href="./styles/tokens.css?v=058" />
+  <link rel="stylesheet" href="./styles/site.css?v=058" />
 </head>
 <body>
   <header class="site-header">
@@ -636,9 +636,17 @@
         <div class="section-intro">
           <div class="section-intro-copy">
             <h2 data-i18n="detector.title">精准消除传统架构图的五大乱象。</h2>
-            <p data-i18n="detector.subtitle">点击右侧呼吸开关，对比通用 AI 草图默认缺陷与 ArchRay 确定性空间引擎的处理结果。</p>
+            <p data-i18n="detector.subtitle">一次切换，五格同时从通用 AI 草图缺陷变为 ArchRay 的确定性解法。</p>
           </div>
 
+
+        </div>
+
+        <div class="detector-control">
+          <div class="detector-status">
+            <span class="detector-count" id="detectorCount" aria-live="polite">5 个待解决问题</span>
+            <span class="detector-dots" id="detectorDots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+          </div>
           <div class="detector-switch-pod" id="detectorSwitchPod" data-state="before">
             <button type="button" class="pod-side is-before is-active" id="detectorBtnBefore" data-i18n="detector.sideBefore">传统通病</button>
             <button type="button" role="switch" id="detectorSwitch" class="switch-track is-breathing" aria-checked="false" aria-label="Toggle ArchRay resolved view">
@@ -1041,6 +1049,6 @@
     </div>
   </footer>
 
-  <script src="./app.js?v=057"></script>
+  <script src="./app.js?v=058"></script>
 </body>
 </html>
