@@ -158,7 +158,7 @@ export async function computeLayout(idx: GraphIndex, vis: VisibleGraph, opts: La
   if (hasBands) {
     const tops = all.filter((n) => n.depth === 0);
     bands = activeLayers.map((layer, index) => {
-      const members = tops.filter((n) => n.layer === layer.id);
+      const members = tops.filter((n) => (n.layer !== undefined ? partOf.get(n.layer) ?? 0 : 0) === index);
       const y0 = Math.min(...members.map((n) => n.y));
       const y1 = Math.max(...members.map((n) => n.y + n.h));
       return { layer, index, x: minX - 60 - BAND_LABEL_W, y: y0 - BAND_PAD_Y - 22, w: maxX - minX + 120 + BAND_LABEL_W, h: y1 - y0 + BAND_PAD_Y * 2 + 22 };

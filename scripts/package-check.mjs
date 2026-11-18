@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { gzipSync } from 'node:zlib';
 
 const version = JSON.parse(readFileSync('package.json', 'utf8')).version;
 const tarball = resolve('dist', `archray-${version}.tgz`);
@@ -14,6 +15,8 @@ assert.equal(latest.version, version, 'latest.json names the package version');
 assert.equal(latest.asset, `archray-${version}.tgz`, 'latest.json names the tarball');
 assert.equal(latest.sha256, createHash('sha256').update(readFileSync(tarball)).digest('hex'), 'latest.json sha256 matches the tarball');
 assert.ok(existsSync(resolve('dist', 'install.sh')), 'package emits the bootstrap installer');
+const bootstrapText = readFileSync(resolve('dist', 'install.sh'), 'utf8');
+assert.ok(bootstrapText.includes(String.raw`\.\.`), 'bootstrap tar path check escapes dots literally');
 
 const work = mkdtempSync(join(tmpdir(), 'archray-package-'));
 const run = (cmd, args, cwd) => {
@@ -139,6 +142,67 @@ try {
   assert.ok(existsSync(join(projectBoot, '.archray/tool/cli/bin/archray.mjs')), 'bootstrap installs the vendored tool');
   assert.ok(existsSync(join(projectBoot, '.archray/archray')), 'bootstrap writes the short update wrapper');
 
+  // 1-argument bootstrap invocation falls through to auto without crashing on POSIX shift.
+  const projectOneArg = join(work, 'project-one-arg');
+  mkdirSync(projectOneArg);
+  const oneArg = spawnSync('sh', [resolve('dist/install.sh'), projectOneArg], {
+    encoding: 'utf8', env: { ...process.env, ARCHRAY_INSTALL_BASE: `file://${resolve('dist')}` },
+  });
+  assert.notEqual(oneArg.status, 0, '1-arg bootstrap on clean repo fails clearly instead of crashing on shift');
+  assert.match(oneArg.stderr + oneArg.stdout, /No installed ArchRay host was detected/, '1-arg bootstrap falls through to auto');
+
+  // Bootstrap accepts valid 2-character directory names (escaped dots) and rejects ../ traversal.
+  const bootStage = join(work, 'boot-stage');
+  mkdirSync(bootStage);
+  run('tar', ['-xzf', tarball, '-C', bootStage]);
+  mkdirSync(join(bootStage, `archray-${version}/en`), { recursive: true });
+  writeFileSync(join(bootStage, `archray-${version}/en/note.txt`), 'two-char dir ok\n');
+  const twoCharBase = join(work, 'boot-two-char');
+  mkdirSync(twoCharBase);
+  const twoCharTar = join(twoCharBase, `archray-${version}.tgz`);
+  run('tar', ['-czf', twoCharTar, '-C', bootStage, `archray-${version}`]);
+  const twoCharSha = createHash('sha256').update(readFileSync(twoCharTar)).digest('hex');
+  const twoCharScript = join(work, 'boot-two-char.sh');
+  writeFileSync(twoCharScript, bootstrapText.replace(`SHA='${latest.sha256}'`, `SHA='${twoCharSha}'`), { mode: 0o755 });
+  const projectTwoChar = join(work, 'project-two-char');
+  mkdirSync(projectTwoChar);
+  const twoCharRes = spawnSync('sh', [twoCharScript, projectTwoChar, 'claude'], {
+    encoding: 'utf8', env: { ...process.env, ARCHRAY_INSTALL_BASE: `file://${twoCharBase}` },
+  });
+  assert.equal(twoCharRes.status, 0, `bootstrap allows 2-char dir names: ${twoCharRes.stderr || twoCharRes.stdout}`);
+
+  const tarEntry = (name) => {
+    const header = Buffer.alloc(512);
+    header.write(name, 0, 100, 'utf8');
+    header.write('0000644\0', 100);
+    header.write('0001750\0', 108);
+    header.write('0001750\0', 116);
+    header.write('00000000000\0', 124);
+    header.write('00000000000\0', 136);
+    header.write('        ', 148);
+    header.write('0', 156);
+    header.write('ustar\0', 257);
+    header.write('00', 263);
+    let sum = 0;
+    for (const byte of header) sum += byte;
+    header.write(`${sum.toString(8).padStart(6, '0')}\0 `, 148);
+    return header;
+  };
+  const evilBase = join(work, 'boot-evil');
+  mkdirSync(evilBase);
+  const evilTar = join(evilBase, `archray-${version}.tgz`);
+  writeFileSync(evilTar, gzipSync(Buffer.concat([tarEntry('../escape'), Buffer.alloc(1024)])));
+  const evilSha = createHash('sha256').update(readFileSync(evilTar)).digest('hex');
+  const evilScript = join(work, 'boot-evil.sh');
+  writeFileSync(evilScript, bootstrapText.replace(`SHA='${latest.sha256}'`, `SHA='${evilSha}'`), { mode: 0o755 });
+  const projectEvil = join(work, 'project-evil');
+  mkdirSync(projectEvil);
+  const evilRes = spawnSync('sh', [evilScript, projectEvil, 'claude'], {
+    encoding: 'utf8', env: { ...process.env, ARCHRAY_INSTALL_BASE: `file://${evilBase}` },
+  });
+  assert.notEqual(evilRes.status, 0, 'bootstrap refuses ../ traversal tar');
+  assert.match(evilRes.stderr + evilRes.stdout, /Unsafe archive path/, 'bootstrap reports unsafe archive path');
+
   // A controlled rename failure must roll back both the tool and every written template.
   const project6 = join(work, 'project6');
   mkdirSync(project6);
@@ -149,7 +213,7 @@ try {
   writeFileSync(preload, `const fs = require('node:fs');
 const original = fs.renameSync;
 fs.renameSync = (from, to, ...rest) => {
-  if (String(from).includes('.tool-stage-') && String(to).endsWith('/tool')) {
+  if (String(from).includes('.tool-stage-') && /[\\\\/]tool$/.test(String(to))) {
     const error = new Error('injected rename failure');
     error.code = 'EACCES';
     throw error;
@@ -165,6 +229,15 @@ fs.renameSync = (from, to, ...rest) => {
   assert.equal(readFileSync(join(project6, '.archray/SKILL.md'), 'utf8'), 'OLD SKILL\n', 'failed swap restores the template');
   assert.equal(readFileSync(join(project6, '.archray/tool/commands/archray.md'), 'utf8'), 'TOOL SENTINEL\n', 'failed swap restores the tool');
   assert.ok(!readdirSync(join(project6, '.archray')).some((name) => name.startsWith('.tool-')), 'failed swap leaves no stage/backup');
+
+  const projectFreshFail = join(work, 'project-fresh-fail');
+  mkdirSync(projectFreshFail);
+  const freshFail = spawnSync('sh', [join(pkg, 'install.sh'), projectFreshFail, 'claude'], {
+    encoding: 'utf8',
+    env: { ...process.env, NODE_OPTIONS: `--require ${preload}` },
+  });
+  assert.notEqual(freshFail.status, 0, 'a failed fresh install returns non-zero');
+  assert.deepEqual(readdirSync(projectFreshFail), [], 'failed fresh install leaves no empty directories behind');
 
   console.log('Package check passed:', tarball);
 } finally {

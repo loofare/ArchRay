@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.5.1（2026-11-18）
+
+- 修复默认楼层/等轴视图中节点标签随缩放计算失真问题，`autoZoom` 按当前投影包围盒计算，缩略图视口框与点击同步支持旋转。
+- 斜杠命令与文档补齐 `--force` 用于重建派生的 `.archray/index.html`；详情页参考链接严格限制 `http:`/`https:` 协议；`SKILL.md` 统一全球唯一节点 ID 与 19 种已知 `kind`。
+- 自更新链路拒绝非本地明文 `http://` 与跳转降级，增加超时/体积限制，并在解压前预检归档路径与条目类型；引导脚本修复 POSIX `sh` `shift` 参数处理与正则转义。
+- `install` 失败回滚清理新建空目录并恢复文件权限；`uninstall` 精确清理所选宿主空目录并对未安装宿主给出明确提示；`doctor` 增加 `tar` 可用性检查。
+- 纳入 `cli/` 与 `scripts/*.ts` 类型检查（`tsconfig.cli.json`）并新增 Ubuntu / macOS / Windows GitHub Actions CI。
+
 ## v0.5.0（2026-11-18）
 
 - 项目内 `archray update` / `update --check`，保留 graph/view/index。

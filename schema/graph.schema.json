@@ -226,7 +226,7 @@
           },
           "kind": {
             "minLength": 1,
-            "description": "Open. Known: client, cli, gateway, service, worker, function, library, module, database, cache, queue, storage, search, external-api, ai-model, config, group",
+            "description": "Open. Known: client, cli, gateway, service, worker, function, library, module, database, cache, queue, storage, search, external-api, ai-model, config, group, saas, archive",
             "type": "string"
           },
           "parent": {
@@ -1015,7 +1015,7 @@
                         },
                         "kind": {
                           "minLength": 1,
-                          "description": "Open. Known: client, cli, gateway, service, worker, function, library, module, database, cache, queue, storage, search, external-api, ai-model, config, group",
+                          "description": "Open. Known: client, cli, gateway, service, worker, function, library, module, database, cache, queue, storage, search, external-api, ai-model, config, group, saas, archive",
                           "type": "string"
                         },
                         "parent": {
@@ -1572,7 +1572,7 @@
                         },
                         "kind": {
                           "minLength": 1,
-                          "description": "Open. Known: client, cli, gateway, service, worker, function, library, module, database, cache, queue, storage, search, external-api, ai-model, config, group",
+                          "description": "Open. Known: client, cli, gateway, service, worker, function, library, module, database, cache, queue, storage, search, external-api, ai-model, config, group, saas, archive",
                           "type": "string"
                         },
                         "parent": {

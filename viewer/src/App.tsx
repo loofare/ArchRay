@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { Activity, Box, GitBranchPlus, Maximize2, Minimize2, RotateCcw } from 'lucide-react';
 import {
-  parseView, applyScenario, computeLayout, graphLayerChipLabel, graphLayers, graphLocales, impactOf, indexGraph,
+  parseView, applyScenario, computeLayout, graphLayerChipLabel, graphLayers, graphLocales, impactOf, indexGraph, makeProjection, projectedBounds,
   negotiateLocale, replacementPrompt, t, ui, validateGraph, visibleGraph,
   type ArchGraph, type PlanarLayout, type ProjectionId, type UiKey,
 } from '@archray/core';
@@ -187,10 +187,11 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
     if (base.nodes.length < 25 || window.innerWidth < 900 || (v0.layers?.length ?? 0) > 0 || v0.focus) return;
     const viewportWidth = Math.max(320, window.innerWidth - 80);
     const viewportHeight = Math.max(240, window.innerHeight - 220);
-    const fit = Math.min(viewportWidth / layout.bounds.w, viewportHeight / layout.bounds.h);
+    const pb = projectedBounds(makeProjection(projection, layout), layout);
+    const fit = Math.min(viewportWidth / pb.w, viewportHeight / pb.h);
     const zoom = Math.min(4, Math.max(1.5, (11 / 15) / Math.max(0.05, fit)));
     setCamera({ x: 0, y: 0, zoom: +zoom.toFixed(2) });
-  }, [layout, base.nodes.length, v0.camera, v0.layers, v0.focus]);
+  }, [layout, base.nodes.length, v0.camera, v0.layers, v0.focus, projection]);
 
   const impact = useMemo(() => (selected && baseIdx.byId.has(selected) ? impactOf(baseIdx, selected) : null), [baseIdx, selected]);
   const health = useMemo(() => summarizeHealth(base, baseIdx, locale, defaultLocale), [base, baseIdx, locale, defaultLocale]);
@@ -242,7 +243,7 @@ function Viewer({ graph: base }: { graph: ArchGraph }) {
       setExpanded(new Set(base.nodes.filter((n) => base.nodes.some((c) => c.parent === n.id) && !v.collapsed?.includes(n.id)).map((n) => n.id)));
       setSelected(null);
       setLayers(v.layers ?? []);
-      if (v.motion) setMotion(v.motion);
+      setMotion(v.motion ?? (window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'calm' : 'full'));
       setMotionOverride(false);
       setFlowId(null);
       setStep(0);

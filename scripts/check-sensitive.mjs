@@ -18,6 +18,7 @@ const RULES = [
   { name: 'session url', re: /\b[a-z][a-z0-9+.-]*:\/\/session\/[0-9a-f-]{8,}/gi },
   { name: 'session id field', re: /\b(?:session_id|bot_id)["']?\s*[:=]\s*["'][0-9a-f-]{20,}["']/gi },
   { name: 'local preview', re: /\b127\.0\.0\.1:\d{2,5}\b|\blocalhost:(?!5173)\d{2,5}\b/g },
+  { name: 'internal review trace', re: /\b(?:audit M\d+-R\d+|R\d+\s*复审|代码审计伙伴)\b/g },
 ];
 
 const findings = [];

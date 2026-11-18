@@ -10,7 +10,7 @@ ArchRay is an **AI-first architecture visualiser**: install it into your reposit
 
 1. Install ArchRay from the **root of your project repository** (section 4).
 2. Open a new AI session.
-3. Use the entry for your host: Claude/Cursor/Antigravity/Pi use `/archray`; Codex uses `$archray` or `/skills`.
+3. Use the entry for your host: Claude/Cursor/Pi use `/archray`; Antigravity uses the Skill (command discovery depends on host version); Codex uses `$archray` or `/skills`.
 4. The first run analyses the repository and writes `.archray/graph.json` and `.archray/index.html`. Open the HTML.
 
 Already installed? Start at section 2.
@@ -50,7 +50,7 @@ Run these from the **target repository root**. The installer provides a project-
 ./.archray/archray update
 
 ./.archray/archray validate .archray/graph.json
-./.archray/archray build .archray/graph.json --no-open
+./.archray/archray build .archray/graph.json --force --no-open
 
 ./.archray/archray uninstall --dry-run
 ./.archray/archray uninstall
@@ -66,7 +66,7 @@ On Windows:
 The long form also works:
 
 ```sh
-node .archray/tool/cli/bin/archray.mjs build .archray/graph.json --no-open
+node .archray/tool/cli/bin/archray.mjs build .archray/graph.json --force --no-open
 ```
 
 ## 4. Install
@@ -93,7 +93,7 @@ Replace `claude` with your host:
 |---|---|---|
 | Claude Code | `claude` | `/archray`, `/archray:frontend`, … |
 | Cursor | `cursor` | `/archray`, `/archray-frontend`, … |
-| Antigravity | `antigravity` | `/archray`, `/archray-frontend`, … |
+| Antigravity | `antigravity` | `/archray` (command discovery depends on host version) |
 | Pi | `pi` | `/archray`, `/archray-frontend`, `/skill:archray` |
 | Codex | `codex` | `$archray` or `/skills` |
 
@@ -138,7 +138,7 @@ Updates refresh the tool, skill, commands and templates; they **do not re-analys
 
 ### One-time upgrade from v0.4.0 or older
 
-Old versions have no `update` command and no wrapper, so they cannot update themselves. Old Pi+Codex installs share `.agents/skills`, so `auto` may be ambiguous; choose `pi,codex` explicitly. Run the bootstrap once:
+Old versions have no `update` command and no wrapper, so they cannot update themselves. Without an install manifest, `auto` conservatively records shared `.agents/skills` layouts as `pi,codex` so partial uninstalls never drop the shared skill; pass your exact host if you only use one. Run the bootstrap once:
 
 ```sh
 tmp=$(mktemp)
@@ -220,8 +220,8 @@ Flow highlighting follows declared directed edges, not observed traffic. Source 
 ## Layers and styles
 
 ```sh
-./.archray/archray build .archray/graph.json --layers frontend,data --no-open
-./.archray/archray build .archray/graph.json --style blueprint --lang en --no-open
+./.archray/archray build .archray/graph.json --layers frontend,data --force --no-open
+./.archray/archray build .archray/graph.json --style blueprint --lang en --force --no-open
 ```
 
 Layers include `client`, `edge`, `gateway`, `service`, `async`, `data`, `ai`, `external`, `platform`, `observability`; Chinese aliases such as `前端`, `数据`, `网关` work too. Styles are `tech`, `blueprint`, `glass`, `paper`; unknown technologies fall back to a generic icon rather than an invented brand.

@@ -19,6 +19,9 @@ export const AGENTS = ['none', 'auto', 'claude', 'cursor', 'antigravity', 'pi', 
 export type Agent = Exclude<(typeof AGENTS)[number], 'none' | 'auto' | 'all'>;
 export const DEFAULT_MANIFEST = process.env.ARCHRAY_UPDATE_MANIFEST
   ?? 'https://github.com/loofare/ArchRay/releases/latest/download/latest.json';
+const MAX_MANIFEST_BYTES = 64 * 1024;
+const MAX_ARCHIVE_BYTES = 25 * 1024 * 1024;
+const NETWORK_TIMEOUT_MS = 30_000;
 
 export interface InstallManifest {
   version: string;
@@ -63,11 +66,12 @@ export function detectAgents(target: string): Agent[] {
   if (exists(join(root, '.claude/skills/archray/SKILL.md')) || exists(join(root, '.claude/commands/archray.md'))) add('claude');
   if (exists(join(root, '.cursor/rules/archray.mdc')) || exists(join(root, '.cursor/commands/archray.md'))) add('cursor');
   if (exists(join(root, '.agent/skills/archray/SKILL.md')) || exists(join(root, '.agent/commands/archray.md'))) add('antigravity');
-  if (exists(join(root, '.pi/prompts/archray.md'))) add('pi');
-  // Pi and Codex share .agents/skills; Pi also has .pi/prompts.
-  if (exists(join(root, '.agents/skills/archray/SKILL.md'))) {
-    if (!found.includes('pi')) add('codex');
-  }
+  const hasPi = exists(join(root, '.pi/prompts/archray.md'));
+  const hasShared = exists(join(root, '.agents/skills/archray/SKILL.md'));
+  if (hasPi) add('pi');
+  // Pi and Codex share .agents/skills. Without an install manifest we cannot distinguish them;
+  // conservatively keep both so a partial uninstall cannot remove the shared skill.
+  if (hasShared) add('codex');
   return found;
 }
 
@@ -146,6 +150,36 @@ function assertSafePath(root: string, path: string): void {
   }
 }
 
+/** Remove only now-empty directories owned by the removed hosts, child before parent. */
+function pruneEmptyHostDirs(root: string, agents: Agent[], remaining: Agent[]): void {
+  const removeShared = (agents.includes('pi') || agents.includes('codex')) && !remaining.includes('pi') && !remaining.includes('codex');
+  const candidateDirs: string[] = [];
+  if (agents.includes('claude')) {
+    candidateDirs.push('.claude/commands/archray', '.claude/commands', '.claude/skills/archray', '.claude/skills', '.claude');
+  }
+  if (agents.includes('cursor')) {
+    candidateDirs.push('.cursor/commands', '.cursor/rules', '.cursor');
+  }
+  if (agents.includes('antigravity')) {
+    candidateDirs.push('.agent/commands', '.agent/skills/archray', '.agent/skills', '.agent');
+  }
+  if (agents.includes('pi')) {
+    candidateDirs.push('.pi/prompts', '.pi');
+  }
+  if (removeShared) {
+    candidateDirs.push('.agents/skills/archray', '.agents/skills', '.agents');
+  }
+  for (const d of candidateDirs) {
+    const abs = join(root, d);
+    try {
+      assertSafePath(root, abs);
+      if (!isLink(abs) && lstatSync(abs).isDirectory() && readdirSync(abs).length === 0) {
+        rmSync(abs, { recursive: true, force: true });
+      }
+    } catch { /* best effort */ }
+  }
+}
+
 /** Remove only files ArchRay installed for the selected hosts. */
 export function removeHostFiles(target: string, agents: Agent[], remaining: Agent[], dry: boolean): string[] {
   const root = realpathSync(target);
@@ -172,14 +206,12 @@ export function removeHostFiles(target: string, agents: Agent[], remaining: Agen
     for (const name of PRESET_NAMES) add(`.pi/prompts/${name}.md`);
   }
   // .agents/skills/archray is shared by Pi and Codex. Keep it while either remains.
-  if (!remaining.includes('pi') && !remaining.includes('codex')) add('.agents/skills/archray/SKILL.md');
+  if ((agents.includes('pi') || agents.includes('codex')) && !remaining.includes('pi') && !remaining.includes('codex')) {
+    add('.agents/skills/archray/SKILL.md');
+  }
   if (dry) return [...new Set(paths)];
   for (const p of [...new Set(paths)]) rmSync(p, { recursive: true, force: true });
-  // Remove only now-empty directories.
-  for (const d of ['.claude/commands/archray', '.cursor/commands', '.agent/commands', '.pi/prompts', '.agents/skills', '.claude/commands', '.claude/skills', '.agent/skills']) {
-    const abs = join(root, d);
-    try { if (isDir(abs) && readdirSync(abs).length === 0) rmSync(abs, { recursive: true, force: true }); } catch { /* best effort */ }
-  }
+  pruneEmptyHostDirs(root, agents, remaining);
   return [...new Set(paths)];
 }
 
@@ -246,6 +278,7 @@ export async function runUpdate(opts: UpdateOptions): Promise<void> {
     }
     const archive = join(tmp, manifest.asset);
     writeFileSync(archive, bytes);
+    assertArchiveSafe(archive);
     const result = spawnSync('tar', ['-xzf', archive, '-C', tmp], { encoding: 'utf8' });
     if (result.status !== 0) throw new Error(`Could not extract ${manifest.asset}: ${result.stderr || result.error?.message || 'tar failed'}`);
     const pkg = join(tmp, `archray-${manifest.version}`);
@@ -296,8 +329,14 @@ export function uninstallProject(target: string, opts: { purge: boolean; dry: bo
   const manifest = readInstallManifest(root);
   const installed = manifest?.agents.length ? manifest.agents : detectAgents(root);
   const selected = opts.purge ? installed : opts.agent ? resolveAgents(root, opts.agent) : installed;
-  const remaining = opts.purge ? [] : installed.filter((a) => !selected.includes(a));
-  const paths = removeHostFiles(root, selected, remaining, true);
+  const removed = selected.filter((a) => installed.includes(a));
+  const skipped = selected.filter((a) => !installed.includes(a));
+  if (!opts.purge && opts.agent && removed.length === 0) {
+    console.log(`Host not installed: ${skipped.join(', ')}. Currently installed: ${installed.length ? installed.join(', ') : 'none'}.`);
+    return;
+  }
+  const remaining = opts.purge ? [] : installed.filter((a) => !removed.includes(a));
+  const paths = removeHostFiles(root, removed, remaining, true);
   assertSafePath(root, join(archray, '.gitignore'));
   assertNotUserAlias(root, join(archray, '.gitignore'));
   const manifestPath = join(archray, 'install.json');
@@ -315,12 +354,14 @@ export function uninstallProject(target: string, opts: { purge: boolean; dry: bo
     console.log(`Keeping ArchRay for: ${remaining.join(', ')}`);
   }
   if (opts.dry) {
+    if (skipped.length) console.log(`Host not installed: ${skipped.join(', ')}.`);
     for (const p of [...new Set(paths)]) console.log(`would remove ${p}`);
     if (opts.purge) console.log(`would remove ${archray} (including graph/view/index)`);
     else console.log('would keep .archray/graph.json, view.json and index.html');
     return;
   }
   for (const p of [...new Set(paths)]) rmSync(p, { recursive: true, force: true });
+  pruneEmptyHostDirs(root, removed, remaining);
   if (removeTool) removeOwnIgnore(root);
   if (!opts.purge && remaining.length && manifest) writeInstallManifest(root, manifest.version, remaining);
   if (opts.purge) {
@@ -329,8 +370,9 @@ export function uninstallProject(target: string, opts: { purge: boolean; dry: bo
   } else {
     try { if (isDir(archray) && readdirSync(archray).length === 0) rmSync(archray, { recursive: true, force: true }); } catch { /* best effort */ }
   }
+  if (skipped.length) console.log(`Host not installed: ${skipped.join(', ')}.`);
   if (opts.purge) console.log('ArchRay removed: all hosts and all .archray data were deleted.');
-  else if (remaining.length) console.log(`Removed hosts: ${selected.join(', ')}. Still installed: ${remaining.join(', ')}. The shared tool, wrapper and graph/view/index were kept.`);
+  else if (remaining.length) console.log(`Removed hosts: ${removed.join(', ')}. Still installed: ${remaining.join(', ')}. The shared tool, wrapper and graph/view/index were kept.`);
   else console.log('ArchRay removed. The wrapper is gone; graph/view/index were kept. To remove those too, back them up and delete .archray manually.');
 }
 
@@ -352,24 +394,91 @@ function resolveAsset(manifestSource: string, asset: string): string {
   return resolve(dirname(manifestSource), asset);
 }
 
+function isRemote(source: string): boolean { return /^https?:\/\//i.test(source); }
+function isLocalHost(host: string): boolean { return host === '127.0.0.1' || host === 'localhost' || host === '[::1]' || host === '::1'; }
+
+function assertSecureSource(source: string): void {
+  if (!/^http:\/\//i.test(source)) return;
+  let host = '';
+  try { host = new URL(source).hostname; } catch { throw new Error(`Invalid URL: ${source}`); }
+  if (!isLocalHost(host)) throw new Error(`Refusing plain HTTP update source: ${source}.\nUse HTTPS (plain HTTP is allowed only for localhost tests).`);
+}
+
+const MAX_REDIRECTS = 8;
+
+async function fetchChecked(source: string, accept: string): Promise<Response> {
+  const startedHttps = /^https:\/\//i.test(source);
+  let current = source;
+  for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+    assertSecureSource(current);
+    if (startedHttps && !/^https:\/\//i.test(current)) {
+      throw new Error(`Refusing an HTTPS-to-HTTP redirect: ${current}`);
+    }
+    let res: Response;
+    try {
+      res = await fetch(current, {
+        headers: { 'user-agent': 'archray-update', accept },
+        redirect: 'manual',
+        signal: AbortSignal.timeout(NETWORK_TIMEOUT_MS),
+      });
+    } catch (e: any) {
+      if (e?.name === 'TimeoutError' || e?.name === 'AbortError') throw new Error(`Timed out reading ${current}.`);
+      throw e;
+    }
+    if (res.status >= 300 && res.status < 400) {
+      const location = res.headers.get('location');
+      if (!location) throw new Error(`Redirect without Location from ${current}.`);
+      await res.body?.cancel().catch(() => {});
+      current = new URL(location, current).href;
+      if (!isRemote(current)) throw new Error(`Refusing non-HTTP(S) redirect: ${current}`);
+      continue;
+    }
+    if (!res.ok) throw new Error(`Could not read ${current}: HTTP ${res.status}.`);
+    return res;
+  }
+  throw new Error(`Too many redirects reading ${source}.`);
+}
+
 async function readText(source: string): Promise<string> {
-  if (/^https?:\/\//i.test(source)) {
-    const res = await fetch(source, { headers: { 'user-agent': 'archray-update', accept: 'application/json' } });
-    if (!res.ok) throw new Error(`Could not read ${source}: HTTP ${res.status}.`);
-    return res.text();
+  if (isRemote(source)) {
+    const res = await fetchChecked(source, 'application/json');
+    const length = Number(res.headers.get('content-length'));
+    if (Number.isFinite(length) && length > MAX_MANIFEST_BYTES) throw new Error('Release manifest is too large.');
+    const text = await res.text();
+    if (Buffer.byteLength(text) > MAX_MANIFEST_BYTES) throw new Error('Release manifest is too large.');
+    return text;
   }
   if (source.startsWith('file://')) return readFileSync(new URL(source), 'utf8');
   return readFileSync(source, 'utf8');
 }
 
 async function readBytes(source: string): Promise<Buffer> {
-  if (/^https?:\/\//i.test(source)) {
-    const res = await fetch(source, { headers: { 'user-agent': 'archray-update' } });
-    if (!res.ok) throw new Error(`Could not download ${source}: HTTP ${res.status}.`);
-    return Buffer.from(await res.arrayBuffer());
+  if (isRemote(source)) {
+    const res = await fetchChecked(source, '*/*');
+    const length = Number(res.headers.get('content-length'));
+    if (Number.isFinite(length) && length > MAX_ARCHIVE_BYTES) throw new Error('Release archive is too large.');
+    const bytes = Buffer.from(await res.arrayBuffer());
+    if (bytes.length > MAX_ARCHIVE_BYTES) throw new Error('Release archive is too large.');
+    return bytes;
   }
   if (source.startsWith('file://')) return readFileSync(new URL(source));
   return readFileSync(source);
+}
+
+/** Check paths and entry types before handing the archive to tar. */
+function assertArchiveSafe(archive: string): void {
+  const list = spawnSync('tar', ['-tzf', archive], { encoding: 'utf8' });
+  if (list.status !== 0) throw new Error(`Could not inspect ${archive}: ${list.stderr || 'tar -tzf failed'}`);
+  for (const entry of list.stdout.split(/\r?\n/).filter(Boolean)) {
+    if (entry.startsWith('/') || entry.includes('\\') || entry.split('/').includes('..')) {
+      throw new Error(`Unsafe archive path: ${entry}`);
+    }
+  }
+  const verbose = spawnSync('tar', ['-tvzf', archive], { encoding: 'utf8' });
+  if (verbose.status !== 0) throw new Error(`Could not inspect ${archive}: ${verbose.stderr || 'tar -tvzf failed'}`);
+  for (const line of verbose.stdout.split(/\r?\n/).filter(Boolean)) {
+    if (/^[lhbcp]/i.test(line.trim())) throw new Error(`Unsafe archive entry type: ${line.slice(0, 80)}`);
+  }
 }
 
 /** Reject symlinks and anything outside the extraction root. */
@@ -377,7 +486,8 @@ function assertNoLinks(root: string, dir: string): void {
   for (const name of readdirSync(dir)) {
     const p = join(dir, name);
     if (isLink(p)) throw new Error(`Release archive contains a symbolic link: ${p}`);
-    if (resolve(p) !== p || !p.startsWith(root + '/')) throw new Error(`Unsafe archive path: ${p}`);
+    if (!isDir(p) && statSync(p).nlink > 1) throw new Error(`Release archive contains a hard link: ${p}`);
+    if (resolve(p) !== p || !p.startsWith(root + sep)) throw new Error(`Unsafe archive path: ${p}`);
     if (isDir(p)) assertNoLinks(root, p);
   }
 }

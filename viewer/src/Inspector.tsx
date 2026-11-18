@@ -55,6 +55,12 @@ export function Inspector(p: Props) {
       border: `1px solid ${primary ? th.accent : th.panelBorder}`, background: primary ? alpha(th.accent, 0.15) : 'transparent', color: primary ? th.accent : th.text }}>{label}</button>
   );
   const alt = n.alternatives;
+  const safeReference = (value: string): string | null => {
+    try {
+      const url = new URL(value);
+      return url.protocol === 'http:' || url.protocol === 'https:' ? url.href : null;
+    } catch { return null; }
+  };
   const sevColor = (s?: string) => (s === 'critical' ? th.critical : s === 'warn' ? th.warn : th.sub);
   const repColor = alt?.replaceability === 'high' ? th.good : alt?.replaceability === 'medium' ? th.warn : th.critical;
 
@@ -123,7 +129,12 @@ export function Inspector(p: Props) {
             </div>}
             {o.references?.length ? <div style={{ marginTop: 6, fontSize: 12 }}>
               <span style={{ color: th.faint }}>{U('inspector.references')}: </span>
-              {o.references.map((r) => <a key={r} href={r} target="_blank" rel="noreferrer" style={{ color: th.accent, marginRight: 8, overflowWrap: 'anywhere' }}>{r}</a>)}
+              {o.references.map((r) => {
+                const href = safeReference(r);
+                return href
+                  ? <a key={r} href={href} target="_blank" rel="noopener noreferrer" style={{ color: th.accent, marginRight: 8, overflowWrap: 'anywhere' }}>{r}</a>
+                  : <span key={r} title={locale.startsWith('zh') ? '不支持的链接协议' : 'Unsupported URL protocol'} style={{ color: th.faint, marginRight: 8, overflowWrap: 'anywhere' }}>{r}</span>;
+              })}
             </div> : null}
             <div style={{ marginTop: 8 }}>
               {o.scenario && small(U('inspector.preview'), () => p.onScenario(o.scenario!), true)}
@@ -142,9 +153,9 @@ export function Inspector(p: Props) {
 
       {(inbound.length > 0 || outbound.length > 0) && <>
         <H>{U('inspector.outbound')}</H>
-        <div>{outbound.length ? outbound.map((e) => link(e.target)) : '—'}</div>
+        <div>{outbound.length ? [...new Set(outbound.map((e) => e.target))].map(link) : '—'}</div>
         <H>{U('inspector.inbound')}</H>
-        <div>{inbound.length ? inbound.map((e) => link(e.source)) : '—'}</div>
+        <div>{inbound.length ? [...new Set(inbound.map((e) => e.source))].map(link) : '—'}</div>
       </>}
 
       {n.sourcePaths?.length ? <><H>{U('inspector.sources')}</H>

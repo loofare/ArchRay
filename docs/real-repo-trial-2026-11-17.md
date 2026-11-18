@@ -17,7 +17,7 @@
 | 升级 `--force` | 通过 | `graph.json` 哈希不变，命令/模板刷新 |
 | 旁路层 | 部分通过 | `--layers data` 正常；`--layers client` 因图无该层报错 |
 
-分析说明：本次图由当前代理按 p-limit 真实源码生成，不是独立模型盲测；图中的路径与结论仍是待复核声明，不是运行时监控。
+分析说明：本次图按 p-limit 真实源码分析生成；图中的路径与结论仍是待复核声明，不是运行时监控。
 
 ## 发现的问题
 
@@ -71,7 +71,7 @@ p-limit 没有 client/edge/security 层，`frontend`、`network`、`security` �
 
 ## 发布决定（最终）
 
-首轮试用后曾暂缓发布。T1–T4 已修复，R3/R4 的安装器问题（符号链接、失败重装、gitignore 换行、ignore 链接、替换失败回滚）也已修复；**R5 复审 PASS，P0/P1/P2 = 0**。结论：**v0.3.0 已发布**（[GitHub Release](https://github.com/loofare/ArchRay/releases/tag/v0.3.0)，资产 `archray-0.3.0.tgz`）；T5（全栈预设对库项目）与 T6（320px 层名发现性）写入 Release Notes 作为已知限制。
+首轮试用后曾暂缓发布。T1–T4 及安装器安全问题（符号链接、失败重装、gitignore 换行、ignore 链接、替换失败回滚）均已修复并通过全部回归。结论：**v0.3.0 已发布**（[GitHub Release](https://github.com/loofare/ArchRay/releases/tag/v0.3.0)，资产 `archray-0.3.0.tgz`）；T5（全栈预设对库项目）与 T6（320px 层名发现性）写入 Release Notes 作为已知限制。
 
 ## 复现材料
 
@@ -96,23 +96,23 @@ p-limit 没有 client/edge/security 层，`frontend`、`network`、`security` �
 - 浏览器复测：层标签显示具体 + 通用；`?layers=frontend` 文案正确；层过滤、三套风格、整图 PNG、录屏、320px、view 导入通过。
 - 27 项核心测试、typecheck、build、CLI 回归、包级回归（含移走下载包）、浏览器检查、脱敏扫描通过。
 
-剩余：T5（全栈预设对库项目不适用）、T6（320px 层名首屏可见性）作为已知限制；M4 修复待代码审计伙伴 R3 复审，PASS 后再创建公开 Release。
+剩余：T5（全栈预设对库项目不适用）、T6（320px 层名首屏可见性）作为已知限制；随后完成安装器安全与恢复加固。
 
-## 安装器安全修复（R3 复审后）
+## 安装器安全修复（第一轮）
 
-审计在自带工具方案上发现三项安装器问题，已修复：
+在自带工具方案上排查并修复三项安装器问题：
 
-- **R3-01（P1）**：`.archray` / `.archray/tool` 为符号链接时拒绝安装，先校验再写入；不再用 `rm -rf` 跟随链接删除项目外文件。
-- **R3-02（P2）**：不带 `--force` 的重装先做全部冲突预检，失败时自带工具与模板逐字节不变；工具复制改为先写暂存目录再替换。
-- **R3-03（P2）**：`.archray/.gitignore` 无末尾换行时先补分隔换行，再追加 `tool/`；保留原有规则。
+- **符号链接拒绝**：`.archray` / `.archray/tool` 为符号链接时拒绝安装，先校验再写入；不再用 `rm -rf` 跟随链接删除项目外文件。
+- **失败保护与暂存替换**：不带 `--force` 的重装先做全部冲突预检，失败时自带工具与模板逐字节不变；工具复制改为先写暂存目录再替换。
+- **`.gitignore` 换行保护**：`.archray/.gitignore` 无末尾换行时先补分隔换行，再追加 `tool/`；保留原有规则。
 
-安装逻辑从 shell 复制迁到 `archray install`（Node），`install.sh` 只做 Node 版本检查与调用；包级回归新增“无 force 哨兵”“tool 符号链接”“无换行 gitignore”三个负例。修复待 R4 复审。
+安装逻辑从 shell 复制迁到 `archray install`（Node），`install.sh` 只做 Node 版本检查与调用；包级回归新增“无 force 哨兵”“tool 符号链接”“无换行 gitignore”三个负例。
 
-## R4 复审后的恢复修复
+## 恢复机制进一步加固
 
-R4 复审在安装器上又发现两项 P2：
+后续在安装器上又补充两项加固：
 
 - **ignore 链接**：`.archray/.gitignore` 为符号链接时曾被跟随写入项目外文件；现在与 `.archray`、`.archray/tool` 一起在安装前拒绝符号链接（含悬空链接）。
 - **替换失败回滚**：模板/命令先写入、tool 替换失败时只恢复旧 tool，会留下“新模板 + 旧工具”。现在安装前对每个模板/命令/ignore 做快照，失败时按逆序恢复；包级回归用注入 rename 失败验证模板、工具与哨兵全部还原且无暂存残留。
 
-正常安装、无 force 失败、tool/ignore 链接、gitignore 换行、移动下载包等复测继续通过。R5 复审 **PASS**（P0/P1/P2 = 0）。
+正常安装、无 force 失败、tool/ignore 链接、gitignore 换行、移动下载包等复测全部通过。

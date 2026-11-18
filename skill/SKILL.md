@@ -1,6 +1,6 @@
 ---
 name: archray
-description: Analyzes a repository's real source into an evidence-backed v2 architecture graph (.archray/graph.json) and builds it into a self-contained interactive HTML view. Use for architecture understanding, dependency review and optional replacement or migration planning; it does not scan source by itself or monitor runtime.
+description: Analyzes a repository's real source into an evidence-backed v2 architecture graph (.archray/graph.json) and builds it into a self-contained interactive HTML view. Use for architecture understanding, dependency review and optional replacement or migration planning, or for updating (including check-only) or uninstalling ArchRay; it does not scan source by itself or monitor runtime.
 ---
 
 # ArchRay v2 — evidence from your repository
@@ -16,8 +16,8 @@ Read `.archray/graph.schema.json` before generating `.archray/graph.json`. Produ
 - State missing or uncertain evidence. Do not claim complete static analysis, runtime tracing or traffic monitoring.
 - Mark every numeric metric with its origin (`measured` or `estimated`) and how it was obtained. Never fabricate measurements.
 - Prefer 6–18 top-level nodes for readability. Group files into architectural modules rather than mirroring every directory.
-- Use a `kind` that matches the module; known kinds are client, gateway, service, worker, database, cache, queue, storage, external-api, ai-model. Other strings are allowed when none fits.
-- IDs are stable and unique. Child IDs may repeat under different parents; references must be unambiguous in their scope.
+- Use a `kind` that matches the module; known kinds are client, cli, gateway, service, worker, function, library, module, database, cache, queue, storage, search, external-api, ai-model, config, group, saas, archive. Other strings are allowed when none fits.
+- Every id in the flat `nodes` array must be globally unique, including child nodes. Prefix child ids with their parent when needed (for example `order/repo`, `billing/repo`); references must resolve unambiguously.
 
 ## Candidates and scenarios
 
@@ -31,12 +31,12 @@ Scenarios describe a target state. Patches execute in order and must preserve va
 
 Read `.archray/tech.json` when classifying a technology: it lists categories, canonical layers and component kinds. Use it as a hint, not as evidence that the technology is present.
 
-Give each node a `layer` using this canonical set (or the closest existing graph layer): `client` (前端/客户端), `edge` (网络/传输), `gateway` (安全/网关), `service` (后端/中间层), `async` (异步/任务), `data` (数据/存储), `ai` (AI/模型), `external` (外部/SaaS), `platform` (平台/基础设施), `observability` (可观测).
+Give each node a `layer` using this canonical set (or the closest existing graph layer): `client` (前端/客户端), `edge` (网络/传输), `gateway` (安全/网关), `service` (后端/中间层), `async` (异步/任务), `data` (数据/存储), `ai` (AI/模型), `external` (外部/SaaS), `platform` (平台/基础设施), `observability` (可观测). Child nodes inside an expanded group render within their parent group's visual layer band.
 
 Analyse once, then slice the view instead of re-analysing:
 
 ```sh
-node "__ARCHRAY_CLI__" build .archray/graph.json --layers frontend,data --no-open
+node "__ARCHRAY_CLI__" build .archray/graph.json --layers frontend,data --force --no-open
 ```
 
 Chinese and English aliases are accepted (`前端`, `数据`, `gateway`, …). Selected layers stay fully visible; one-hop neighbours are dimmed as cross-layer context. When installed with `--agent`, the presets are `/archray`, `/archray:frontend`, `/archray:backend`, `/archray:data`, `/archray:network`, `/archray:security` and `/archray:full`.
@@ -46,7 +46,7 @@ Chinese and English aliases are accepted (`前端`, `数据`, `gateway`, …). S
 When the user asks for a look or language, pass it at build time instead of editing the graph:
 
 ```sh
-node "__ARCHRAY_CLI__" build .archray/graph.json --style blueprint --lang en --no-open
+node "__ARCHRAY_CLI__" build .archray/graph.json --style blueprint --lang en --force --no-open
 ```
 
 Styles are `tech`, `blueprint`, `glass`, `paper`; motion is `full`, `calm` or `off` (`--motion`). The graph must already contain the requested locale; otherwise report that it is unavailable and keep the default rather than inventing translations. Known technologies get brand marks; unknown ones use a generic kind icon.
@@ -71,10 +71,10 @@ Validate and build from the target repository, using the absolute path to the to
 
 ```sh
 node "__ARCHRAY_CLI__" validate .archray/graph.json
-node "__ARCHRAY_CLI__" build .archray/graph.json --no-open
+node "__ARCHRAY_CLI__" build .archray/graph.json --force --no-open
 ```
 
-Obtain and build the tool separately. `build` refuses to overwrite by default; use `--force` only after the user agrees.
+Obtain and build the tool separately. `build` refuses to overwrite by default. The slash-command templates use `--force` only for the derived `.archray/index.html`; never overwrite `.archray/graph.json`, `view.json` or a user-chosen output without explicit consent.
 
 ## Migration requests
 

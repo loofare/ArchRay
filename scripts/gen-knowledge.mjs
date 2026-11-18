@@ -227,7 +227,7 @@ const EXTRA = [
   ['shadcn', 'shadcn/ui', 'frontend', ['client'], ['library'], ['shadcn ui', 'shadcn/ui']],
 ];
 
-const KNOWN_KINDS = ['client', 'cli', 'gateway', 'service', 'worker', 'function', 'library', 'module', 'database', 'cache', 'queue', 'storage', 'search', 'external-api', 'ai-model', 'config', 'group'];
+const KNOWN_KINDS = ['client', 'cli', 'gateway', 'service', 'worker', 'function', 'library', 'module', 'database', 'cache', 'queue', 'storage', 'search', 'external-api', 'ai-model', 'config', 'group', 'saas', 'archive'];
 const norm = (value) => value.toLowerCase().normalize('NFKD').replace(/[^a-z0-9\u4e00-\u9fa5]/g, '');
 
 const entries = [

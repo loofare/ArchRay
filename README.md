@@ -10,7 +10,7 @@ ArchRay 是 **AI 优先的架构可视化工具**：安装到你的仓库一次�
 
 1. 在**你的项目仓库根目录**安装 ArchRay（见第 4 节）。
 2. 新开一个 AI 会话。
-3. 输入你的宿主对应入口：Claude/Cursor/Antigravity/Pi 用 `/archray`；Codex 用 `$archray` 或 `/skills`。
+3. 输入你的宿主对应入口：Claude/Cursor/Pi 用 `/archray`；Antigravity 用 Skill（命令目录兼容性以宿主版本为准）；Codex 用 `$archray` 或 `/skills`。
 4. 第一次会分析当前仓库，生成 `.archray/graph.json` 和 `.archray/index.html`。打开 HTML 即可查看。
 
 已经安装过？直接从第 2 节开始。
@@ -50,7 +50,7 @@ Codex 没有 `/archray` 斜杠命令，使用 `$archray` 或先输入 `/skills`�
 ./.archray/archray update
 
 ./.archray/archray validate .archray/graph.json
-./.archray/archray build .archray/graph.json --no-open
+./.archray/archray build .archray/graph.json --force --no-open
 
 ./.archray/archray uninstall --dry-run
 ./.archray/archray uninstall
@@ -66,7 +66,7 @@ Windows 使用：
 直接调用 CLI 也可以：
 
 ```sh
-node .archray/tool/cli/bin/archray.mjs build .archray/graph.json --no-open
+node .archray/tool/cli/bin/archray.mjs build .archray/graph.json --force --no-open
 ```
 
 ## 4. 安装
@@ -93,7 +93,7 @@ test "$archray_install_status" -eq 0
 |---|---|---|
 | Claude Code | `claude` | `/archray`、`/archray:frontend` 等 |
 | Cursor | `cursor` | `/archray`、`/archray-frontend` 等 |
-| Antigravity | `antigravity` | `/archray`、`/archray-frontend` 等 |
+| Antigravity | `antigravity` | `/archray`（命令目录兼容性以宿主版本为准） |
 | Pi | `pi` | `/archray`、`/archray-frontend`、`/skill:archray` |
 | Codex | `codex` | `$archray` 或 `/skills` |
 
@@ -144,7 +144,7 @@ test "$archray_install_status" -eq 0
 
 ### 从 v0.4.0 或更早一次性升级
 
-旧版本没有 `update` 命令，也没有新短命令，不能自己更新自己。旧 Pi+Codex 共用 `.agents/skills` 时 `auto` 可能无法区分，建议直接选择 `pi,codex`。做一次引导升级：
+旧版本没有 `update` 命令，也没有新短命令，不能自己更新自己。旧版无安装清单时 `auto` 会把共用 `.agents/skills` 的布局保守识别为 `pi,codex` 以免部分卸载误删共享 Skill；只用单宿主的仓库建议显式指定宿主。做一次引导升级：
 
 ```sh
 tmp=$(mktemp)
@@ -226,8 +226,8 @@ AI 卸载话术：
 ## 分层与风格
 
 ```sh
-./.archray/archray build .archray/graph.json --layers frontend,data --no-open
-./.archray/archray build .archray/graph.json --style blueprint --lang en --no-open
+./.archray/archray build .archray/graph.json --layers frontend,data --force --no-open
+./.archray/archray build .archray/graph.json --style blueprint --lang en --force --no-open
 ```
 
 层包括 `client`、`edge`、`gateway`、`service`、`async`、`data`、`ai`、`external`、`platform`、`observability`；中文别名如 `前端`、`数据`、`网关` 也可用。风格为 `tech`、`blueprint`、`glass`、`paper`；未知技术回退通用图标，不虚构品牌。

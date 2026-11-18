@@ -37,6 +37,7 @@ const Open = <T extends TSchema>(t: T) => t; // marker: object allows unknown ke
 export const KNOWN_NODE_KINDS = [
   'client', 'cli', 'gateway', 'service', 'worker', 'function', 'library', 'module',
   'database', 'cache', 'queue', 'storage', 'search', 'external-api', 'ai-model', 'config', 'group',
+  'saas', 'archive',
 ] as const;
 
 export const KNOWN_PROTOCOLS = [

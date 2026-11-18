@@ -110,6 +110,9 @@ function semantic(g: ArchGraph, issues: Issue[]) {
   g.nodes.forEach((n, i) => {
     n.alternatives?.options?.forEach((o, j) => {
       if (o.scenario && !scenarioIds.has(o.scenario)) err(`/nodes/${i}/alternatives/options/${j}/scenario`, `unknown scenario "${o.scenario}"`);
+      (o.references ?? []).forEach((r, k) => {
+        if (!/^https?:\/\//i.test(r)) warn(`/nodes/${i}/alternatives/options/${j}/references/${k}`, 'reference must be an http(s) URL');
+      });
     });
   });
 

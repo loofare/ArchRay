@@ -8,7 +8,7 @@
 |---|---|---|---|---|
 | Claude Code | `--agent claude` | `.claude/skills/archray/SKILL.md` + `.claude/commands/archray.md`、`archray/*.md` | `/archray`、`/archray:frontend` | 文件布局与命令格式；本机未安装 Claude Code，未实际加载 |
 | Cursor | `--agent cursor` | `.cursor/rules/archray.mdc` + `.cursor/commands/archray*.md` | `/archray`、`/archray-frontend` | 文件布局；本机未安装 Cursor，未实际加载 |
-| Antigravity | `--agent antigravity` | `.agent/skills/archray/SKILL.md` + `.agent/commands/archray*.md` | `/archray`、`/archray-frontend` | 文件布局；宿主未安装，未实际加载 |
+| Antigravity | `--agent antigravity` | `.agent/skills/archray/SKILL.md` + `.agent/commands/archray*.md` | Skill 调用；斜杠命令取决于宿主版本 | 文件布局；宿主未安装，未实际加载；命令目录兼容性待官方规范/实机确认 |
 | Pi | `--agent pi` | `.agents/skills/archray/SKILL.md` + `.pi/prompts/archray.md`、`archray-*.md` | `/archray`、`/archray-frontend`、`/skill:archray` | **实际验证**：`pi --mode rpc get_commands` 列出全部七个 prompt 与 `skill:archray` |
 | Codex | `--agent codex` | `.agents/skills/archray/SKILL.md` | `$archray` 或 `/skills` | 官方文档确认 `.agents/skills` 与显式技能调用；本机未安装 Codex CLI，未实际加载 |
 
@@ -65,6 +65,10 @@ Pi 首次打开项目时会要求信任项目文件；信任后 `/archray` 可�
 
 ## 尚未覆盖
 
-- Claude Code / Cursor / Antigravity 的真实斜杠加载与参数传递。
+- Claude Code / Cursor / Antigravity 的真实斜杠加载与参数传递；Antigravity 的 `.agent/commands` 兼容性需按官方规范确认。
 - Codex 的 `$archray` / `/skills` 实际调用。
 - 各宿主的权限模型、工具批准和网络策略差异。
+
+## 实机验证
+
+宿主、POSIX shell、旧 Pi+Codex、Antigravity 和 Windows 的逐项验证步骤见 [host-verification.md](host-verification.md)。

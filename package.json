@@ -1,6 +1,6 @@
 {
   "name": "archray",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "AI-first architecture visualiser: a Skill + CLI that turns a repository into layered, interactive, offline HTML views.",
   "private": true,
   "type": "module",
@@ -14,7 +14,7 @@
   "scripts": {
     "dev": "npm --workspace=viewer run dev",
     "test": "npm --workspace=core run test",
-    "typecheck": "npm --workspace=core run typecheck && npm --workspace=viewer run typecheck",
+    "typecheck": "npm --workspace=core run typecheck && npm --workspace=viewer run typecheck && tsc -p tsconfig.cli.json",
     "gen:schema": "node --import tsx scripts/gen-schema.ts",
     "build:viewer": "npm --workspace=viewer run build",
     "build:cli": "node --import tsx scripts/build-cli.ts",

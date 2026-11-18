@@ -5,7 +5,7 @@ Read `.archray/SKILL.md` first. Reuse `.archray/graph.json` unless it is missing
 
 ```sh
 node "__ARCHRAY_CLI__" validate .archray/graph.json
-node "__ARCHRAY_CLI__" build .archray/graph.json --layers data --no-open
+node "__ARCHRAY_CLI__" build .archray/graph.json --layers data --force --no-open
 ```
 
 If the CLI reports `Unknown layer`, remove the missing layer(s) from `--layers` and rebuild with the remaining ones; if none remain, rebuild without `--layers`. Say which layer was not present.

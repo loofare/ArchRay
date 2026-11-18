@@ -15,6 +15,7 @@ import {
   lstatSync as lstatSync2,
   mkdirSync as mkdirSync2,
   openSync,
+  readdirSync as readdirSync2,
   readFileSync as readFileSync2,
   realpathSync as realpathSync2,
   renameSync,
@@ -25,7 +26,7 @@ import {
 } from "node:fs";
 import { dirname as dirname2, isAbsolute as isAbsolute2, relative as relative2, resolve as resolve2, sep as sep2 } from "node:path";
 import { fileURLToPath } from "node:url";
-import { spawn } from "node:child_process";
+import { spawn, spawnSync as spawnSync2 } from "node:child_process";
 
 // core/src/i18n.ts
 function t(text, locale, fallback) {
@@ -6310,7 +6311,9 @@ var KNOWN_NODE_KINDS = [
   "external-api",
   "ai-model",
   "config",
-  "group"
+  "group",
+  "saas",
+  "archive"
 ];
 var KNOWN_PROTOCOLS = [
   "http",
@@ -6587,6 +6590,9 @@ function semantic(g, issues) {
   g.nodes.forEach((n, i) => {
     n.alternatives?.options?.forEach((o, j) => {
       if (o.scenario && !scenarioIds.has(o.scenario)) err(`/nodes/${i}/alternatives/options/${j}/scenario`, `unknown scenario "${o.scenario}"`);
+      (o.references ?? []).forEach((r, k) => {
+        if (!/^https?:\/\//i.test(r)) warn(`/nodes/${i}/alternatives/options/${j}/references/${k}`, "reference must be an http(s) URL");
+      });
     });
   });
   (g.flows ?? []).forEach((f, i) => {
@@ -6771,6 +6777,9 @@ import { tmpdir } from "node:os";
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { spawnSync } from "node:child_process";
 var DEFAULT_MANIFEST = process.env.ARCHRAY_UPDATE_MANIFEST ?? "https://github.com/loofare/ArchRay/releases/latest/download/latest.json";
+var MAX_MANIFEST_BYTES = 64 * 1024;
+var MAX_ARCHIVE_BYTES = 25 * 1024 * 1024;
+var NETWORK_TIMEOUT_MS = 3e4;
 var exists = (p) => existsSync(p);
 var isDir = (p) => {
   try {
@@ -6811,10 +6820,10 @@ function detectAgents(target) {
   if (exists(join(root2, ".claude/skills/archray/SKILL.md")) || exists(join(root2, ".claude/commands/archray.md"))) add("claude");
   if (exists(join(root2, ".cursor/rules/archray.mdc")) || exists(join(root2, ".cursor/commands/archray.md"))) add("cursor");
   if (exists(join(root2, ".agent/skills/archray/SKILL.md")) || exists(join(root2, ".agent/commands/archray.md"))) add("antigravity");
-  if (exists(join(root2, ".pi/prompts/archray.md"))) add("pi");
-  if (exists(join(root2, ".agents/skills/archray/SKILL.md"))) {
-    if (!found.includes("pi")) add("codex");
-  }
+  const hasPi = exists(join(root2, ".pi/prompts/archray.md"));
+  const hasShared = exists(join(root2, ".agents/skills/archray/SKILL.md"));
+  if (hasPi) add("pi");
+  if (hasShared) add("codex");
   return found;
 }
 function isAgent(value) {
@@ -6879,6 +6888,35 @@ function assertSafePath(root2, path) {
     }
   }
 }
+function pruneEmptyHostDirs(root2, agents, remaining) {
+  const removeShared = (agents.includes("pi") || agents.includes("codex")) && !remaining.includes("pi") && !remaining.includes("codex");
+  const candidateDirs = [];
+  if (agents.includes("claude")) {
+    candidateDirs.push(".claude/commands/archray", ".claude/commands", ".claude/skills/archray", ".claude/skills", ".claude");
+  }
+  if (agents.includes("cursor")) {
+    candidateDirs.push(".cursor/commands", ".cursor/rules", ".cursor");
+  }
+  if (agents.includes("antigravity")) {
+    candidateDirs.push(".agent/commands", ".agent/skills/archray", ".agent/skills", ".agent");
+  }
+  if (agents.includes("pi")) {
+    candidateDirs.push(".pi/prompts", ".pi");
+  }
+  if (removeShared) {
+    candidateDirs.push(".agents/skills/archray", ".agents/skills", ".agents");
+  }
+  for (const d of candidateDirs) {
+    const abs = join(root2, d);
+    try {
+      assertSafePath(root2, abs);
+      if (!isLink(abs) && lstatSync(abs).isDirectory() && readdirSync(abs).length === 0) {
+        rmSync(abs, { recursive: true, force: true });
+      }
+    } catch {
+    }
+  }
+}
 function removeHostFiles(target, agents, remaining, dry) {
   const root2 = realpathSync(target);
   const paths = [];
@@ -6903,16 +6941,12 @@ function removeHostFiles(target, agents, remaining, dry) {
   if (agents.includes("pi")) {
     for (const name of PRESET_NAMES) add(`.pi/prompts/${name}.md`);
   }
-  if (!remaining.includes("pi") && !remaining.includes("codex")) add(".agents/skills/archray/SKILL.md");
+  if ((agents.includes("pi") || agents.includes("codex")) && !remaining.includes("pi") && !remaining.includes("codex")) {
+    add(".agents/skills/archray/SKILL.md");
+  }
   if (dry) return [...new Set(paths)];
   for (const p of [...new Set(paths)]) rmSync(p, { recursive: true, force: true });
-  for (const d of [".claude/commands/archray", ".cursor/commands", ".agent/commands", ".pi/prompts", ".agents/skills", ".claude/commands", ".claude/skills", ".agent/skills"]) {
-    const abs = join(root2, d);
-    try {
-      if (isDir(abs) && readdirSync(abs).length === 0) rmSync(abs, { recursive: true, force: true });
-    } catch {
-    }
-  }
+  pruneEmptyHostDirs(root2, agents, remaining);
   return [...new Set(paths)];
 }
 function removeOwnIgnore(root2) {
@@ -6963,6 +6997,7 @@ Refusing to install.`);
     }
     const archive = join(tmp, manifest.asset);
     writeFileSync(archive, bytes);
+    assertArchiveSafe(archive);
     const result = spawnSync("tar", ["-xzf", archive, "-C", tmp], { encoding: "utf8" });
     if (result.status !== 0) throw new Error(`Could not extract ${manifest.asset}: ${result.stderr || result.error?.message || "tar failed"}`);
     const pkg = join(tmp, `archray-${manifest.version}`);
@@ -7011,8 +7046,14 @@ function uninstallProject(target, opts) {
   const manifest = readInstallManifest(root2);
   const installed = manifest?.agents.length ? manifest.agents : detectAgents(root2);
   const selected = opts.purge ? installed : opts.agent ? resolveAgents(root2, opts.agent) : installed;
-  const remaining = opts.purge ? [] : installed.filter((a) => !selected.includes(a));
-  const paths = removeHostFiles(root2, selected, remaining, true);
+  const removed = selected.filter((a) => installed.includes(a));
+  const skipped = selected.filter((a) => !installed.includes(a));
+  if (!opts.purge && opts.agent && removed.length === 0) {
+    console.log(`Host not installed: ${skipped.join(", ")}. Currently installed: ${installed.length ? installed.join(", ") : "none"}.`);
+    return;
+  }
+  const remaining = opts.purge ? [] : installed.filter((a) => !removed.includes(a));
+  const paths = removeHostFiles(root2, removed, remaining, true);
   assertSafePath(root2, join(archray, ".gitignore"));
   assertNotUserAlias(root2, join(archray, ".gitignore"));
   const manifestPath = join(archray, "install.json");
@@ -7029,12 +7070,14 @@ function uninstallProject(target, opts) {
     console.log(`Keeping ArchRay for: ${remaining.join(", ")}`);
   }
   if (opts.dry) {
+    if (skipped.length) console.log(`Host not installed: ${skipped.join(", ")}.`);
     for (const p of [...new Set(paths)]) console.log(`would remove ${p}`);
     if (opts.purge) console.log(`would remove ${archray} (including graph/view/index)`);
     else console.log("would keep .archray/graph.json, view.json and index.html");
     return;
   }
   for (const p of [...new Set(paths)]) rmSync(p, { recursive: true, force: true });
+  pruneEmptyHostDirs(root2, removed, remaining);
   if (removeTool) removeOwnIgnore(root2);
   if (!opts.purge && remaining.length && manifest) writeInstallManifest(root2, manifest.version, remaining);
   if (opts.purge) {
@@ -7046,8 +7089,9 @@ function uninstallProject(target, opts) {
     } catch {
     }
   }
+  if (skipped.length) console.log(`Host not installed: ${skipped.join(", ")}.`);
   if (opts.purge) console.log("ArchRay removed: all hosts and all .archray data were deleted.");
-  else if (remaining.length) console.log(`Removed hosts: ${selected.join(", ")}. Still installed: ${remaining.join(", ")}. The shared tool, wrapper and graph/view/index were kept.`);
+  else if (remaining.length) console.log(`Removed hosts: ${removed.join(", ")}. Still installed: ${remaining.join(", ")}. The shared tool, wrapper and graph/view/index were kept.`);
   else console.log("ArchRay removed. The wrapper is gone; graph/view/index were kept. To remove those too, back them up and delete .archray manually.");
 }
 async function readManifest(source) {
@@ -7064,29 +7108,101 @@ function resolveAsset(manifestSource, asset) {
   if (manifestSource.startsWith("file://")) return new URL(asset, manifestSource).href;
   return resolve(dirname(manifestSource), asset);
 }
+function isRemote(source) {
+  return /^https?:\/\//i.test(source);
+}
+function isLocalHost(host) {
+  return host === "127.0.0.1" || host === "localhost" || host === "[::1]" || host === "::1";
+}
+function assertSecureSource(source) {
+  if (!/^http:\/\//i.test(source)) return;
+  let host = "";
+  try {
+    host = new URL(source).hostname;
+  } catch {
+    throw new Error(`Invalid URL: ${source}`);
+  }
+  if (!isLocalHost(host)) throw new Error(`Refusing plain HTTP update source: ${source}.
+Use HTTPS (plain HTTP is allowed only for localhost tests).`);
+}
+var MAX_REDIRECTS = 8;
+async function fetchChecked(source, accept) {
+  const startedHttps = /^https:\/\//i.test(source);
+  let current = source;
+  for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+    assertSecureSource(current);
+    if (startedHttps && !/^https:\/\//i.test(current)) {
+      throw new Error(`Refusing an HTTPS-to-HTTP redirect: ${current}`);
+    }
+    let res;
+    try {
+      res = await fetch(current, {
+        headers: { "user-agent": "archray-update", accept },
+        redirect: "manual",
+        signal: AbortSignal.timeout(NETWORK_TIMEOUT_MS)
+      });
+    } catch (e) {
+      if (e?.name === "TimeoutError" || e?.name === "AbortError") throw new Error(`Timed out reading ${current}.`);
+      throw e;
+    }
+    if (res.status >= 300 && res.status < 400) {
+      const location = res.headers.get("location");
+      if (!location) throw new Error(`Redirect without Location from ${current}.`);
+      await res.body?.cancel().catch(() => {
+      });
+      current = new URL(location, current).href;
+      if (!isRemote(current)) throw new Error(`Refusing non-HTTP(S) redirect: ${current}`);
+      continue;
+    }
+    if (!res.ok) throw new Error(`Could not read ${current}: HTTP ${res.status}.`);
+    return res;
+  }
+  throw new Error(`Too many redirects reading ${source}.`);
+}
 async function readText(source) {
-  if (/^https?:\/\//i.test(source)) {
-    const res = await fetch(source, { headers: { "user-agent": "archray-update", accept: "application/json" } });
-    if (!res.ok) throw new Error(`Could not read ${source}: HTTP ${res.status}.`);
-    return res.text();
+  if (isRemote(source)) {
+    const res = await fetchChecked(source, "application/json");
+    const length = Number(res.headers.get("content-length"));
+    if (Number.isFinite(length) && length > MAX_MANIFEST_BYTES) throw new Error("Release manifest is too large.");
+    const text = await res.text();
+    if (Buffer.byteLength(text) > MAX_MANIFEST_BYTES) throw new Error("Release manifest is too large.");
+    return text;
   }
   if (source.startsWith("file://")) return readFileSync(new URL(source), "utf8");
   return readFileSync(source, "utf8");
 }
 async function readBytes(source) {
-  if (/^https?:\/\//i.test(source)) {
-    const res = await fetch(source, { headers: { "user-agent": "archray-update" } });
-    if (!res.ok) throw new Error(`Could not download ${source}: HTTP ${res.status}.`);
-    return Buffer.from(await res.arrayBuffer());
+  if (isRemote(source)) {
+    const res = await fetchChecked(source, "*/*");
+    const length = Number(res.headers.get("content-length"));
+    if (Number.isFinite(length) && length > MAX_ARCHIVE_BYTES) throw new Error("Release archive is too large.");
+    const bytes = Buffer.from(await res.arrayBuffer());
+    if (bytes.length > MAX_ARCHIVE_BYTES) throw new Error("Release archive is too large.");
+    return bytes;
   }
   if (source.startsWith("file://")) return readFileSync(new URL(source));
   return readFileSync(source);
+}
+function assertArchiveSafe(archive) {
+  const list = spawnSync("tar", ["-tzf", archive], { encoding: "utf8" });
+  if (list.status !== 0) throw new Error(`Could not inspect ${archive}: ${list.stderr || "tar -tzf failed"}`);
+  for (const entry of list.stdout.split(/\r?\n/).filter(Boolean)) {
+    if (entry.startsWith("/") || entry.includes("\\") || entry.split("/").includes("..")) {
+      throw new Error(`Unsafe archive path: ${entry}`);
+    }
+  }
+  const verbose = spawnSync("tar", ["-tvzf", archive], { encoding: "utf8" });
+  if (verbose.status !== 0) throw new Error(`Could not inspect ${archive}: ${verbose.stderr || "tar -tvzf failed"}`);
+  for (const line of verbose.stdout.split(/\r?\n/).filter(Boolean)) {
+    if (/^[lhbcp]/i.test(line.trim())) throw new Error(`Unsafe archive entry type: ${line.slice(0, 80)}`);
+  }
 }
 function assertNoLinks(root2, dir) {
   for (const name of readdirSync(dir)) {
     const p = join(dir, name);
     if (isLink(p)) throw new Error(`Release archive contains a symbolic link: ${p}`);
-    if (resolve(p) !== p || !p.startsWith(root2 + "/")) throw new Error(`Unsafe archive path: ${p}`);
+    if (!isDir(p) && statSync(p).nlink > 1) throw new Error(`Release archive contains a hard link: ${p}`);
+    if (resolve(p) !== p || !p.startsWith(root2 + sep)) throw new Error(`Unsafe archive path: ${p}`);
     if (isDir(p)) assertNoLinks(root2, p);
   }
 }
@@ -7100,8 +7216,8 @@ function compareVersions(a, b) {
 
 // cli/src/main.ts
 var root = resolve2(dirname2(fileURLToPath(import.meta.url)), "../..");
-var VERSION = true ? "0.5.0" : "dev";
-var HELP = `ArchRay v2 (source trial)
+var VERSION = true ? "0.5.1" : "dev";
+var HELP = `ArchRay v${VERSION}
 
 Usage: archray <command> [options]
 
@@ -7156,11 +7272,10 @@ migrate / schema options:
   --force                   replace an existing output file
 
 First run:
-  1. archray init
-  2. ask your agent to read .archray/SKILL.md and .archray/graph.schema.json,
-     inspect real source and write .archray/graph.json
-  3. archray validate .archray/graph.json
-  4. archray build .archray/graph.json --no-open
+  1. ./.archray/archray doctor
+  2. In your AI session, run /archray ($archray on Codex) to inspect real source and write .archray/graph.json
+  3. ./.archray/archray validate .archray/graph.json
+  4. ./.archray/archray build .archray/graph.json --force --no-open
      then open .archray/index.html in a browser
 `;
 function parseArgs(argv) {
@@ -7186,7 +7301,7 @@ function readJson(path) {
   if (!existsSync2(path)) {
     throw new Error(
       `Cannot read ${path}: file not found.
-Run "archray init" and have your AI agent write the graph, or pass the correct path.`
+Run /archray in your AI session (or "archray init" from a source checkout) to write the graph, or pass the correct path.`
     );
   }
   try {
@@ -7289,6 +7404,8 @@ function cmdDoctor() {
     if (!exists2) ok = false;
     console.log(`${exists2 ? "ok  " : "MISS"} ${label}: ${path}`);
   }
+  const hasTar = !spawnSync2("tar", ["--version"], { stdio: "ignore" }).error;
+  console.log(`${hasTar ? "ok  " : "WARN"} system tar: ${hasTar ? "available" : "missing (required for archray update)"}`);
   if (!ok) console.log("Missing files: re-extract the release package or rebuild with npm run build.");
   if (!ok) process.exitCode = 1;
 }
@@ -7364,7 +7481,9 @@ function cmdInit(args) {
   const agents = agentRaw === "none" ? [] : resolveAgents(target, agentRaw);
   const cliPath = has(args, "cli") ? flag(args, "cli", "") : resolve2(root, "cli/bin/archray.mjs");
   const planned = planInit(target, agents, cliPath);
-  for (const file of planned) guard(file.path, void 0, args);
+  const rootReal = identity(target);
+  const protectedPaths = ["graph.json", "view.json", "index.html"].map((name) => resolve2(target, ".archray", name));
+  for (const file of planned) guardInstallPath(file.path, rootReal, protectedPaths, args);
   for (const file of planned) writeOutput(file.path, file.data, args);
 }
 function cmdInstall(args) {
@@ -7402,17 +7521,50 @@ function cmdInstall(args) {
     throw new Error(`${toolDir} already exists.
 Re-run with --force to update the vendored tool.`);
   }
-  mkdirSync2(archrayDir, { recursive: true });
+  const createdDirs = [];
+  const ensureDir = (dir) => {
+    const abs = resolve2(dir);
+    const missing = [];
+    let cur = abs;
+    while (!existsSync2(cur)) {
+      missing.push(cur);
+      const parent = dirname2(cur);
+      if (parent === cur) break;
+      cur = parent;
+    }
+    if (missing.length) {
+      mkdirSync2(abs, { recursive: true });
+      createdDirs.push(...missing.reverse());
+    }
+  };
+  ensureDir(archrayDir);
   const stage = resolve2(archrayDir, `.tool-stage-${process.pid}-${Date.now()}`);
   mkdirSync2(stage, { recursive: true });
   const snapshots = /* @__PURE__ */ new Map();
   const snapshot = (path) => {
-    if (!snapshots.has(path)) snapshots.set(path, existsSync2(path) ? { existed: true, data: readFileSync2(path) } : { existed: false });
+    if (!snapshots.has(path)) {
+      snapshots.set(
+        path,
+        existsSync2(path) ? { existed: true, data: readFileSync2(path), mode: lstatSync2(path).mode & 511 } : { existed: false }
+      );
+    }
   };
   const restore = () => {
     for (const [path, before] of [...snapshots].reverse()) {
-      if (before.existed) writeFileSync2(path, before.data);
-      else if (existsSync2(path)) unlinkSync(path);
+      if (before.existed) {
+        writeFileSync2(path, before.data);
+        if (before.mode !== void 0) chmodSync2(path, before.mode);
+      } else if (existsSync2(path)) {
+        unlinkSync(path);
+      }
+    }
+    for (const dir of [...new Set(createdDirs)].reverse()) {
+      try {
+        if (!isLink2(dir) && lstatSync2(dir).isDirectory() && readdirSync2(dir).length === 0) {
+          rmSync2(dir, { recursive: true, force: true });
+        }
+      } catch {
+      }
     }
   };
   const toolBackup = resolve2(archrayDir, `.tool-old-${process.pid}-${Date.now()}`);
@@ -7424,6 +7576,7 @@ Re-run with --force to update the vendored tool.`);
       cpSync(source, resolve2(stage, dir), { recursive: true });
     }
     for (const file of planned) {
+      ensureDir(dirname2(file.path));
       snapshot(file.path);
       writeOutput(file.path, file.data, args, void 0, true);
     }
@@ -7449,21 +7602,8 @@ Re-run with --force to update the vendored tool.`);
       if (hadTool) renameSync(toolBackup, toolDir);
       throw error;
     }
-    if (hadTool) rmSync2(toolBackup, { recursive: true, force: true });
-    console.log(`Installed ArchRay v${VERSION} into ${target}`);
-    const entry = {
-      claude: "/archray",
-      cursor: "/archray",
-      antigravity: "/archray",
-      pi: "/archray (or /skill:archray)",
-      codex: "$archray or /skills"
-    };
-    for (const agent of agents) console.log(`  ${agent}: ${entry[agent] ?? agent}`);
-    console.log("Next: open a new AI session in this repository and use the entry above.");
-    console.log("Short command: ./.archray/archray help | version | doctor | update --check");
-    if (process.platform === "win32") console.log(String.raw`Windows: .\.archray\archray.cmd help`);
-    console.log("If this host does not show the command, reload the window/session.");
   } catch (error) {
+    if (existsSync2(stage)) rmSync2(stage, { recursive: true, force: true });
     if (existsSync2(toolBackup)) {
       if (existsSync2(toolDir)) rmSync2(toolDir, { recursive: true, force: true });
       renameSync(toolBackup, toolDir);
@@ -7475,6 +7615,20 @@ Re-run with --force to update the vendored tool.`);
   } finally {
     if (existsSync2(stage)) rmSync2(stage, { recursive: true, force: true });
   }
+  if (hadTool) rmSync2(toolBackup, { recursive: true, force: true });
+  console.log(`Installed ArchRay v${VERSION} into ${target}`);
+  const entry = {
+    claude: "/archray",
+    cursor: "/archray",
+    antigravity: "/archray",
+    pi: "/archray (or /skill:archray)",
+    codex: "$archray or /skills"
+  };
+  for (const agent of agents) console.log(`  ${agent}: ${entry[agent] ?? agent}`);
+  console.log("Next: open a new AI session in this repository and use the entry above.");
+  console.log("Short command: ./.archray/archray help | version | doctor | update --check");
+  if (process.platform === "win32") console.log(String.raw`Windows: .\.archray\archray.cmd help`);
+  console.log("If this host does not show the command, reload the window/session.");
 }
 async function cmdUpdate(args) {
   const target = resolve2(flag(args, "target", resolve2(root, "../..")));

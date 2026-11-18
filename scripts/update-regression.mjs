@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import { chmodSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
+import { gzipSync } from 'node:zlib';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -47,9 +48,42 @@ const runAsync = (cmd, args, cwd) => new Promise((resolve) => {
   child.stderr?.on('data', (d) => { stderr += d; });
   child.on('close', (status) => resolve({ status, stdout, stderr }));
 });
+function tarEntry(name, type = '0', data = Buffer.alloc(0), link = '') {
+  const header = Buffer.alloc(512);
+  header.write(name, 0, 100, 'utf8');
+  header.write('0000644\0', 100);
+  header.write('0001750\0', 108);
+  header.write('0001750\0', 116);
+  header.write(`${data.length.toString(8).padStart(11, '0')}\0`, 124);
+  header.write('00000000000\0', 136);
+  header.write('        ', 148);
+  header.write(type, 156);
+  header.write(link, 157, 100, 'utf8');
+  header.write('ustar\0', 257);
+  header.write('00', 263);
+  let sum = 0;
+  for (const byte of header) sum += byte;
+  header.write(`${sum.toString(8).padStart(6, '0')}\0 `, 148);
+  const padding = Buffer.alloc((512 - (data.length % 512)) % 512);
+  return Buffer.concat([header, data, padding]);
+}
+function makeTar(entries) {
+  return gzipSync(Buffer.concat([...entries.map((e) => tarEntry(e.name, e.type, e.data, e.link)), Buffer.alloc(1024)]));
+}
+const malicious = {
+  'malicious-link.tgz': makeTar([{ name: `archray-${next}/evil`, type: '2', link: '/tmp/outside' }]),
+  'malicious-hardlink.tgz': makeTar([{ name: `archray-${next}/evil`, type: '1', link: '/etc/passwd' }]),
+  'malicious-path.tgz': makeTar([{ name: '../escape', type: '0' }]),
+};
+for (const [name, data] of Object.entries(malicious)) writeFileSync(join(releases, name), data);
+
 const server = createServer((req, res) => {
   const name = (req.url || '/').split('?')[0].replace(/^\//, '');
-  if (!['latest.json', `archray-${next}.tgz`].includes(name)) { res.writeHead(404).end(); return; }
+  if (name === 'redirect-external') {
+    res.writeHead(302, { location: 'http://example.com/latest.json' }).end();
+    return;
+  }
+  if (!['latest.json', `archray-${next}.tgz`, ...Object.keys(malicious)].includes(name)) { res.writeHead(404).end(); return; }
   const data = readFileSync(join(releases, name));
   res.writeHead(200, { 'content-length': data.length, 'content-type': name.endsWith('.json') ? 'application/json' : 'application/octet-stream' });
   res.end(data);
@@ -75,6 +109,14 @@ const before = hash(join(project, '.archray/graph.json'));
 const viewBefore = hash(join(project, '.archray/view.json'));
 const htmlBefore = hash(join(project, '.archray/index.html'));
 
+const insecure = await runAsync(wrapper, ['update', '--check', '--manifest', 'http://example.com/latest.json'], project);
+assert.notEqual(insecure.status, 0, 'non-local plain HTTP manifest is refused');
+assert.match(insecure.stderr, /plain HTTP/, 'plain HTTP refusal is explicit');
+
+const redirectInsecure = await runAsync(wrapper, ['update', '--check', '--manifest', `${base}/redirect-external`], project);
+assert.notEqual(redirectInsecure.status, 0, 'redirect to non-local plain HTTP is refused');
+assert.match(redirectInsecure.stderr, /plain HTTP/, 'redirect plain HTTP refusal is explicit');
+
 const check = await runAsync(wrapper, ['update', '--check', '--manifest', `${base}/latest.json`], project);
 assert.equal(check.status, 0, check.stderr);
 assert.match(check.stdout, new RegExp(`v${version} → v${next}`), 'check reports the available version');
@@ -99,6 +141,22 @@ assert.notEqual(refused.status, 0, 'checksum mismatch is refused');
 assert.match(refused.stderr, /Checksum mismatch/, 'checksum error is explicit');
 assert.equal(hash(join(project, '.archray/graph.json')), before, 'failed update leaves graph untouched');
 
+for (const asset of Object.keys(malicious)) {
+  const badTarManifest = { ...manifest, version: badVersion, asset, sha256: createHash('sha256').update(malicious[asset]).digest('hex') };
+  writeFileSync(join(releases, 'latest.json'), JSON.stringify(badTarManifest));
+  const beforeTool = hash(join(project, '.archray/tool/cli/bin/archray.mjs'));
+  const archiveResult = await runAsync(wrapper, ['update', '--manifest', `${base}/latest.json`], project);
+  assert.notEqual(archiveResult.status, 0, `${asset} is refused`);
+  assert.match(archiveResult.stderr, /Unsafe archive/, `${asset} reports an unsafe archive`);
+  assert.equal(hash(join(project, '.archray/tool/cli/bin/archray.mjs')), beforeTool, `${asset} leaves the old tool intact`);
+  assert.equal(hash(join(project, '.archray/graph.json')), before, `${asset} leaves the graph intact`);
+}
+
+const notInstalled = await runAsync(wrapper, ['uninstall', '--agent', 'cursor'], project);
+assert.equal(notInstalled.status, 0, notInstalled.stderr);
+assert.match(notInstalled.stdout, /Host not installed: cursor/, 'uninstall reports when requested host is not installed');
+
+mkdirSync(join(project, '.cursor/commands'), { recursive: true });
 const dry = await runAsync(wrapper, ['uninstall', '--dry-run'], project);
 assert.equal(dry.status, 0, dry.stderr);
 assert.match(dry.stdout, /would keep \.archray\/graph\.json/, 'uninstall dry-run states what is kept');
@@ -107,12 +165,24 @@ assert.equal(un.status, 0, un.stderr);
 assert.ok(existsSync(join(project, '.archray/graph.json')), 'uninstall keeps graph by default');
 assert.ok(!existsSync(join(project, '.archray/tool')), 'uninstall removes the tool');
 assert.ok(!existsSync(join(project, '.claude/commands/archray.md')), 'uninstall removes host commands');
+assert.ok(!existsSync(join(project, '.claude')), 'uninstall removes empty host directories including skills/archray');
+assert.ok(existsSync(join(project, '.cursor/commands')), 'uninstall does not delete unrelated empty host directories');
 
 const install2 = spawnSync(process.execPath, [resolve('cli/bin/archray.mjs'), 'install', '--target', project, '--agent', 'all'], { encoding: 'utf8' });
 assert.equal(install2.status, 0, install2.stderr);
 const purge = await runAsync(join(project, '.archray/archray'), ['uninstall', '--purge'], project);
 assert.equal(purge.status, 0, purge.stderr);
 assert.ok(!existsSync(join(project, '.archray')), '--purge removes .archray');
+
+// Old Pi+Codex layout without a manifest is conservatively detected as both hosts.
+const oldLayout = join(work, 'old-layout');
+mkdirSync(join(oldLayout, '.pi/prompts'), { recursive: true });
+mkdirSync(join(oldLayout, '.agents/skills/archray'), { recursive: true });
+writeFileSync(join(oldLayout, '.pi/prompts/archray.md'), 'legacy pi prompt\n');
+writeFileSync(join(oldLayout, '.agents/skills/archray/SKILL.md'), 'legacy shared skill\n');
+const oldInstall = spawnSync(process.execPath, [resolve('cli/bin/archray.mjs'), 'install', '--target', oldLayout, '--agent', 'auto', '--force'], { encoding: 'utf8' });
+assert.equal(oldInstall.status, 0, oldInstall.stderr);
+assert.deepEqual(JSON.parse(readFileSync(join(oldLayout, '.archray/install.json'), 'utf8')).agents.sort(), ['codex', 'pi'], 'old shared layout keeps both hosts');
 
 // Install must not follow a symlinked manifest into user data.
 const guard = join(work, 'guard');

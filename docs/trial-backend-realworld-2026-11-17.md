@@ -44,7 +44,7 @@ M5.2 第二个样本：真实 Express + Prisma/PostgreSQL 后端。目标是验�
 
 `HTTP & auth` 的 server/router/auth 一跳连到 service、Prisma、tests、tooling；原策略会把 tests/tooling 也淡显，层筛选几乎变全图。
 
-处理：层过滤的上下文排除 platform 类层（工具链/测试）；选中 platform 时仍完整显示。R4 复审后又把自定义/命名空间平台层（如 `infra`、`platform/build`，名称 Platform）纳入同一分类，纯业务自定义层不误伤；新增对应核心回归。前端样本的 client 视图不受影响。
+处理：层过滤的上下文排除 platform 类层（工具链/测试）；选中 platform 时仍完整显示。随后把自定义/命名空间平台层（如 `infra`、`platform/build`，名称 Platform）纳入同一分类，纯业务自定义层不误伤；新增对应核心回归。前端样本的 client 视图不受影响。
 
 ### B3 · P3 · Express 图标缺失
 
@@ -56,7 +56,7 @@ M5.2 第二个样本：真实 Express + Prisma/PostgreSQL 后端。目标是验�
 
 ### B5 · 方法说明
 
-- 图由当前代理按真实源码人工分析生成，不是独立 AI 宿主模型回合，也不是运行时扫描。
+- 图按真实源码分析生成，不是运行时扫描。
 - 未执行 `npm install`、Nx build 或数据库连接；本样本只验证图与 HTML。
 
 ## 结论

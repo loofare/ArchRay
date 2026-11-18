@@ -38,6 +38,18 @@ describe('contract', () => {
       expect(r.errors).toEqual([]);
     }
   });
+  it('warns on non-http reference links', () => {
+    const g = structuredClone(fresh);
+    g.nodes[0]!.alternatives = { replaceability: 'medium', options: [{ id: 'x', name: 'X', type: 'drop-in', summary: 'X', references: ['javascript:alert(1)', 'https://example.com'] }] };
+    const warnings = validateGraph(g).warnings.map((w) => w.message).join('\n');
+    expect(warnings).toMatch(/http\(s\) URL/);
+  });
+  it('rejects duplicate child ids in the flat node list', () => {
+    const g = structuredClone(fresh);
+    g.nodes.push({ ...g.nodes[0]!, id: 'web' });
+    const errs = validateGraph(g).errors.map((e) => e.message).join('\n');
+    expect(errs).toMatch(/duplicate node id "web"/);
+  });
   it('catches referential errors', () => {
     const bad = structuredClone(fresh);
     bad.edges.push({ id: 'x', source: 'nope', target: 'web' });
@@ -123,4 +135,22 @@ describe('layout invariants', () => {
       }
     });
   }
+  it('places unlayered top-level nodes inside the first layer band', async () => {
+    const g: ArchGraph = {
+      schemaVersion: '2.0',
+      meta: { name: 'unlayered', locales: ['en'], generatedAt: '2026-11-18T00:00:00Z' },
+      layers: [{ id: 'client', name: 'Client', order: 0 }, { id: 'data', name: 'Data', order: 1 }],
+      nodes: [
+        { id: 'ui', name: 'UI', kind: 'client', layer: 'client' },
+        { id: 'misc', name: 'Misc', kind: 'module' },
+        { id: 'db', name: 'DB', kind: 'database', layer: 'data' },
+      ],
+      edges: [{ id: 'ud', source: 'ui', target: 'db' }],
+    };
+    const idx = indexGraph(g);
+    const L = await computeLayout(idx, visibleGraph(idx), { locale: 'en', defaultLocale: 'en' });
+    const misc = L.nodes.find((n) => n.id === 'misc')!;
+    const band0 = L.bands[0]!;
+    expect(misc.y >= band0.y && misc.y + misc.h <= band0.y + band0.h).toBe(true);
+  });
 });

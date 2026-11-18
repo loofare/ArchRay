@@ -39,7 +39,7 @@
 express, nx, drizzle, opentelemetry-icon, prisma, postgresql, stripe, nextjs-icon
 ```
 
-- Nx、Drizzle ORM（`drizzle-orm-icon`）、OpenTelemetry、Prisma、PostgreSQL、Stripe、Next.js 图标清晰。审计 R8 发现早先 `drizzle` 实际是 Truffle Drizzle 的商标，已改用 ORM 专用图标，`test:brands` 同步纠正。
+- Nx、Drizzle ORM（`drizzle-orm-icon`）、OpenTelemetry、Prisma、PostgreSQL、Stripe、Next.js 图标清晰。先前 `drizzle` 实际对应 Truffle Drizzle 商标，已改用 ORM 专用图标，`test:brands` 同步更新。
 - OpenTelemetry 使用 `opentelemetry-icon` 紧凑标记，不再显示宽字标。
 - 宽字标按 2.5:1 以上放大绘制槽；Stripe 可读。Drizzle ORM 使用紧凑的绿色 ORM 标记。
 - **Express 仍是官方宽字标**，在 fit 缩放下约 5px 高、偏小；放大后可读。没有合适的紧凑官方符号，暂不做字母替代；记录为已知视觉边界，后续可考虑手工紧凑标记。
@@ -59,6 +59,6 @@ express, nx, drizzle, opentelemetry-icon, prisma, postgresql, stripe, nextjs-ico
 - 商标归各品牌所有，CC0 只覆盖图标素材；开源说明仍需保留“仅用于识别”的声明。
 - 未增加新的品牌法律审查或图标下载网络依赖；仍由构建期生成、提交生成文件。
 
-## 下一步
+## 后续
 
-M5.5：公开仓库、按脱敏清单复核、发布 v0.4.0；发布前把本节纳入验收记录。
+M5.5：公开仓库、按脱敏清单复核、发布 v0.4.0。

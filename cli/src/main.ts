@@ -1,9 +1,9 @@
 import {
-  chmodSync, closeSync, cpSync, existsSync, linkSync, lstatSync, mkdirSync, openSync, readFileSync, realpathSync, renameSync, rmSync, statSync, unlinkSync, writeFileSync,
+  chmodSync, closeSync, cpSync, existsSync, linkSync, lstatSync, mkdirSync, openSync, readdirSync, readFileSync, realpathSync, renameSync, rmSync, statSync, unlinkSync, writeFileSync,
 } from 'node:fs';
 import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { validateGraph, validateView } from '../../core/src/validate';
 import { migrateV1 } from '../../core/src/migrate';
 import { graphLayers, parseGraphLayers } from '../../core/src/layers';
@@ -17,7 +17,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 declare const __ARCHRAY_VERSION__: string;
 const VERSION = typeof __ARCHRAY_VERSION__ === 'string' ? __ARCHRAY_VERSION__ : 'dev';
 
-const HELP = `ArchRay v2 (source trial)
+const HELP = `ArchRay v${VERSION}
 
 Usage: archray <command> [options]
 
@@ -72,11 +72,10 @@ migrate / schema options:
   --force                   replace an existing output file
 
 First run:
-  1. archray init
-  2. ask your agent to read .archray/SKILL.md and .archray/graph.schema.json,
-     inspect real source and write .archray/graph.json
-  3. archray validate .archray/graph.json
-  4. archray build .archray/graph.json --no-open
+  1. ./.archray/archray doctor
+  2. In your AI session, run /archray ($archray on Codex) to inspect real source and write .archray/graph.json
+  3. ./.archray/archray validate .archray/graph.json
+  4. ./.archray/archray build .archray/graph.json --force --no-open
      then open .archray/index.html in a browser
 `;
 
@@ -112,7 +111,7 @@ function readJson(path: string): any {
   if (!existsSync(path)) {
     throw new Error(
       `Cannot read ${path}: file not found.\n` +
-      `Run "archray init" and have your AI agent write the graph, or pass the correct path.`,
+      `Run /archray in your AI session (or "archray init" from a source checkout) to write the graph, or pass the correct path.`,
     );
   }
   try {
@@ -226,6 +225,8 @@ function cmdDoctor(): void {
     if (!exists) ok = false;
     console.log(`${exists ? 'ok  ' : 'MISS'} ${label}: ${path}`);
   }
+  const hasTar = !spawnSync('tar', ['--version'], { stdio: 'ignore' }).error;
+  console.log(`${hasTar ? 'ok  ' : 'WARN'} system tar: ${hasTar ? 'available' : 'missing (required for archray update)'}`);
   if (!ok) console.log('Missing files: re-extract the release package or rebuild with npm run build.');
   if (!ok) process.exitCode = 1;
 }
@@ -316,8 +317,10 @@ function cmdInit(args: Args): void {
 
   const cliPath = has(args, 'cli') ? flag(args, 'cli', '') : resolve(root, 'cli/bin/archray.mjs');
   const planned = planInit(target, agents, cliPath);
+  const rootReal = identity(target);
+  const protectedPaths = ['graph.json', 'view.json', 'index.html'].map((name) => resolve(target, '.archray', name));
   // Preflight every destination before writing so a conflict cannot leave a half-written init.
-  for (const file of planned) guard(file.path, undefined, args);
+  for (const file of planned) guardInstallPath(file.path, rootReal, protectedPaths, args);
   for (const file of planned) writeOutput(file.path, file.data, args);
 }
 
@@ -355,17 +358,51 @@ function cmdInstall(args: Args): void {
     throw new Error(`${toolDir} already exists.\nRe-run with --force to update the vendored tool.`);
   }
 
-  mkdirSync(archrayDir, { recursive: true });
+  const createdDirs: string[] = [];
+  const ensureDir = (dir: string) => {
+    const abs = resolve(dir);
+    const missing: string[] = [];
+    let cur = abs;
+    while (!existsSync(cur)) {
+      missing.push(cur);
+      const parent = dirname(cur);
+      if (parent === cur) break;
+      cur = parent;
+    }
+    if (missing.length) {
+      mkdirSync(abs, { recursive: true });
+      createdDirs.push(...missing.reverse());
+    }
+  };
+  ensureDir(archrayDir);
   const stage = resolve(archrayDir, `.tool-stage-${process.pid}-${Date.now()}`);
   mkdirSync(stage, { recursive: true });
-  const snapshots = new Map<string, { existed: boolean; data?: Buffer }>();
+  const snapshots = new Map<string, { existed: boolean; data?: Buffer; mode?: number }>();
   const snapshot = (path: string) => {
-    if (!snapshots.has(path)) snapshots.set(path, existsSync(path) ? { existed: true, data: readFileSync(path) } : { existed: false });
+    if (!snapshots.has(path)) {
+      snapshots.set(
+        path,
+        existsSync(path)
+          ? { existed: true, data: readFileSync(path), mode: lstatSync(path).mode & 0o777 }
+          : { existed: false },
+      );
+    }
   };
   const restore = () => {
     for (const [path, before] of [...snapshots].reverse()) {
-      if (before.existed) writeFileSync(path, before.data!);
-      else if (existsSync(path)) unlinkSync(path);
+      if (before.existed) {
+        writeFileSync(path, before.data!);
+        if (before.mode !== undefined) chmodSync(path, before.mode);
+      } else if (existsSync(path)) {
+        unlinkSync(path);
+      }
+    }
+    for (const dir of [...new Set(createdDirs)].reverse()) {
+      try {
+        if (!isLink(dir) && lstatSync(dir).isDirectory() && readdirSync(dir).length === 0) {
+          rmSync(dir, { recursive: true, force: true });
+        }
+      } catch { /* best effort */ }
     }
   };
   const toolBackup = resolve(archrayDir, `.tool-old-${process.pid}-${Date.now()}`);
@@ -378,6 +415,7 @@ function cmdInstall(args: Args): void {
       cpSync(source, resolve(stage, dir), { recursive: true });
     }
     for (const file of planned) {
+      ensureDir(dirname(file.path));
       snapshot(file.path);
       writeOutput(file.path, file.data, args, undefined, true);
     }
@@ -405,19 +443,9 @@ function cmdInstall(args: Args): void {
       if (hadTool) renameSync(toolBackup, toolDir);
       throw error;
     }
-    if (hadTool) rmSync(toolBackup, { recursive: true, force: true });
-
-    console.log(`Installed ArchRay v${VERSION} into ${target}`);
-    const entry: Record<string, string> = {
-      claude: '/archray', cursor: '/archray', antigravity: '/archray', pi: '/archray (or /skill:archray)', codex: '$archray or /skills',
-    };
-    for (const agent of agents) console.log(`  ${agent}: ${entry[agent] ?? agent}`);
-    console.log('Next: open a new AI session in this repository and use the entry above.');
-    console.log('Short command: ./.archray/archray help | version | doctor | update --check');
-    if (process.platform === 'win32') console.log(String.raw`Windows: .\.archray\archray.cmd help`);
-    console.log('If this host does not show the command, reload the window/session.');
   } catch (error) {
-    // Restore the tool first, then every template/skill/ignore file written above.
+    // Clean stage first so newly created parent dirs are empty when restore() runs.
+    if (existsSync(stage)) rmSync(stage, { recursive: true, force: true });
     if (existsSync(toolBackup)) {
       if (existsSync(toolDir)) rmSync(toolDir, { recursive: true, force: true });
       renameSync(toolBackup, toolDir);
@@ -429,6 +457,17 @@ function cmdInstall(args: Args): void {
   } finally {
     if (existsSync(stage)) rmSync(stage, { recursive: true, force: true });
   }
+
+  if (hadTool) rmSync(toolBackup, { recursive: true, force: true });
+  console.log(`Installed ArchRay v${VERSION} into ${target}`);
+  const entry: Record<string, string> = {
+    claude: '/archray', cursor: '/archray', antigravity: '/archray', pi: '/archray (or /skill:archray)', codex: '$archray or /skills',
+  };
+  for (const agent of agents) console.log(`  ${agent}: ${entry[agent] ?? agent}`);
+  console.log('Next: open a new AI session in this repository and use the entry above.');
+  console.log('Short command: ./.archray/archray help | version | doctor | update --check');
+  if (process.platform === 'win32') console.log(String.raw`Windows: .\.archray\archray.cmd help`);
+  console.log('If this host does not show the command, reload the window/session.');
 }
 
 async function cmdUpdate(args: Args): Promise<void> {

@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run typecheck
+      - run: npm run build
+      - run: node scripts/cli-regression.mjs
+      - run: npm run test:brands
+      - run: node scripts/check-sensitive.mjs --strict
+      - name: POSIX package and update regressions
+        if: runner.os != 'Windows'
+        run: |
+          npm run test:package
+          npm run test:update
+      - name: Windows wrapper smoke check
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: |
+          set "WIN_TARGET=%RUNNER_TEMP%\archray-win"
+          if exist "%WIN_TARGET%" rmdir /s /q "%WIN_TARGET%"
+          mkdir "%WIN_TARGET%"
+          node cli\bin\archray.mjs install --target "%WIN_TARGET%" --agent claude
+          pushd "%WIN_TARGET%"
+          call .archray\archray.cmd version
+          call .archray\archray.cmd doctor
+          call .archray\archray.cmd uninstall --dry-run
+          popd
+
+  browser:
+    name: Browser matrix (ubuntu-latest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm install --no-save playwright
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/browser-check.cjs

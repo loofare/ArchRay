@@ -58,6 +58,7 @@ export function Scene(p: SceneProps) {
   const cameraRef = useRef(p.camera);
   cameraRef.current = p.camera;
   const [dragging, setDragging] = useState<'pan' | 'rotate' | null>(null);
+  const [viewport, setViewport] = useState({ w: 0, h: 0 });
   const moved = useRef(false);
   const nodePress = useRef<{ x: number; y: number } | null>(null);
   const drag = useRef<{
@@ -72,7 +73,7 @@ export function Scene(p: SceneProps) {
   const vb = useMemo(() => projectedBounds(pr, layout), [pr, layout]);
   const rot = p.camera.rotate ?? 0;
   // Fixed world pivot: camera.x/y must not move the rotation centre, otherwise
-  // zooming while rotated changes both the viewBox and the pivot (audit M6-R2-01).
+  // zooming while rotated changes both the viewBox and the pivot.
   const center = { x: vb.x + vb.w / 2, y: vb.y + vb.h / 2 };
   const layerColor = useMemo(() => {
     const m = new Map<string, string>();
@@ -93,7 +94,10 @@ export function Scene(p: SceneProps) {
   const dim = (id: string) => (p.highlight !== null && !p.highlight.has(id)) || (p.context?.has(id) === true && p.highlight?.has(id) !== true);
   const pathOf = (pts: Pt[]) => 'M' + pts.map((pt) => `${pt.x.toFixed(1)} ${pt.y.toFixed(1)}`).join(' L ');
   const particleStep = Math.max(1, Math.ceil(layout.edges.length / 18));
-  const labelScale = 1 / Math.max(0.1, p.camera.zoom);
+  const fitScale = viewport.w > 0 && viewport.h > 0 ? Math.min(viewport.w / vb.w, viewport.h / vb.h) : 1;
+  // Keep labels readable at fit, then let them grow only modestly with zoom.
+  const targetPx = clamp(11 + 2 * Math.log2(Math.max(1, p.camera.zoom)), 11, 14);
+  const labelScale = clamp(targetPx / (13.5 * Math.max(0.02, fitScale) * Math.max(0.1, p.camera.zoom)), 0.3, 8);
 
   const slab = (
     b: { x: number; y: number; w: number; h: number },
@@ -167,6 +171,16 @@ export function Scene(p: SceneProps) {
   };
 
   useEffect(() => stopInertia, []);
+  useEffect(() => {
+    const el = svgRef.current;
+    if (!el) return;
+    const update = () => setViewport({ w: el.clientWidth, h: el.clientHeight });
+    update();
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(update) : null;
+    ro?.observe(el);
+    window.addEventListener('resize', update);
+    return () => { ro?.disconnect(); window.removeEventListener('resize', update); };
+  }, []);
   useEffect(() => { stopInertia(); }, [p.cameraEpoch]);
   useEffect(() => {
     if (p.camera.x === 0 && p.camera.y === 0 && p.camera.zoom === 1 && (p.camera.rotate ?? 0) === 0) stopInertia();
@@ -434,7 +448,7 @@ export function Scene(p: SceneProps) {
 
       {/* Minimap: click or drag to move the camera; useful when zoomed into a large graph. */}
       <MiniMap
-        vb={vb} camera={p.camera} layout={layout} pr={pr} theme={th}
+        vb={vb} camera={p.camera} layout={layout} pr={pr} theme={th} rot={rot} center={center}
         viewport={{ x: miniX, y: miniY, w: vb.w / p.camera.zoom, h: vb.h / p.camera.zoom }}
         onCamera={(c) => { stopInertia(); p.onCamera(c); }}
       />
@@ -442,12 +456,14 @@ export function Scene(p: SceneProps) {
   );
 }
 
-function MiniMap({ vb, camera, layout, pr, theme, viewport, onCamera }: {
+function MiniMap({ vb, camera, layout, pr, theme, rot, center, viewport, onCamera }: {
   vb: { x: number; y: number; w: number; h: number };
   camera: Camera;
   layout: PlanarLayout;
   pr: ReturnType<typeof makeProjection>;
   theme: Theme;
+  rot: number;
+  center: Pt;
   viewport: { x: number; y: number; w: number; h: number };
   onCamera(c: Camera): void;
 }) {
@@ -461,7 +477,10 @@ function MiniMap({ vb, camera, layout, pr, theme, viewport, onCamera }: {
     const ctm = svg.getScreenCTM();
     if (!ctm) return;
     const loc = pt.matrixTransform(ctm.inverse());
-    onCamera({ ...camera, x: loc.x - vb.x - vb.w / 2, y: loc.y - vb.y - vb.h / 2 });
+    const dx = loc.x - center.x, dy = loc.y - center.y;
+    const rad = (rot * Math.PI) / 180;
+    const c = Math.cos(rad), s = Math.sin(rad);
+    onCamera({ ...camera, x: dx * c - dy * s, y: dx * s + dy * c });
   };
   return (
     <div className="ar-minimap" onPointerDown={(e) => e.stopPropagation()} onWheel={(e) => e.stopPropagation()}>
@@ -488,6 +507,7 @@ function MiniMap({ vb, camera, layout, pr, theme, viewport, onCamera }: {
             rx="1" fill={alpha(theme.accent, 0.5)} />;
         })}
         <rect x={viewport.x} y={viewport.y} width={viewport.w} height={viewport.h}
+          transform={rot ? `rotate(${(-rot).toFixed(2)} ${center.x.toFixed(2)} ${center.y.toFixed(2)})` : undefined}
           fill="none" stroke={theme.accent} strokeWidth="2" vectorEffect="non-scaling-stroke" rx="2" />
       </svg>
       <span className="ar-minimap-zoom">{Math.round(camera.zoom * 100)}%</span>

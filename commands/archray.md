@@ -16,10 +16,10 @@ Read `.archray/SKILL.md` first.
 
 ```sh
 node "__ARCHRAY_CLI__" validate .archray/graph.json
-node "__ARCHRAY_CLI__" build .archray/graph.json --layers "$ARGUMENTS" --no-open
+node "__ARCHRAY_CLI__" build .archray/graph.json --layers "<layers>" --force --no-open
 ```
 
-Omit `--layers` when `$ARGUMENTS` is empty or `all`. If the CLI reports an unknown layer, drop it from the list or omit `--layers`. If `$ARGUMENTS` is empty because this host does not fill it, use the user's text after the command.
+Fill `<layers>` from `$ARGUMENTS` (or the user's text after the command when `$ARGUMENTS` is empty); omit `--layers` when empty or `all`. If the CLI reports an unknown layer, drop it from the list or omit `--layers`.
 
 Add `--style tech|blueprint|glass|paper`, `--motion full|calm|off` and `--lang <locale>` when the user asks for a look, motion level or language.
 
