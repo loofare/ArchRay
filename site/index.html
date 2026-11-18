@@ -21,8 +21,8 @@
   <noscript>
     <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Alumni+Sans:wght@200;300;400;600&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet" />
   </noscript>
-  <link rel="stylesheet" href="./styles/tokens.css?v=056" />
-  <link rel="stylesheet" href="./styles/site.css?v=056" />
+  <link rel="stylesheet" href="./styles/tokens.css?v=057" />
+  <link rel="stylesheet" href="./styles/site.css?v=057" />
 </head>
 <body>
   <header class="site-header">
@@ -460,29 +460,14 @@
 
             <!-- Tactile Machined Lens Switcher + Live Caption -->
             <div class="hero-switcher-stack">
-              <div class="recessed-switcher" id="heroLensSwitcher" data-active-lens="3d" role="tablist" aria-label="Preview ArchRay viewer lenses">
-                <span class="switcher-glider" id="lensGlider" aria-hidden="true"></span>
-                <button type="button" class="lens-pill is-active" data-hero-lens="3d" role="tab" aria-selected="true">
-                  <svg class="lens-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-                    <polygon points="8 1.5 14 5 14 11 8 14.5 2 11 2 5" />
-                    <polyline points="2 5 8 8.5 14 5" />
-                    <line x1="8" y1="8.5" x2="8" y2="14.5" />
-                  </svg>
+              <div class="window-presets hero-presets" id="heroLensSwitcher" data-active-lens="3d" role="tablist" aria-label="Preview ArchRay viewer lenses">
+                <button type="button" class="preset-btn is-active" data-hero-lens="3d" role="tab" aria-selected="true">
                   <span data-i18n="hero.lens3d">✦ 3D 空间全景</span>
                 </button>
-                <button type="button" class="lens-pill" data-hero-lens="health" role="tab" aria-selected="false">
-                  <svg class="lens-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <polyline points="1.5 8.5 4.5 8.5 6.5 3.5 9.5 12.5 11.5 8.5 14.5 8.5" />
-                  </svg>
+                <button type="button" class="preset-btn" data-hero-lens="health" role="tab" aria-selected="false">
                   <span data-i18n="hero.lensHealth">◉ 健康度热点</span>
                 </button>
-                <button type="button" class="lens-pill" data-hero-lens="replace" role="tab" aria-selected="false">
-                  <svg class="lens-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <polyline points="11 2.5 14 5.5 11 8.5" />
-                    <line x1="2" y1="5.5" x2="14" y2="5.5" />
-                    <polyline points="5 13.5 2 10.5 5 7.5" />
-                    <line x1="14" y1="10.5" x2="2" y2="10.5" />
-                  </svg>
+                <button type="button" class="preset-btn" data-hero-lens="replace" role="tab" aria-selected="false">
                   <span data-i18n="hero.lensReplace">⇄ 可替代性平替</span>
                 </button>
               </div>
@@ -559,8 +544,6 @@
               <button type="button" class="combo-pill" data-combo-preset="backend" data-i18n="console.presetBackend">后端与异步 (backend)</button>
               <button type="button" class="combo-pill" data-combo-preset="data" data-i18n="console.presetData">数据存储 (data)</button>
               <button type="button" class="combo-pill" data-combo-preset="network" data-i18n="console.presetNetwork">网络与安全 (network)</button>
-              <button type="button" class="combo-pill is-combo" data-combo-preset="frontend,backend" data-i18n="console.presetFeBe">前后端组合 (frontend,backend)</button>
-              <button type="button" class="combo-pill is-combo" data-combo-preset="ai,async,data" data-i18n="console.presetAi">AI+队列+数据 (ai,async,data)</button>
             </div>
 
             <div class="composer-output">
@@ -608,8 +591,13 @@
             </div>
           </div>
 
-          <!-- Console Mode Toolbar + Tactile Hardware Keycap Matrix -->
-          <div class="console-deck-wrap">
+          <!-- Layer control is progressive disclosure: keep the first view quiet. -->
+          <details class="console-details">
+            <summary>
+              <span data-i18n="console.layersSummary">10 层与自由组合</span>
+              <small data-i18n="console.layersSummaryHint">展开后可单层选择或拼接</small>
+            </summary>
+            <div class="console-deck-wrap">
             <div class="console-mode-bar">
               <div class="console-mode-actions">
                 <button type="button" class="mode-toggle-btn" id="multiLayerModeBtn" aria-pressed="false" data-i18n="console.multiOff">多选自由组合：关闭</button>
@@ -637,6 +625,7 @@
               </div>
             </div>
           </div>
+          </details>
         </div>
       </div>
     </section>
@@ -1052,6 +1041,6 @@
     </div>
   </footer>
 
-  <script src="./app.js?v=056"></script>
+  <script src="./app.js?v=057"></script>
 </body>
 </html>

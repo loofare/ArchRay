@@ -449,6 +449,16 @@ a {
 }
 
 /* Tactile Machined Hardware Mode Switcher Beneath Artifact */
+.hero-presets {
+  justify-content: center;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--bg-subtle);
+}
+.hero-presets .preset-btn {
+  padding: 7px 14px;
+}
 .hero-switcher-stack {
   display: flex;
   flex-direction: column;
@@ -1434,6 +1444,47 @@ a {
 }
 
 /* Console Mode Bar + Hardware Keycap Matrix */
+.console-details {
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--bg-console);
+}
+.console-details > summary {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 14px 18px;
+  cursor: pointer;
+  list-style: none;
+  color: var(--ink-strong);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+.console-details > summary::-webkit-details-marker { display: none; }
+.console-details > summary::after {
+  content: '+';
+  margin-left: auto;
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+}
+.console-details[open] > summary {
+  border-bottom: 1px solid var(--line);
+}
+.console-details[open] > summary::after { content: '−'; }
+.console-details > summary small {
+  color: var(--ink-muted);
+  font-size: 0.74rem;
+  font-weight: 500;
+}
+.console-details .console-deck-wrap {
+  padding: 16px 18px 18px;
+}
+.console-details .keycap-deck {
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
 .console-deck-wrap {
   display: flex;
   flex-direction: column;
