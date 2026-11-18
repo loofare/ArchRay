@@ -34,7 +34,7 @@
   --line-strong: oklch(82% 0.006 90);
   --line-dark: oklch(26% 0.008 260);
 
-  /* Precision Signal Accents */
+  /* Precision Signal Accents: amber = action, emerald = success; data-view colour belongs to the SVG artifact. */
   --amber: oklch(81% 0.175 82);
   --amber-ink: oklch(16% 0.02 80);
   --amber-border: oklch(74% 0.165 80);
@@ -44,8 +44,6 @@
   --emerald-text: oklch(40% 0.11 168);
   --emerald-soft: oklch(94% 0.035 168);
 
-  --cyan-spatial: oklch(60% 0.13 215);
-  --coral-warn: oklch(60% 0.18 28);
 
   /* Primary Action */
   --cta-bg: oklch(13% 0.004 260);

@@ -688,15 +688,7 @@
   }
 
   /* ---- Hero Split Slider & 3-Lens Specimen Switcher ---- */
-  function positionLensGlider() {
-    const switcher = document.getElementById('heroLensSwitcher');
-    const glider = document.getElementById('lensGlider');
-    if (!switcher || !glider) return;
-    const activeBtn = switcher.querySelector('.lens-pill.is-active');
-    if (!activeBtn) return;
-    glider.style.width = activeBtn.offsetWidth + 'px';
-    glider.style.transform = 'translateX(' + activeBtn.offsetLeft + 'px)';
-  }
+
 
   function initHeroComparison() {
     const stage = document.getElementById('compareStage');
@@ -756,15 +748,9 @@
         });
         setSplit(targetSplits[activeHeroLens] || 28, true);
         renderHeroSpecimenLens();
-        positionLensGlider();
       });
     });
 
-    window.addEventListener('resize', positionLensGlider);
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(positionLensGlider).catch(() => {});
-    }
-    requestAnimationFrame(positionLensGlider);
   }
 
   function renderHeroSpecimenLens() {
@@ -778,18 +764,9 @@
       scene.classList.toggle('is-active', scene.getAttribute('data-scene') === activeHeroLens);
     });
 
-    const seamColors = {
-      '3d': '#60a5fa',
-      health: '#f87171',
-      replace: '#c084fc'
-    };
-    if (stage) {
-      stage.style.setProperty('--seam-color', seamColors[activeHeroLens] || seamColors['3d']);
-    }
     if (caption) {
       caption.textContent = t('hero.caption.' + activeHeroLens);
     }
-    requestAnimationFrame(positionLensGlider);
   }
 
   /* ---- Section 2: Pain-Point Detector Mosaic ---- */
