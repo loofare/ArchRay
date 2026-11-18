@@ -1,0 +1,111 @@
+/* ==========================================================================
+   ArchRay Official Website v2 — Impeccable Gallery Studio Design Tokens
+   Default: Crisp Architectural Gallery Light (oklch 97.8% 0 0)
+   Secondary: Precision Obsidian Studio ([data-theme="dark"])
+   ========================================================================== */
+
+:root {
+  /* Gallery Light Ground & Tactile Surfaces */
+  --bg-page: oklch(97.8% 0.002 90);
+  --bg-subtle: oklch(95.2% 0.003 90);
+  --bg-console: oklch(96.2% 0.003 90);
+  --surface: oklch(100% 0 0);
+  --surface-hover: oklch(98.8% 0.002 90);
+  --surface-terminal: oklch(13.5% 0.004 260);
+  --surface-terminal-bar: oklch(18% 0.005 260);
+
+  /* Specimen Tinted Grounds (inspired by architectural paper samples) */
+  --tint-sand: oklch(93.5% 0.022 75);
+  --tint-blueprint: oklch(95.5% 0.014 250);
+  --tint-sage: oklch(95% 0.018 165);
+  --tint-cream: oklch(96.2% 0.014 88);
+  --tint-slate: oklch(94.8% 0.01 255);
+
+  /* Ink Hierarchy */
+  --ink-strong: oklch(13% 0.004 260);
+  --ink: oklch(22% 0.005 260);
+  --ink-muted: oklch(43% 0.006 260);
+  --ink-faint: oklch(56% 0.006 260);
+  --ink-on-dark: oklch(96% 0.003 90);
+  --ink-on-dark-muted: oklch(72% 0.008 260);
+
+  /* Borders & Hairlines */
+  --line: oklch(90% 0.004 90);
+  --line-strong: oklch(82% 0.006 90);
+  --line-dark: oklch(26% 0.008 260);
+
+  /* Precision Signal Accents */
+  --amber: oklch(81% 0.175 82);
+  --amber-ink: oklch(16% 0.02 80);
+  --amber-border: oklch(74% 0.165 80);
+  --amber-on-dark: oklch(83% 0.17 82);
+
+  --emerald: oklch(68% 0.15 168);
+  --emerald-text: oklch(40% 0.11 168);
+  --emerald-soft: oklch(94% 0.035 168);
+
+  --cyan-spatial: oklch(60% 0.13 215);
+  --coral-warn: oklch(60% 0.18 28);
+
+  /* Primary Action */
+  --cta-bg: oklch(13% 0.004 260);
+  --cta-fg: oklch(99% 0 0);
+  --cta-hover: oklch(23% 0.006 260);
+
+  /* Elevation & Keycap Physics */
+  --shadow-card: 0 24px 60px -18px oklch(15% 0.01 260 / 0.08), 0 2px 6px oklch(15% 0.01 260 / 0.04);
+  --shadow-window: 0 32px 80px -20px oklch(12% 0.01 260 / 0.14), 0 4px 16px oklch(12% 0.01 260 / 0.05);
+  --shadow-keycap: 0 2px 0 oklch(84% 0.005 90), 0 4px 10px oklch(15% 0.01 260 / 0.05);
+  --shadow-pill: 0 2px 8px oklch(15% 0.01 260 / 0.08);
+
+  /* Typography */
+  --font-display: 'Alumni Sans', 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-sans: 'Albert Sans', 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  /* Radii & Motion */
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 26px;
+  --r-pill: 999px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-theme="dark"] {
+  --bg-page: oklch(11.5% 0.005 260);
+  --bg-subtle: oklch(15% 0.006 260);
+  --bg-console: oklch(14.5% 0.006 260);
+  --surface: oklch(17% 0.007 260);
+  --surface-hover: oklch(20% 0.008 260);
+  --surface-terminal: oklch(9.5% 0.004 260);
+  --surface-terminal-bar: oklch(13% 0.005 260);
+
+  --tint-sand: oklch(19% 0.02 75);
+  --tint-blueprint: oklch(18% 0.02 250);
+  --tint-sage: oklch(18.5% 0.02 168);
+  --tint-cream: oklch(18.5% 0.015 85);
+  --tint-slate: oklch(18% 0.012 255);
+
+  --ink-strong: oklch(96.5% 0.003 90);
+  --ink: oklch(88% 0.005 90);
+  --ink-muted: oklch(68% 0.008 260);
+  --ink-faint: oklch(54% 0.008 260);
+
+  --line: oklch(24% 0.007 260);
+  --line-strong: oklch(32% 0.009 260);
+  --line-dark: oklch(26% 0.008 260);
+
+  --emerald-text: oklch(76% 0.14 168);
+  --emerald-soft: oklch(22% 0.04 168);
+
+  --cta-bg: oklch(96% 0.003 90);
+  --cta-fg: oklch(13% 0.004 260);
+  --cta-hover: oklch(88% 0.01 90);
+
+  --shadow-card: 0 28px 64px -20px oklch(0% 0 0 / 0.55);
+  --shadow-window: 0 36px 90px -20px oklch(0% 0 0 / 0.7);
+  --shadow-keycap: 0 2px 0 oklch(8% 0.004 260), 0 4px 12px oklch(0% 0 0 / 0.35);
+  --shadow-pill: 0 2px 10px oklch(0% 0 0 / 0.4);
+}

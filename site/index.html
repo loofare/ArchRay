@@ -1,0 +1,1057 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ArchRay — AI 编程助手的空间架构可视化语言</title>
+  <meta name="description" content="ArchRay reads real repository source in your AI coding session and builds deterministic, interactive, 100% offline 3D Spatial & 2D Bento HTML architecture maps." />
+  <meta property="og:title" content="ArchRay — Spatial Architecture Vocabulary for Coding Agents" />
+  <meta property="og:description" content="Install into any repo once, type /archray in Claude Code, Cursor, Antigravity, Pi, or Codex, and export offline 3D/2D HTML." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://archray.dev/" />
+  <meta property="og:site_name" content="ArchRay" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ArchRay — Spatial Architecture Vocabulary for Coding Agents" />
+  <meta name="twitter:description" content="Turn tangled AI box diagrams into verified, layered 3D & 2D single-file HTML architecture maps." />
+  <link rel="canonical" href="https://archray.dev/" />
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Alumni+Sans:wght@200;300;400;600&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Alumni+Sans:wght@200;300;400;600&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  </noscript>
+  <link rel="stylesheet" href="./styles/tokens.css?v=056" />
+  <link rel="stylesheet" href="./styles/site.css?v=056" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap nav-bar">
+      <a class="brand-mark" href="#top" aria-label="ArchRay home">
+        <span class="brand-glyph" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round">
+            <polygon points="12 2 21 7 21 17 12 22 3 17 3 7" />
+            <polyline points="3 7 12 12 21 7" />
+            <line x1="12" y1="12" x2="12" y2="22" />
+          </svg>
+        </span>
+        <span class="brand-name">ArchRay</span>
+      </a>
+
+      <nav class="nav-links" id="primaryNav" aria-label="Primary navigation">
+        <a href="#top" class="is-active"><span class="nav-dot" aria-hidden="true"></span><span data-i18n="nav.home">首页</span></a>
+        <a href="#console" data-i18n="nav.console">命令与分层</a>
+        <a href="#detector" data-i18n="nav.detector">痛点解剖</a>
+        <a href="#live" data-i18n="nav.live">实机沙盒</a>
+        <a href="#principles" data-i18n="nav.principles">真实工程</a>
+        <a href="#install" data-i18n="nav.install">安装</a>
+        <a href="#privacy" data-i18n="nav.privacy">隐私与联系</a>
+      </nav>
+
+      <div class="nav-tools">
+        <button type="button" class="pill-ctl" id="langToggle" aria-label="Switch language">中 / EN</button>
+        <button type="button" class="pill-ctl" id="themeToggle" aria-label="Switch color theme">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+          </svg>
+          <span class="hide-xs" data-i18n="nav.themeLabel">深色</span>
+        </button>
+        <button type="button" class="nav-toggle" id="navToggle" aria-label="打开导航" aria-expanded="false" aria-controls="primaryNav">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <line x1="4" y1="7" x2="20" y2="7" />
+            <line x1="4" y1="12" x2="20" y2="12" />
+            <line x1="4" y1="17" x2="20" y2="17" />
+          </svg>
+        </button>
+        <a class="pill-ctl nav-github" href="https://github.com/loofare/ArchRay" target="_blank" rel="noopener noreferrer" aria-label="ArchRay GitHub repository">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.11.78-.25.78-.55v-1.93c-3.2.7-3.87-1.54-3.87-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.69 1.25 3.34.95.1-.74.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.68 0-1.25.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.16 1.18a10.9 10.9 0 0 1 5.76 0c2.19-1.49 3.16-1.18 3.16-1.18.62 1.58.23 2.75.11 3.04.74.8 1.18 1.83 1.18 3.08 0 4.41-2.69 5.39-5.25 5.67.41.35.78 1.05.78 2.12v3.14c0 .31.21.67.79.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
+          </svg>
+          <span>GitHub</span>
+          <span class="star-glyph" aria-hidden="true">★</span>
+        </a>
+      </div>
+    </div>
+    <div class="scroll-progress-bar" id="scrollProgressBar" aria-hidden="true"></div>
+  </header>
+
+  <main id="top">
+    <!-- 1. HERO: Annotated Artifact Stage (Left) + Editorial Thesis & Quick Install (Right) -->
+    <section class="section-band hero-band">
+      <div class="wrap">
+        <div class="hero-grid">
+          <div class="hero-stage-col">
+            <div class="artifact-frame-outer">
+              <span class="stage-parity-badge" data-i18n="hero.parityBadge">基于真实产物的空间渲染</span>
+              <!-- Curved BEFORE / AFTER Badges -->
+              <svg class="arc-badge is-before" viewBox="0 0 80 80" aria-hidden="true">
+                <defs><path id="arcBefore" d="M 14,62 A 42,42 0 0,1 62,14" /></defs>
+                <text font-family="JetBrains Mono, monospace" font-size="9.5" letter-spacing="2.2" fill="currentColor">
+                  <textPath href="#arcBefore">BEFORE</textPath>
+                </text>
+              </svg>
+              <svg class="arc-badge is-after" viewBox="0 0 80 80" aria-hidden="true">
+                <defs><path id="arcAfter" d="M 18,64 A 42,42 0 0,0 64,18" /></defs>
+                <text font-family="JetBrains Mono, monospace" font-size="9.5" letter-spacing="2.2" fill="currentColor">
+                  <textPath href="#arcAfter">AFTER</textPath>
+                </text>
+              </svg>
+
+              <!-- Floating Amber Callout Pins -->
+              <!-- Interactive Split Specimen Card -->
+              <div class="compare-card" id="compareStage" style="--split: 50%; --seam-color: #60a5fa;" role="slider" tabindex="0" aria-label="Drag to compare AI spaghetti diagram with ArchRay spatial architecture" aria-valuemin="8" aria-valuemax="92" aria-valuenow="50">
+                <!-- AFTER (Underneath, revealed on Right): 1:1 Authentic Midnight 3D Viewer Stage across 3 Lenses -->
+                <div class="compare-layer compare-after-pane" aria-hidden="true">
+                  <!-- SCENE 1: 3D Topology Lens (Clean Midnight 3D Stage, 10px-11.5px legible SVG type) -->
+                  <div class="after-scene is-active" data-scene="3d">
+                    <svg viewBox="0 0 560 430" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="arMidnightBg1" x1="0" y1="0" x2="1" y2="1">
+                          <stop offset="0%" stop-color="#0d1020" />
+                          <stop offset="100%" stop-color="#090c19" />
+                        </linearGradient>
+                        <radialGradient id="arGlowBlue1" cx="42%" cy="22%" r="54%">
+                          <stop offset="0%" stop-color="#60a5fa" stop-opacity="0.22" />
+                          <stop offset="100%" stop-color="#60a5fa" stop-opacity="0" />
+                        </radialGradient>
+                        <radialGradient id="arGlowViolet1" cx="82%" cy="78%" r="52%">
+                          <stop offset="0%" stop-color="#a855f7" stop-opacity="0.18" />
+                          <stop offset="100%" stop-color="#a855f7" stop-opacity="0" />
+                        </radialGradient>
+                        <pattern id="arDots1" width="22" height="22" patternUnits="userSpaceOnUse">
+                          <circle cx="3" cy="3" r="0.85" fill="#cbd5e1" opacity="0.13" />
+                        </pattern>
+                        <linearGradient id="slabCyan1" x1="0" y1="0" x2="1" y2="1">
+                          <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.18" />
+                          <stop offset="100%" stop-color="#22d3ee" stop-opacity="0.06" />
+                        </linearGradient>
+                        <linearGradient id="slabIndigo1" x1="0" y1="0" x2="1" y2="1">
+                          <stop offset="0%" stop-color="#818cf8" stop-opacity="0.2" />
+                          <stop offset="100%" stop-color="#60a5fa" stop-opacity="0.07" />
+                        </linearGradient>
+                        <linearGradient id="slabEmerald1" x1="0" y1="0" x2="1" y2="1">
+                          <stop offset="0%" stop-color="#34d399" stop-opacity="0.18" />
+                          <stop offset="100%" stop-color="#10b981" stop-opacity="0.06" />
+                        </linearGradient>
+                      </defs>
+                      <rect width="560" height="430" fill="url(#arMidnightBg1)" />
+                      <rect width="560" height="430" fill="url(#arGlowBlue1)" />
+                      <rect width="560" height="430" fill="url(#arGlowViolet1)" />
+                      <rect width="560" height="430" fill="url(#arDots1)" />
+
+                      <!-- VisionOS Top Dual-Island HUD (All positioned cleanly at x >= 172) -->
+                      <rect x="172" y="14" width="150" height="30" rx="15" fill="#121830" fill-opacity="0.9" stroke="#ffffff" stroke-opacity="0.18" />
+                      <rect x="178" y="19" width="20" height="20" rx="6" fill="#6366f1" />
+                      <polygon points="188,22.5 193.5,25.5 193.5,32 188,35 182.5,32 182.5,25.5" fill="none" stroke="#ffffff" stroke-width="1.3" />
+                      <text x="204" y="32.5" fill="#f1f5f9" font-family="Albert Sans, sans-serif" font-size="10.5" font-weight="700" data-i18n="scene3d.brandTitle">鲜集电商</text>
+                      <rect x="278" y="20" width="36" height="18" rx="9" fill="#34d399" fill-opacity="0.16" stroke="#34d399" stroke-opacity="0.45" />
+                      <text x="296" y="32.5" text-anchor="middle" fill="#34d399" font-family="JetBrains Mono, monospace" font-size="9.5" font-weight="700">≈84</text>
+
+                      <rect x="342" y="14" width="204" height="30" rx="15" fill="#121830" fill-opacity="0.9" stroke="#ffffff" stroke-opacity="0.18" />
+                      <rect x="346" y="17" width="44" height="24" rx="12" fill="#3b82f6" fill-opacity="0.24" stroke="#60a5fa" stroke-opacity="0.5" />
+                      <text x="368" y="32.5" text-anchor="middle" fill="#f1f5f9" font-family="JetBrains Mono, monospace" font-size="9.5" font-weight="700">✦ 3D</text>
+                      <rect x="396" y="17" width="48" height="24" rx="12" fill="#3b82f6" fill-opacity="0.32" stroke="#60a5fa" stroke-opacity="0.6" />
+                      <text x="420" y="32.5" text-anchor="middle" fill="#f1f5f9" font-family="Albert Sans, sans-serif" font-size="10" font-weight="700" data-i18n="sceneCommon.lensTopo">拓扑</text>
+                      <text x="470" y="32.5" text-anchor="middle" fill="#cbd5e1" font-family="Albert Sans, sans-serif" font-size="10" data-i18n="sceneCommon.lensHealth">健康</text>
+                      <text x="518" y="32.5" text-anchor="middle" fill="#cbd5e1" font-family="Albert Sans, sans-serif" font-size="10" data-i18n="sceneCommon.lensReplace">平替</text>
+
+                      <!-- L0 Extruded 3D Glass Slab (Client & Gateway) -->
+                      <polygon points="214,88 264,116 516,96 516,102 264,122 214,94" fill="#0d2a3d" fill-opacity="0.72" stroke="#38bdf8" stroke-opacity="0.45" />
+                      <polygon points="214,88 466,68 516,96 264,116" fill="url(#slabCyan1)" stroke="#38bdf8" stroke-opacity="0.65" stroke-width="1.2" />
+
+                      <rect x="218" y="72" width="144" height="36" rx="12" fill="#161c34" fill-opacity="0.95" stroke="#38bdf8" stroke-opacity="0.6" />
+                      <rect x="226" y="80" width="20" height="20" rx="6" fill="#0f172a" stroke="#ffffff" stroke-opacity="0.2" />
+                      <text x="236" y="94" text-anchor="middle" fill="#f8fafc" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700">N</text>
+                      <text x="254" y="88" fill="#f1f5f9" font-family="Albert Sans, sans-serif" font-size="11" font-weight="700" data-i18n="scene3d.nodeWeb">Web 控制台</text>
+                      <text x="254" y="101" fill="#94a3b8" font-family="JetBrains Mono, monospace" font-size="9.5">Next.js · L0</text>
+
+                      <rect x="382" y="74" width="132" height="34" rx="12" fill="#161c34" fill-opacity="0.95" stroke="#22d3ee" stroke-opacity="0.55" />
+                      <text x="396" y="89" fill="#f1f5f9" font-family="Albert Sans, sans-serif" font-size="11" font-weight="700" data-i18n="scene3d.nodeGw">API 网关</text>
+                      <text x="396" y="101.5" fill="#94a3b8" font-family="JetBrains Mono, monospace" font-size="9.5">Kong · L1</text>
+
+                      <!-- L2 Central Tower + Left AI Wing (-X) + Right External Orbit (+X) -->
+                      <polygon points="184,188 232,222 536,196 536,202 232,228 184,194" fill="#182048" fill-opacity="0.74" stroke="#818cf8" stroke-opacity="0.45" />
+                      <polygon points="184,188 488,162 536,196 232,222" fill="url(#slabIndigo1)" stroke="#818cf8" stroke-opacity="0.65" stroke-width="1.2" />
+
+                      <rect x="176" y="176" width="122" height="36" rx="12" fill="#161c34" fill-opacity="0.95" stroke="#c084fc" stroke-opacity="0.6" />
+                      <text x="190" y="192" fill="#f1f5f9" font-family="Albert Sans, sans-serif" font-size="10.5" font-weight="700" data-i18n="scene3d.nodeRec">推荐引擎</text>
+                      <text x="190" y="205" fill="#d8b4fe" font-family="JetBrains Mono, monospace" font-size="9.5">Python · AI</text>
+
+                      <rect x="312" y="172" width="136" height="40" rx="13" fill="#161c34" fill-opacity="0.96" stroke="#818cf8" stroke-width="1.4" />
+                      <rect x="320" y="182" width="20" height="20" rx="6" fill="#312e81" />
+                      <text x="330" y="196" text-anchor="middle" fill="#a5b4fc" font-family="JetBrains Mono, monospace" font-size="9.5" font-weight="700">+4</text>
+                      <text x="348" y="189" fill="#f1f5f9" font-family="Albert Sans, sans-serif" font-size="11" font-weight="700" data-i18n="scene3d.nodeCore">后端单体</text>
+                      <text x="348" y="203" fill="#94a3b8" font-family="JetBrains Mono, monospace" font-size="9.5" data-i18n="scene3d.nodeCoreSub">NestJS · L2</text>
+
+                      <ellipse cx="502" cy="192" rx="46" ry="23" fill="#ec4899" fill-opacity="0.06" stroke="#ec4899" stroke-opacity="0.5" stroke-dasharray="4 3" stroke-width="1.2" />
+                      <rect x="460" y="176" width="84" height="34" rx="11" fill="#161c34" fill-opacity="0.95" stroke="#ec4899" stroke-opacity="0.6" />
+                      <text x="502" y="191.5" text-anchor="middle" fill="#f1f5f9" font-family="Albert Sans, sans-serif" font-size="10.5" font-weight="700">Stripe</text>
+                      <text x="502" y="203.5" text-anchor="middle" fill="#f9a8d4" font-family="JetBrains Mono, monospace" font-size="9.5">External</text>
+
+                      <!-- L4 Data & Cache Cylinder Plinth -->
+                      <polygon points="218,308 268,340 520,318 520,324 268,346 218,314" fill="#0c2d25" fill-opacity="0.76" stroke="#34d399" stroke-opacity="0.48" />
+                      <polygon points="218,308 470,286 520,318 268,340" fill="url(#slabEmerald1)" stroke="#34d399" stroke-opacity="0.65" stroke-width="1.2" />
+                      <path d="M242,294 v20 c0,4.5 11,8 24,8 s24,-3.5 24,-8 v-20" fill="#064e3b" fill-opacity="0.72" stroke="#34d399" stroke-width="1.2" />
+                      <ellipse cx="266" cy="294" rx="24" ry="8" fill="#10b981" fill-opacity="0.36" stroke="#6ee7b7" stroke-width="1.2" />
+
+                      <rect x="242" y="286" width="144" height="38" rx="12" fill="#161c34" fill-opacity="0.96" stroke="#34d399" stroke-opacity="0.65" />
+                      <rect x="250" y="295" width="20" height="20" rx="6" fill="#ffffff" fill-opacity="0.94" />
+                      <text x="260" y="309" text-anchor="middle" fill="#0284c7" font-family="JetBrains Mono, monospace" font-size="9.5" font-weight="700">PG</text>
+                      <text x="278" y="303" fill="#f1f5f9" font-family="Albert Sans, sans-serif" font-size="11" font-weight="700">PostgreSQL</text>
+                      <text x="278" y="316" fill="#94a3b8" font-family="JetBrains Mono, monospace" font-size="9.5">Postgres 16</text>
+
+                      <rect x="404" y="288" width="104" height="34" rx="12" fill="#161c34" fill-opacity="0.95" stroke="#34d399" stroke-opacity="0.5" />
+                      <text x="456" y="303" text-anchor="middle" fill="#f1f5f9" font-family="Albert Sans, sans-serif" font-size="10.5" font-weight="700">Redis 7</text>
+                      <text x="456" y="315.5" text-anchor="middle" fill="#94a3b8" font-family="JetBrains Mono, monospace" font-size="9.5">Cache</text>
+
+                      <!-- Glowing Bezier Conduits -->
+                      <path d="M362,90 L382,90" stroke="#38bdf8" stroke-width="2" fill="none" stroke-opacity="0.85" />
+                      <path d="M448,108 C448,136 392,148 392,172" stroke="#22d3ee" stroke-width="2" fill="none" stroke-opacity="0.85" />
+                      <path d="M312,193 L298,193" stroke="#fbbf24" stroke-dasharray="4 3" stroke-width="1.8" fill="none" />
+                      <path d="M448,193 L460,193" stroke="#ec4899" stroke-width="1.8" fill="none" stroke-opacity="0.85" />
+                      <path d="M372,212 C372,248 326,258 326,286" stroke="#34d399" stroke-width="2" fill="none" stroke-opacity="0.88" />
+                      <circle cx="420" cy="140" r="3" fill="#ffffff" />
+                      <circle cx="350" cy="252" r="3" fill="#ffffff" />
+
+                      <!-- Bottom VisionOS Floating Pills -->
+                      <rect x="174" y="384" width="192" height="28" rx="14" fill="#121830" fill-opacity="0.88" stroke="#ffffff" stroke-opacity="0.16" />
+                      <text x="270" y="401.5" text-anchor="middle" fill="#cbd5e1" font-family="JetBrains Mono, monospace" font-size="9.5" data-i18n="scene3d.footLeft">Next.js · NestJS · PG</text>
+                      <rect x="412" y="384" width="134" height="28" rx="14" fill="#121830" fill-opacity="0.88" stroke="#ffffff" stroke-opacity="0.16" />
+                      <text x="479" y="401.5" text-anchor="middle" fill="#60a5fa" font-family="Albert Sans, sans-serif" font-size="10" font-weight="700" data-i18n="scene3d.footRight">✦ 透视 3D 环绕</text>
+                    </svg>
+                  </div>
+
+                  <!-- SCENE 2: Health Lens on the EXACT Same Midnight 3D Stage -->
+                  <div class="after-scene" data-scene="health">
+                    <svg viewBox="0 0 560 430" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="arMidnightBg2" x1="0" y1="0" x2="1" y2="1">
+                          <stop offset="0%" stop-color="#0d1020" />
+                          <stop offset="100%" stop-color="#090c19" />
+                        </linearGradient>
+                        <radialGradient id="arGlowCoral2" cx="68%" cy="52%" r="48%">
+                          <stop offset="0%" stop-color="#f87171" stop-opacity="0.2" />
+                          <stop offset="100%" stop-color="#f87171" stop-opacity="0" />
+                        </radialGradient>
+                        <pattern id="arDots2" width="22" height="22" patternUnits="userSpaceOnUse">
+                          <circle cx="3" cy="3" r="0.85" fill="#cbd5e1" opacity="0.13" />
+                        </pattern>
+                      </defs>
+                      <rect width="560" height="430" fill="url(#arMidnightBg2)" />
+                      <rect width="560" height="430" fill="url(#arGlowCoral2)" />
+                      <rect width="560" height="430" fill="url(#arDots2)" />
+
+                      <!-- VisionOS Top Dual-Island HUD (Health Lens Active, x >= 172) -->
+                      <rect x="172" y="14" width="150" height="30" rx="15" fill="#121830" fill-opacity="0.9" stroke="#ffffff" stroke-opacity="0.18" />
+                      <rect x="178" y="19" width="20" height="20" rx="6" fill="#6366f1" />
+                      <polygon points="188,22.5 193.5,25.5 193.5,32 188,35 182.5,32 182.5,25.5" fill="none" stroke="#ffffff" stroke-width="1.3" />
+                      <text x="204" y="32.5" fill="#f1f5f9" font-family="Albert Sans, sans-serif" font-size="10.5" font-weight="700" data-i18n="scene3d.brandTitle">鲜集电商</text>
+                      <rect x="278" y="20" width="36" height="18" rx="9" fill="#fbbf24" fill-opacity="0.18" stroke="#fbbf24" stroke-opacity="0.48" />
+                      <text x="296" y="32.5" text-anchor="middle" fill="#fbbf24" font-family="JetBrains Mono, monospace" font-size="9.5" font-weight="700">≈84</text>
+
+                      <rect x="342" y="14" width="204" height="30" rx="15" fill="#121830" fill-opacity="0.9" stroke="#ffffff" stroke-opacity="0.18" />
+                      <rect x="346" y="17" width="44" height="24" rx="12" fill="#3b82f6" fill-opacity="0.22" stroke="#60a5fa" stroke-opacity="0.45" />
+                      <text x="368" y="32.5" text-anchor="middle" fill="#f1f5f9" font-family="JetBrains Mono, monospace" font-size="9.5" font-weight="700">✦ 3D</text>
+                      <text x="420" y="32.5" text-anchor="middle" fill="#cbd5e1" font-family="Albert Sans, sans-serif" font-size="10" data-i18n="sceneCommon.lensTopo">拓扑</text>
+                      <rect x="444" y="17" width="52" height="24" rx="12" fill="#f87171" fill-opacity="0.26" stroke="#f87171" stroke-opacity="0.6" />
+                      <text x="470" y="32.5" text-anchor="middle" fill="#f1f5f9" font-family="Albert Sans, sans-serif" font-size="10" font-weight="700" data-i18n="sceneCommon.lensHealth">健康</text>
+                      <text x="518" y="32.5" text-anchor="middle" fill="#cbd5e1" font-family="Albert Sans, sans-serif" font-size="10" data-i18n="sceneCommon.lensReplace">平替</text>
+
+                      <!-- .ar-insight Frosted Glass Card at x >= 172 -->
+                      <rect x="172" y="58" width="176" height="306" rx="16" fill="#161c34" fill-opacity="0.94" stroke="#ffffff" stroke-opacity="0.18" />
+                      <text x="186" y="80" fill="#f1f5f9" font-family="Albert Sans, sans-serif" font-size="11.5" font-weight="700" data-i18n="sceneHealth.panelTitle">健康度总览</text>
+
+                      <circle cx="212" cy="116" r="20" fill="none" stroke="#ffffff" stroke-opacity="0.1" stroke-width="4.5" />
+                      <circle cx="212" cy="116" r="20" fill="none" stroke="#34d399" stroke-width="4.5" stroke-dasharray="106 130" stroke-linecap="round" transform="rotate(-90 212 116)" />
+                      <text x="212" y="120" text-anchor="middle" fill="#f1f5f9" font-family="JetBrains Mono, monospace" font-size="13" font-weight="800">84</text>
+                      <text x="242" y="110" fill="#cbd5e1" font-family="Albert Sans, sans-serif" font-size="10" font-weight="600" data-i18n="sceneHealth.scoreLbl">结构健康分</text>
+                      <text x="242" y="127" fill="#34d399" font-family="Albert Sans, sans-serif" font-size="9.5" font-weight="700" data-i18n="sceneHealth.goodChip">13 健康 · 1 严重</text>
+
+                      <line x1="186" y1="150" x2="334" y2="150" stroke="#ffffff" stroke-opacity="0.1" />
+                      <text x="186" y="170" fill="#94a3b8" font-family="JetBrains Mono, monospace" font-size="9.5" font-weight="700" data-i18n="sceneHealth.hotspotHdr">▲ 风险热点</text>
+
+                      <rect x="184" y="180" width="152" height="72" rx="10" fill="#f87171" fill-opacity="0.11" stroke="#f87171" stroke-opacity="0.4" />
+                      <text x="194" y="199" fill="#f1f5f9" font-family="Albert Sans, sans-serif" font-size="11" font-weight="700" data-i18n="sceneHealth.hot1Title">订单服务</text>
+                      <text x="326" y="199" text-anchor="end" fill="#f87171" font-family="Albert Sans, sans-serif" font-size="9.5" font-weight="700" data-i18n="sceneHealth.critTag">严重</text>
+                      <text x="194" y="218" fill="#cbd5e1" font-family="JetBrains Mono, monospace" font-size="9.5" data-i18n="sceneHealth.hot1Desc">order.service.ts</text>
+                      <text x="194" y="236" fill="#94a3b8" font-family="Albert Sans, sans-serif" font-size="9.5" data-i18n="sceneHealth.hot1Desc2">6,200 行 · 同步阻塞</text>
+
+                      <rect x="184" y="264" width="152" height="62" rx="10" fill="#fbbf24" fill-opacity="0.09" stroke="#fbbf24" stroke-opacity="0.32" />
+                      <text x="194" y="283" fill="#f1f5f9" font-family="Albert Sans, sans-serif" font-size="10.5" font-weight="700" data-i18n="sceneHealth.hot2Title">推荐引擎</text>
+                      <text x="326" y="283" text-anchor="end" fill="#fbbf24" font-family="Albert Sans, sans-serif" font-size="9.5" font-weight="700" data-i18n="sceneHealth.warnTag">警告</text>
+                      <text x="194" y="303" fill="#cbd5e1" font-family="Albert Sans, sans-serif" font-size="9.5" data-i18n="sceneHealth.hot2Desc">实时向量化无缓存</text>
+
+                      <!-- Right 3D Spatial Stage (Health Colored Nodes) -->
+                      <polygon points="366,94 408,120 538,104 494,78" fill="#34d399" fill-opacity="0.1" stroke="#34d399" stroke-opacity="0.55" stroke-width="1.1" />
+                      <rect x="386" y="76" width="142" height="36" rx="12" fill="#161c34" fill-opacity="0.95" stroke="#34d399" stroke-opacity="0.6" />
+                      <circle cx="514" cy="94" r="3.8" fill="#34d399" />
+                      <text x="398" y="92" fill="#f1f5f9" font-family="Albert Sans, sans-serif" font-size="11" font-weight="700" data-i18n="scene3d.nodeWeb">Web 控制台</text>
+                      <text x="398" y="104" fill="#34d399" font-family="JetBrains Mono, monospace" font-size="9.5">Healthy</text>
+
+                      <polygon points="358,202 406,232 542,212 494,182" fill="#f87171" fill-opacity="0.12" stroke="#f87171" stroke-opacity="0.6" stroke-width="1.2" />
+                      <rect x="372" y="182" width="166" height="40" rx="12" fill="#1c1428" fill-opacity="0.96" stroke="#f87171" stroke-width="1.8" />
+                      <circle cx="524" cy="202" r="4" fill="#f87171" />
+                      <text x="384" y="199" fill="#f8fafc" font-family="Albert Sans, sans-serif" font-size="11" font-weight="700" data-i18n="sceneHealth.nodeOrder">订单服务 · 热点</text>
+                      <text x="384" y="213" fill="#fca5a5" font-family="JetBrains Mono, monospace" font-size="9.5">6,200 LOC · Crit</text>
+
+                      <polygon points="366,314 408,340 538,324 494,298" fill="#34d399" fill-opacity="0.1" stroke="#34d399" stroke-opacity="0.55" stroke-width="1.1" />
+                      <rect x="386" y="296" width="142" height="36" rx="12" fill="#161c34" fill-opacity="0.95" stroke="#34d399" stroke-opacity="0.6" />
+                      <circle cx="514" cy="314" r="3.8" fill="#34d399" />
+                      <text x="398" y="312" fill="#f1f5f9" font-family="Albert Sans, sans-serif" font-size="11" font-weight="700">PostgreSQL</text>
+                      <text x="398" y="324" fill="#34d399" font-family="JetBrains Mono, monospace" font-size="9.5">Healthy</text>
+
+                      <path d="M457,112 C457,146 455,158 455,182" stroke="#34d399" stroke-width="2" fill="none" stroke-opacity="0.75" />
+                      <path d="M455,222 C455,256 457,270 457,296" stroke="#f87171" stroke-width="2.2" fill="none" stroke-opacity="0.9" />
+                    </svg>
+                  </div>
+
+                  <!-- SCENE 3: Replaceability Lens on the EXACT Same Midnight 3D Stage -->
+                  <div class="after-scene" data-scene="replace">
+                    <svg viewBox="0 0 560 430" preserveAspectRatio="xMidYMid slice">
+                      <defs>
+                        <linearGradient id="arMidnightBg3" x1="0" y1="0" x2="1" y2="1">
+                          <stop offset="0%" stop-color="#0d1020" />
+                          <stop offset="100%" stop-color="#090c19" />
+                        </linearGradient>
+                        <radialGradient id="arGlowIndigo3" cx="72%" cy="35%" r="55%">
+                          <stop offset="0%" stop-color="#60a5fa" stop-opacity="0.2" />
+                          <stop offset="100%" stop-color="#60a5fa" stop-opacity="0" />
+                        </radialGradient>
+                        <pattern id="arDots3" width="22" height="22" patternUnits="userSpaceOnUse">
+                          <circle cx="3" cy="3" r="0.85" fill="#cbd5e1" opacity="0.13" />
+                        </pattern>
+                      </defs>
+                      <rect width="560" height="430" fill="url(#arMidnightBg3)" />
+                      <rect width="560" height="430" fill="url(#arGlowIndigo3)" />
+                      <rect width="560" height="430" fill="url(#arDots3)" />
+
+                      <!-- VisionOS Top Dual-Island HUD (Replaceability Lens Active, x >= 172) -->
+                      <rect x="172" y="14" width="150" height="30" rx="15" fill="#121830" fill-opacity="0.9" stroke="#ffffff" stroke-opacity="0.18" />
+                      <rect x="178" y="19" width="20" height="20" rx="6" fill="#6366f1" />
+                      <polygon points="188,22.5 193.5,25.5 193.5,32 188,35 182.5,32 182.5,25.5" fill="none" stroke="#ffffff" stroke-width="1.3" />
+                      <text x="204" y="32.5" fill="#f1f5f9" font-family="Albert Sans, sans-serif" font-size="10.5" font-weight="700" data-i18n="scene3d.brandTitle">鲜集电商</text>
+                      <rect x="278" y="20" width="36" height="18" rx="9" fill="#34d399" fill-opacity="0.16" />
+                      <text x="296" y="32.5" text-anchor="middle" fill="#34d399" font-family="JetBrains Mono, monospace" font-size="9.5" font-weight="700">≈84</text>
+
+                      <rect x="342" y="14" width="204" height="30" rx="15" fill="#121830" fill-opacity="0.9" stroke="#ffffff" stroke-opacity="0.18" />
+                      <rect x="346" y="17" width="44" height="24" rx="12" fill="#3b82f6" fill-opacity="0.22" stroke="#60a5fa" stroke-opacity="0.45" />
+                      <text x="368" y="32.5" text-anchor="middle" fill="#f1f5f9" font-family="JetBrains Mono, monospace" font-size="9.5" font-weight="700">✦ 3D</text>
+                      <text x="420" y="32.5" text-anchor="middle" fill="#cbd5e1" font-family="Albert Sans, sans-serif" font-size="10" data-i18n="sceneCommon.lensTopo">拓扑</text>
+                      <text x="470" y="32.5" text-anchor="middle" fill="#cbd5e1" font-family="Albert Sans, sans-serif" font-size="10" data-i18n="sceneCommon.lensHealth">健康</text>
+                      <rect x="492" y="17" width="50" height="24" rx="12" fill="#60a5fa" fill-opacity="0.28" stroke="#60a5fa" stroke-opacity="0.6" />
+                      <text x="517" y="32.5" text-anchor="middle" fill="#f1f5f9" font-family="Albert Sans, sans-serif" font-size="10" font-weight="700" data-i18n="sceneCommon.lensReplace">平替</text>
+
+                      <!-- Scenario Diff Floating Banner -->
+                      <rect x="172" y="56" width="174" height="26" rx="13" fill="#161c34" fill-opacity="0.94" stroke="#c084fc" stroke-opacity="0.5" />
+                      <text x="259" y="73" text-anchor="middle" fill="#fbbf24" font-family="Albert Sans, sans-serif" font-size="10" font-weight="700" data-i18n="sceneReplace.banner">⇄ 预览 · 替换 Clerk</text>
+
+                      <!-- Left 3D Spatial Stage (Replaceability Diff, x >= 172) -->
+                      <polygon points="182,118 214,140 340,126 306,104" fill="#34d399" fill-opacity="0.1" stroke="#34d399" stroke-opacity="0.55" stroke-width="1.1" />
+                      <rect x="192" y="102" width="136" height="36" rx="12" fill="#161c34" fill-opacity="0.95" stroke="#34d399" stroke-opacity="0.6" />
+                      <circle cx="316" cy="120" r="3.6" fill="#34d399" />
+                      <text x="204" y="118" fill="#f1f5f9" font-family="Albert Sans, sans-serif" font-size="10.5" font-weight="700" data-i18n="scene3d.nodeGw">API 网关</text>
+                      <text x="204" y="131" fill="#34d399" font-family="JetBrains Mono, monospace" font-size="9.5">High swap</text>
+
+                      <polygon points="178,208 212,232 344,218 308,194" fill="#c084fc" fill-opacity="0.12" stroke="#c084fc" stroke-opacity="0.6" stroke-width="1.2" />
+                      <rect x="174" y="186" width="84" height="36" rx="10" fill="#1c1428" fill-opacity="0.96" stroke="#f87171" stroke-dasharray="4 3" stroke-width="1.3" />
+                      <text x="184" y="202" fill="#fca5a5" font-family="Albert Sans, sans-serif" font-size="10" font-weight="700" text-decoration="line-through" data-i18n="sceneReplace.oldNode">认证鉴权</text>
+                      <text x="184" y="214" fill="#94a3b8" font-family="JetBrains Mono, monospace" font-size="9.5">Passport</text>
+
+                      <rect x="266" y="186" width="80" height="36" rx="10" fill="#21183b" fill-opacity="0.96" stroke="#c084fc" stroke-width="1.6" />
+                      <circle cx="336" cy="204" r="3.4" fill="#c084fc" />
+                      <text x="276" y="202" fill="#f8fafc" font-family="Albert Sans, sans-serif" font-size="10.5" font-weight="700">Clerk</text>
+                      <text x="276" y="214" fill="#d8b4fe" font-family="JetBrains Mono, monospace" font-size="9.5">Planned</text>
+
+                      <polygon points="184,310 216,332 338,318 304,296" fill="#f87171" fill-opacity="0.1" stroke="#f87171" stroke-opacity="0.55" stroke-width="1.1" />
+                      <rect x="192" y="294" width="136" height="36" rx="12" fill="#161c34" fill-opacity="0.95" stroke="#f87171" stroke-opacity="0.6" />
+                      <circle cx="316" cy="312" r="3.6" fill="#f87171" />
+                      <text x="204" y="310" fill="#f1f5f9" font-family="Albert Sans, sans-serif" font-size="10.5" font-weight="700">PostgreSQL</text>
+                      <text x="204" y="323" fill="#fca5a5" font-family="JetBrains Mono, monospace" font-size="9.5">Core DB</text>
+
+                      <path d="M260,138 C260,162 306,166 306,186" stroke="#c084fc" stroke-width="1.8" fill="none" />
+                      <path d="M306,222 C306,258 260,268 260,294" stroke="#60a5fa" stroke-width="1.8" fill="none" stroke-opacity="0.82" />
+
+                      <!-- Right Docked .ar-inspector Frosted Glass Drawer -->
+                      <rect x="358" y="56" width="190" height="346" rx="16" fill="#161c34" fill-opacity="0.95" stroke="#ffffff" stroke-opacity="0.18" />
+                      <rect x="372" y="70" width="26" height="26" rx="7" fill="#312e81" stroke="#818cf8" stroke-opacity="0.5" />
+                      <text x="385" y="87" text-anchor="middle" fill="#a5b4fc" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700">AU</text>
+                      <text x="406" y="82" fill="#f1f5f9" font-family="Albert Sans, sans-serif" font-size="11.5" font-weight="700" data-i18n="sceneReplace.insTitle">认证授权</text>
+                      <text x="406" y="96" fill="#94a3b8" font-family="JetBrains Mono, monospace" font-size="9.5">auth.module.ts</text>
+
+                      <text x="372" y="122" fill="#94a3b8" font-family="JetBrains Mono, monospace" font-size="9.5" font-weight="700" data-i18n="sceneReplace.insSec">可替代性评估</text>
+                      <rect x="372" y="130" width="76" height="20" rx="10" fill="#34d399" fill-opacity="0.15" stroke="#34d399" stroke-opacity="0.4" />
+                      <text x="410" y="143.5" text-anchor="middle" fill="#34d399" font-family="Albert Sans, sans-serif" font-size="10" font-weight="700" data-i18n="sceneReplace.highChip">高可替代</text>
+                      <text x="372" y="168" fill="#cbd5e1" font-family="Albert Sans, sans-serif" font-size="10" data-i18n="sceneReplace.rationale">标准 OIDC · 自研价值低</text>
+
+                      <rect x="370" y="182" width="166" height="122" rx="12" fill="#ffffff" fill-opacity="0.04" stroke="#ffffff" stroke-opacity="0.15" />
+                      <text x="382" y="203" fill="#f1f5f9" font-family="Albert Sans, sans-serif" font-size="11" font-weight="700">Clerk</text>
+                      <text x="524" y="203" text-anchor="end" fill="#93c5fd" font-family="Albert Sans, sans-serif" font-size="9.5" font-weight="700" data-i18n="sceneReplace.managedTag">托管平替</text>
+                      <text x="382" y="222" fill="#cbd5e1" font-family="Albert Sans, sans-serif" font-size="9.5" data-i18n="sceneReplace.optSummary">内置 MFA 与登录页</text>
+                      <text x="382" y="240" fill="#94a3b8" font-family="JetBrains Mono, monospace" font-size="9.5" data-i18n="sceneReplace.optMeta">工作量 M · 风险 中</text>
+
+                      <rect x="380" y="256" width="68" height="26" rx="13" fill="#60a5fa" fill-opacity="0.2" stroke="#60a5fa" stroke-opacity="0.55" />
+                      <text x="414" y="272.5" text-anchor="middle" fill="#93c5fd" font-family="Albert Sans, sans-serif" font-size="9.5" font-weight="700" data-i18n="sceneReplace.previewBtn">预览目标</text>
+                      <rect x="454" y="256" width="74" height="26" rx="13" fill="#34d399" fill-opacity="0.22" stroke="#34d399" stroke-opacity="0.55" />
+                      <text x="491" y="272.5" text-anchor="middle" fill="#6ee7b7" font-family="Albert Sans, sans-serif" font-size="9.5" font-weight="700" data-i18n="sceneReplace.copyPromptBtn">复制 Prompt</text>
+
+                      <rect x="370" y="314" width="166" height="72" rx="12" fill="#ffffff" fill-opacity="0.03" stroke="#ffffff" stroke-opacity="0.1" />
+                      <text x="382" y="335" fill="#f1f5f9" font-family="Albert Sans, sans-serif" font-size="10.5" font-weight="700">Keycloak</text>
+                      <text x="524" y="335" text-anchor="end" fill="#cbd5e1" font-family="Albert Sans, sans-serif" font-size="9.5" data-i18n="sceneReplace.dropinTag">开源自托管</text>
+                      <text x="382" y="356" fill="#94a3b8" font-family="Albert Sans, sans-serif" font-size="9.5" data-i18n="sceneReplace.opt2Sub">工作量 L · 保留完整控制</text>
+                    </svg>
+                  </div>
+                </div>
+
+                <!-- BEFORE (Clipped to Left): Muddy AI Spaghetti Specimen (All texts cleanly within x=16..138, y=28..320) -->
+                <div class="compare-layer compare-before-pane" aria-hidden="true">
+                  <svg viewBox="0 0 560 430" preserveAspectRatio="xMidYMid slice">
+                    <rect width="560" height="430" fill="#ede3d2" />
+                    <rect x="0" y="0" width="7" height="430" fill="#7c6cf0" />
+                    <text x="18" y="34" fill="#5c4b37" font-family="JetBrains Mono, monospace" font-size="10.5" letter-spacing="1.2">SYSTEM_V1</text>
+                    <line x1="16" y1="50" x2="532" y2="50" stroke="#d6c8b2" stroke-width="1" />
+
+                    <!-- Cluttered spaghetti lines spanning across right side (no occluded text on right) -->
+                    <g stroke="#8c7b65" stroke-width="1.4" fill="none">
+                      <polyline points="78,118 78,285 268,285 268,128" />
+                      <polyline points="140,108 212,108 212,210 56,210 56,315 320,315" />
+                      <polyline points="124,186 310,186 310,256 108,256" />
+                      <line x1="68" y1="136" x2="260" y2="270" stroke-dasharray="4 3" />
+                    </g>
+
+                    <!-- Unlabeled messy boxes extending rightward for drag reveal -->
+                    <g fill="#f5ede0" stroke="#9d8c75" stroke-width="1.2">
+                      <rect x="184" y="84" width="112" height="44" rx="2" />
+                      <rect x="200" y="176" width="122" height="44" rx="2" />
+                      <rect x="186" y="262" width="118" height="44" rx="2" />
+                    </g>
+
+                    <!-- Left legible sloppy boxes (all inside x=18..136) -->
+                    <g fill="#f5ede0" stroke="#9d8c75" stroke-width="1.3" font-family="Georgia, serif" font-size="12">
+                      <rect x="18" y="82" width="116" height="42" rx="2" />
+                      <text x="32" y="108" fill="#3a2e21" stroke="none" font-style="italic">Frontend??</text>
+
+                      <rect x="18" y="160" width="118" height="42" rx="2" />
+                      <text x="30" y="185" fill="#3a2e21" stroke="none">misc_service</text>
+
+                      <rect x="18" y="238" width="114" height="42" rx="2" />
+                      <text x="32" y="263" fill="#3a2e21" stroke="none" font-style="italic">db_maybe</text>
+
+                      <rect x="18" y="302" width="112" height="36" rx="2" />
+                      <text x="30" y="324" fill="#3a2e21" stroke="none" font-size="11">0 citations</text>
+                    </g>
+
+                    <line x1="16" y1="378" x2="532" y2="378" stroke="#d6c8b2" stroke-width="1" />
+                  </svg>
+                </div>
+
+                <!-- Golden Seam & Tactile Grip -->
+                <div class="compare-seam" aria-hidden="true">
+                  <div class="compare-grip">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
+                      <line x1="5" y1="3" x2="5" y2="13" />
+                      <line x1="8" y1="3" x2="8" y2="13" />
+                      <line x1="11" y1="3" x2="11" y2="13" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tactile Machined Lens Switcher + Live Caption -->
+            <div class="hero-switcher-stack">
+              <div class="recessed-switcher" id="heroLensSwitcher" data-active-lens="3d" role="tablist" aria-label="Preview ArchRay viewer lenses">
+                <span class="switcher-glider" id="lensGlider" aria-hidden="true"></span>
+                <button type="button" class="lens-pill is-active" data-hero-lens="3d" role="tab" aria-selected="true">
+                  <svg class="lens-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                    <polygon points="8 1.5 14 5 14 11 8 14.5 2 11 2 5" />
+                    <polyline points="2 5 8 8.5 14 5" />
+                    <line x1="8" y1="8.5" x2="8" y2="14.5" />
+                  </svg>
+                  <span data-i18n="hero.lens3d">✦ 3D 空间全景</span>
+                </button>
+                <button type="button" class="lens-pill" data-hero-lens="health" role="tab" aria-selected="false">
+                  <svg class="lens-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="1.5 8.5 4.5 8.5 6.5 3.5 9.5 12.5 11.5 8.5 14.5 8.5" />
+                  </svg>
+                  <span data-i18n="hero.lensHealth">◉ 健康度热点</span>
+                </button>
+                <button type="button" class="lens-pill" data-hero-lens="replace" role="tab" aria-selected="false">
+                  <svg class="lens-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="11 2.5 14 5.5 11 8.5" />
+                    <line x1="2" y1="5.5" x2="14" y2="5.5" />
+                    <polyline points="5 13.5 2 10.5 5 7.5" />
+                    <line x1="14" y1="10.5" x2="2" y2="10.5" />
+                  </svg>
+                  <span data-i18n="hero.lensReplace">⇄ 可替代性平替</span>
+                </button>
+              </div>
+              <div class="lens-caption" id="heroLensCaption">在同一深空 3D 舞台内预览拓扑、健康度与可替代性三种视角</div>
+            </div>
+          </div>
+
+          <!-- Right Editorial Column — Focused First-Principles Hero -->
+          <div class="hero-copy">
+            <h1 data-i18n="hero.title">让 AI 读懂仓库源码，画出真实的空间架构。</h1>
+            <p class="hero-lead" data-i18n="hero.lead">装进你的 AI 编程助手，让它直接通读项目源码，几秒生成可交互的 3D 与 2D 空间架构图。</p>
+
+            <!-- One compact assurance line replaces the old badge + banner + checklist stack. -->
+            <div class="hero-assurance">
+              <span class="free-badge" data-i18n="hero.freeBadge">FREE · MIT</span>
+              <span class="hero-cap-item"><span class="cap-check" aria-hidden="true">✓</span><span data-i18n="hero.capLocal">完全本地化直管</span></span>
+              <span class="hero-cap-item"><span class="cap-check" aria-hidden="true">✓</span><span data-i18n="hero.capNonIntrusive">对项目无侵入性</span></span>
+              <span class="hero-cap-item"><span class="cap-check" aria-hidden="true">✓</span><span data-i18n="hero.capOffline">零源码外传</span></span>
+            </div>
+
+            <!-- Dual Primary Action Anchors -->
+            <div class="hero-cta-row">
+              <a class="btn-ink" href="#live">
+                <span data-i18n="hero.ctaSecondary">查看 3D 沙盒 DEMO</span>
+                <span class="arrow-amber" aria-hidden="true">→</span>
+              </a>
+              <a class="link-plain hero-install-link" href="#install">
+                <span data-i18n="hero.ctaInstall">一键安装</span>
+                <span aria-hidden="true">↓</span>
+              </a>
+            </div>
+
+            <!-- Static supported-agent marks (not clickable buttons) -->
+            <div class="hero-support">
+              <span class="hero-support-label" data-i18n="hero.supportLabel">全部支持：</span>
+              <ul class="hero-support-list">
+                <li><svg class="agent-logo" viewBox="0 0 256 257" aria-hidden="true"><path fill="#d97757" d="m50.228 170.321l50.357-28.257l.843-2.463l-.843-1.361h-2.462l-8.426-.518l-28.775-.778l-24.952-1.037l-24.175-1.296l-6.092-1.297L0 125.796l.583-3.759l5.12-3.434l7.324.648l16.202 1.101l24.304 1.685l17.629 1.037l26.118 2.722h4.148l.583-1.685l-1.426-1.037l-1.101-1.037l-25.147-17.045l-27.22-18.017l-14.258-10.37l-7.713-5.25l-3.888-4.925l-1.685-10.758l7-7.713l9.397.649l2.398.648l9.527 7.323l20.35 15.75L94.817 91.9l3.889 3.24l1.555-1.102l.195-.777l-1.75-2.917l-14.453-26.118l-15.425-26.572l-6.87-11.018l-1.814-6.61c-.648-2.723-1.102-4.991-1.102-7.778l7.972-10.823L71.42 0l10.63 1.426l4.472 3.888l6.61 15.101l10.694 23.786l16.591 32.34l4.861 9.592l2.592 8.879l.973 2.722h1.685v-1.556l1.36-18.211l2.528-22.36l2.463-28.776l.843-8.1l4.018-9.722l7.971-5.25l6.222 2.981l5.12 7.324l-.713 4.73l-3.046 19.768l-5.962 30.98l-3.889 20.739h2.268l2.593-2.593l10.499-13.934l17.628-22.036l7.778-8.749l9.073-9.657l5.833-4.601h11.018l8.1 12.055l-3.628 12.443l-11.342 14.388l-9.398 12.184l-13.48 18.147l-8.426 14.518l.778 1.166l2.01-.194l30.46-6.481l16.462-2.982l19.637-3.37l8.88 4.148l.971 4.213l-3.5 8.62l-20.998 5.184l-24.628 4.926l-36.682 8.685l-.454.324l.519.648l16.526 1.555l7.065.389h17.304l32.21 2.398l8.426 5.574l5.055 6.805l-.843 5.184l-12.962 6.611l-17.498-4.148l-40.83-9.721l-14-3.5h-1.944v1.167l11.666 11.406l21.387 19.314l26.767 24.887l1.36 6.157l-3.434 4.86l-3.63-.518l-23.526-17.693l-9.073-7.972l-20.545-17.304h-1.36v1.814l4.73 6.935l25.017 37.59l1.296 11.536l-1.814 3.76l-6.481 2.268l-7.13-1.297l-14.647-20.544l-15.1-23.138l-12.185-20.739l-1.49.843l-7.194 77.448l-3.37 3.953l-7.778 2.981l-6.48-4.925l-3.436-7.972l3.435-15.749l4.148-20.544l3.37-16.333l3.046-20.285l1.815-6.74l-.13-.454l-1.49.194l-15.295 20.999l-23.267 31.433l-18.406 19.702l-4.407 1.75l-7.648-3.954l.713-7.064l4.277-6.286l25.47-32.405l15.36-20.092l9.917-11.6l-.065-1.686h-.583L44.07 198.125l-12.055 1.555l-5.185-4.86l.648-7.972l2.463-2.593l20.35-13.999z"/></svg>Claude Code</li>
+                <li><svg class="agent-logo" viewBox="0 0 256 292" aria-hidden="true"><path fill="currentColor" d="M250.894 69.075L134.06 1.622a12.14 12.14 0 0 0-12.133 0L5.101 69.075A10.2 10.2 0 0 0 0 77.911v136.02a10.21 10.21 0 0 0 5.1 8.835l116.834 67.453a12.14 12.14 0 0 0 12.132 0L250.9 222.766a10.2 10.2 0 0 0 5.1-8.836V77.911a10.21 10.21 0 0 0-5.1-8.836zm-7.34 14.288L130.77 278.712c-.763 1.316-2.775.778-2.775-.746V150.053a7.17 7.17 0 0 0-3.582-6.203L13.64 79.897c-1.317-.763-.779-2.776.746-2.776h225.57c3.203 0 5.205 3.472 3.603 6.248h-.005z"/></svg>Cursor</li>
+                <li><svg class="agent-logo" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="agLogoGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fbbc04" /><stop offset="45%" stop-color="#fc413d" /><stop offset="100%" stop-color="#3186ff" /></linearGradient></defs><path fill="url(#agLogoGrad)" d="M21.751 22.607c1.34 1.005 3.35.335 1.508-1.508C17.73 15.74 18.904 1 12.037 1S6.342 15.74.815 21.1c-2.01 2.009.167 2.511 1.507 1.506c5.192-3.517 4.857-9.714 9.715-9.714s4.522 6.197 9.714 9.715"/></svg>Antigravity</li>
+                <li><svg class="agent-logo" viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M86.247 4.886A65.1 65.1 0 0 1 118.737.46c14.219 1.632 26.89 7.68 38.016 18.132c.304.288.733.405 1.141.31c15.019-3.69 29.461-2.390 43.317 3.903l.672.32l1.643.81c14.474 7.5 24.853 18.88 31.125 34.11c2.965 7.243 4.458 14.805 4.49 22.677a60.3 60.3 0 0 1-1.92 17.396c-.148.588.013 1.21.427 1.653a63.8 63.8 0 0 1 16.832 30.835c4.106 20.276-.107 38.558-12.619 54.823l-1.941 2.347a64.67 64.67 0 0 1-31.296 19.743a1.730 1.730 0 0 0-1.152 1.088c-2.72 7.85-5.45 14.548-10.528 21.246c-12.789 16.874-31.594 26.26-52.778 26.145c-16.885-.088-31.850-6.263-44.906-18.519a1.540 1.540 0 0 0-1.493-.34c-5.525 1.780-11.093 2.036-17.110 1.972a63.2 63.2 0 0 1-27.679-6.634a64.6 64.6 0 0 1-22.890-18.996c-2.166-2.870-4.310-5.568-5.878-8.757a82.6 82.6 0 0 1-5.280-13.684a65.2 65.2 0 0 1-.181-32.680a1.800 1.800 0 0 0 .085-.790a1.230 1.230 0 0 0-.394-.683a63.550 63.550 0 0 1-14.720-23.486a55.400 55.400 0 0 1-3.552-16.948a73.800 73.800 0 0 1 2.005-22.740c4.800-15.829 13.963-28.244 27.488-37.257c3.008-2.005 5.867-3.562 8.554-4.671a86 86 0 0 1 9.184-3.243c.447-.132.796-.481.928-.928A64.200 64.200 0 0 1 60.103 24.650c7.253-9.023 15.968-15.614 26.144-19.764M77.670 88.614a9.050 9.050 0 0 0-15.712 8.981l18.070 31.625l-18.006 30.376a9.056 9.056 0 0 0 15.573 9.215l20.693-34.898a9.060 9.060 0 0 0 .075-9.109zm58.090 66.556a9.056 9.056 0 0 0 0 18.079h51.711a9.056 9.056 0 0 0 0-18.090h-51.710z"/></svg>Codex</li>
+                <li><svg class="agent-logo" viewBox="0 0 256 256" aria-hidden="true"><path fill="#f09082" d="M0 0h191.999v127.997h-64.002V64.001H0z"/><path fill="#4d9abf" d="M0 64.001h64.001v63.996h63.996v64.002H64.001V256H0z"/><path fill="#f1be58" d="M191.999 127.997H256V256h-64.001z"/></svg>Pi</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- One compact proof line; detailed repo evidence lives in the principles section. -->
+        <div class="hero-proof-line" aria-label="ArchRay proof points">
+          <span><b>file:line</b><span data-i18n="proof.oneMeta">真实源码证据链，零臆测</span></span>
+          <span><b>3D + 2D</b><span data-i18n="proof.twoMeta">确定性空间布局</span></span>
+          <span><b>167+</b><span data-i18n="proof.threeMeta">离线单文件 · 向量徽标</span></span>
+          <span><b>≈ / ✓</b><span data-i18n="proof.fourMeta">健康度与可替代性</span></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. COMMAND COMPOSER + TACTILE HARDWARE CONSOLE: Full Command Scope + 10-Layer Multi-Combo Matrix -->
+    <section id="console" class="section-band">
+      <div class="wrap">
+        <div class="section-intro">
+          <div class="section-intro-copy">
+            <h2 data-i18n="console.title">从你想审视的架构层开始，支持全部查看与跨端自由组合。</h2>
+            <p data-i18n="console.subtitle">一条命令看全部 10 层，也可以只看前端、后端或数据，或用逗号自由组合；未选中的上下游会保留为半透明上下文。</p>
+          </div>
+        </div>
+
+        <div class="studio-console">
+          <!-- Command Composer: presets + live command, placed first -->
+          <div class="command-composer">
+            <div class="combo-preset-bar" role="group" aria-label="Preset layer combinations">
+              <span class="combo-preset-label" data-i18n="console.presetLabel">选择视角：</span>
+              <button type="button" class="combo-pill is-active" data-combo-preset="all" data-i18n="console.presetAll">全部层 (all)</button>
+              <button type="button" class="combo-pill" data-combo-preset="frontend" data-i18n="console.presetFrontend">前端 (frontend)</button>
+              <button type="button" class="combo-pill" data-combo-preset="backend" data-i18n="console.presetBackend">后端与异步 (backend)</button>
+              <button type="button" class="combo-pill" data-combo-preset="data" data-i18n="console.presetData">数据存储 (data)</button>
+              <button type="button" class="combo-pill" data-combo-preset="network" data-i18n="console.presetNetwork">网络与安全 (network)</button>
+              <button type="button" class="combo-pill is-combo" data-combo-preset="frontend,backend" data-i18n="console.presetFeBe">前后端组合 (frontend,backend)</button>
+              <button type="button" class="combo-pill is-combo" data-combo-preset="ai,async,data" data-i18n="console.presetAi">AI+队列+数据 (ai,async,data)</button>
+            </div>
+
+            <div class="composer-output">
+              <span class="composer-label" data-i18n="console.composerLabel">在 AI 会话中输入：</span>
+              <div class="terminal-pill composer-pill">
+                <code>&gt; <span class="cmd-highlight" id="layerCmdPrefix">/archray</span> <span id="layerCliArg">all</span></code>
+                <button type="button" class="copy-icon-btn" id="copyLayerSlashBtn" data-i18n="common.copy">复制</button>
+              </div>
+              <p class="inspector-hint" id="layerHintLine">或对 AI 说“用 archray 画全部 10 层全景” · 构建参数 <code>--layers all</code></p>
+            </div>
+          </div>
+
+          <div class="console-stage">
+            <!-- Left: Live Interactive Isometric Multi-Slab Stack -->
+            <div class="spatial-preview-well">
+              <div class="well-topbar">
+                <span class="mono" style="font-size: 0.8rem; color: var(--ink-muted);" data-i18n="console.wellTitle">3D 空间透视坐标栈</span>
+                <label class="fader-inline" for="explodeRange">
+                  <span data-i18n="console.faderLabel">层距推子</span>
+                  <input type="range" id="explodeRange" min="0.65" max="1.65" step="0.05" value="1.15" />
+                  <strong id="explodeValue">1.15x</strong>
+                </label>
+              </div>
+
+              <svg class="iso-stack-svg" id="isoStackSvg" viewBox="0 0 600 280" aria-label="Interactive 3D architectural layer stack"></svg>
+
+              <div class="chip-row" id="layerTechChips"></div>
+            </div>
+
+            <!-- Right: Layer Specification -->
+            <div class="console-inspector">
+              <div>
+                <div class="inspector-layer-id" id="layerHeading">ALL · L0–L9</div>
+                <h3 id="layerTitle" style="margin-top: 8px;">全栈十层全景视角</h3>
+              </div>
+
+              <div class="chip-row">
+                <span class="role-badge" id="layerZoneBadge">3D 全景空间 · 十层映射</span>
+                <span class="role-badge is-neutral" id="layerShapeBadge">默认保留完整上下文</span>
+              </div>
+
+              <p id="layerDesc">分析一次仓库源码即可任意切片：同时查看前端、网关、后端服务、异步队列、AI、外部 SaaS 与数据库，也支持 --lang、doctor 与 update。</p>
+
+              <a class="link-plain" href="#live" data-i18n="console.jumpDemo">在实机沙盒中查看该层 →</a>
+            </div>
+          </div>
+
+          <!-- Console Mode Toolbar + Tactile Hardware Keycap Matrix -->
+          <div class="console-deck-wrap">
+            <div class="console-mode-bar">
+              <div class="console-mode-actions">
+                <button type="button" class="mode-toggle-btn" id="multiLayerModeBtn" aria-pressed="false" data-i18n="console.multiOff">多选自由组合：关闭</button>
+                <button type="button" class="mode-reset-btn" id="selectAllLayersBtn" data-i18n="console.btnAll">查看全部 (L0–L9)</button>
+              </div>
+              <span class="console-mode-hint" data-i18n="console.modeHint">点击单层或开启“多选自由组合”，任意拼接前端+后端+AI+数据（自动保留一跳上下游）</span>
+            </div>
+
+            <div class="keycap-deck" role="tablist" aria-label="10 canonical architecture layers">
+              <div class="deck-bank">
+                <span class="bank-label">ENTRY · 接入</span>
+                <div class="bank-keys" id="bankEntry"></div>
+              </div>
+              <div class="deck-bank">
+                <span class="bank-label">CORE · 核心</span>
+                <div class="bank-keys" id="bankCore"></div>
+              </div>
+              <div class="deck-bank">
+                <span class="bank-label">WINGS · 侧翼</span>
+                <div class="bank-keys" id="bankWings"></div>
+              </div>
+              <div class="deck-bank">
+                <span class="bank-label">BASE · 基座</span>
+                <div class="bank-keys" id="bankBase"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. PAIN-POINT DETECTOR MOSAIC (Breathing Dual-State Toggle) -->
+    <section id="detector" class="section-band">
+      <div class="wrap">
+        <div class="section-intro">
+          <div class="section-intro-copy">
+            <h2 data-i18n="detector.title">精准消除传统架构图的五大乱象。</h2>
+            <p data-i18n="detector.subtitle">点击右侧呼吸开关，对比通用 AI 草图默认缺陷与 ArchRay 确定性空间引擎的处理结果。</p>
+          </div>
+
+          <div class="detector-switch-pod" id="detectorSwitchPod" data-state="before">
+            <button type="button" class="pod-side is-before is-active" id="detectorBtnBefore" data-i18n="detector.sideBefore">传统通病</button>
+            <button type="button" role="switch" id="detectorSwitch" class="switch-track is-breathing" aria-checked="false" aria-label="Toggle ArchRay resolved view">
+              <span class="switch-thumb"><span class="switch-thumb-dot"></span></span>
+            </button>
+            <button type="button" class="pod-side is-after" id="detectorBtnAfter" data-i18n="detector.sideAfter">✦ ArchRay 解法</button>
+          </div>
+        </div>
+
+        <div class="specimen-mosaic" id="specimenMosaic">
+          <article class="specimen-cell span-tall">
+            <span class="specimen-tag" data-spec-tag="0">跨层乱线蜘蛛网</span>
+            <div class="specimen-graphic" aria-hidden="true">
+              <svg id="specimenHeroGraphic" viewBox="0 0 340 168"></svg>
+            </div>
+            <div class="specimen-box">
+              <div class="specimen-title" data-spec-title="0">所有连线挤在同一平面互相穿透</div>
+              <p class="specimen-desc" data-spec-desc="0">前端、网关、后台线程与数据库堆叠在无序矩形里，节点超过 15 个即彻底失去可读性。</p>
+              <div class="specimen-code"><span data-spec-code="0">crossings: 28 · unreadable</span><span>L0–L9</span></div>
+            </div>
+          </article>
+
+          <article class="specimen-cell tone-grid">
+            <span class="specimen-tag" data-spec-tag="1">AI 臆测黑盒</span>
+            <div class="specimen-box">
+              <div class="specimen-title" data-spec-title="1">凭目录名字脑补不存在的调用关系</div>
+              <p class="specimen-desc" data-spec-desc="1">缺少 schema 校验与源码引用约束，架构图看似完整却与真实代码脱节。</p>
+              <div class="specimen-code"><span data-spec-code="1">src/orders/order.service.ts:42</span><span>✓</span></div>
+            </div>
+          </article>
+
+          <article class="specimen-cell tone-slate">
+            <span class="specimen-tag" data-spec-tag="2">死板同质白框</span>
+            <div class="specimen-box">
+              <div class="specimen-title" data-spec-title="2">网关、数据库与消息队列长相完全一样</div>
+              <p class="specimen-desc" data-spec-desc="2">无法一眼分辨存储基座、异步任务流与三方外部依赖的技术角色。</p>
+              <div class="specimen-code"><span data-spec-code="2">167 vector brand icons + 3D shapes</span><span>3D</span></div>
+            </div>
+          </article>
+
+          <article class="specimen-cell tone-cream">
+            <span class="specimen-tag" data-spec-tag="3">静态死图无诊断</span>
+            <div class="specimen-box">
+              <div class="specimen-title" data-spec-title="3">看不出哪里存在高耦合或供应商锁定</div>
+              <p class="specimen-desc" data-spec-desc="3">画完即止，无法辅助技术债治理、框架升级或云服务平替决策。</p>
+              <div class="specimen-code"><span data-spec-code="3">Health + Replaceability diff</span><span>AI</span></div>
+            </div>
+          </article>
+
+          <article class="specimen-cell tone-sage">
+            <span class="specimen-tag" data-spec-tag="4">截图裁切难分享</span>
+            <div class="specimen-box">
+              <div class="specimen-title" data-spec-title="4">大图截不全、外链图床泄露代码隐私</div>
+              <p class="specimen-desc" data-spec-desc="4">浏览器手动截图只剩局部残片，依赖在线制图服务又无法通过安全合规审查。</p>
+              <div class="specimen-code"><span data-spec-code="4">Unclipped PNG + Offline QR Poster</span><span>QR</span></div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. ARCHRAY IN ACTION: Split Terminal + Real Live Interactive Sandbox -->
+    <section id="live" class="section-band">
+      <div class="wrap">
+        <div class="section-intro">
+          <div class="section-intro-copy">
+            <h2 data-i18n="live.title">实机在线沙盒：真单文件 HTML 即刻把玩。</h2>
+            <p data-i18n="live.subtitle">左侧还原 AI 编程会话指令，右侧直接内嵌由 FreshMart 示例构建的真实离线 HTML 产物。</p>
+          </div>
+        </div>
+
+        <div class="action-window">
+          <div class="window-chrome">
+            <div class="traffic-lights" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="window-url">.archray/index.html · 100% Offline Single-File</div>
+            <div class="window-presets" role="group" aria-label="Sandbox view presets">
+              <button type="button" class="preset-btn is-active" data-demo-preset="3d" data-i18n="live.p3d">3D 空间全景</button>
+              <button type="button" class="preset-btn" data-demo-preset="2d" data-i18n="live.p2d">2D Bento 版图</button>
+              <button type="button" class="preset-btn" data-demo-preset="health" data-i18n="live.pHealth">健康度热点</button>
+              <button type="button" class="preset-btn" data-demo-preset="replace" data-i18n="live.pReplace">可替代性评估</button>
+              <a class="preset-btn" href="./demo.html" target="_blank" rel="noopener noreferrer" data-i18n="live.openFull">新窗口全屏 ↗</a>
+            </div>
+          </div>
+
+          <div class="session-strip">
+            <div class="session-strip-left">
+              <span class="mono" style="color: var(--ink-on-dark-muted);">You</span>
+              <span class="slash-tag">/archray</span>
+              <span class="slash-sub" id="sessionSubTag">3d</span>
+              <span data-i18n="live.promptText">审查当前仓库真实源码，输出双语分层 3D/2D 架构视图与热点证据。</span>
+            </div>
+            <div class="session-strip-right">
+              <span><span class="ok">✓</span> 16 modules · 5 layers</span>
+              <span><span class="ok">✓</span> 0 locale gaps</span>
+              <span><span class="ok">→</span> .archray/index.html</span>
+            </div>
+          </div>
+
+          <div class="live-iframe-stage">
+            <iframe
+              id="demoFrame"
+              class="demo-iframe"
+              src="./demo.html?lang=zh-CN"
+              title="ArchRay Live Interactive 3D and 2D Architecture Demo"
+              loading="lazy"
+            ></iframe>
+            <div class="iframe-veil" id="demoVeil">
+              <button type="button" class="veil-pill" id="unlockDemoBtn" data-i18n="live.unlock">点击解锁 3D 旋转与缩放交互</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. BUILT AROUND YOUR REAL ENGINEERING REPOSITORY (Concise 3 Repos + 2 Ledger Panes) -->
+    <section id="principles" class="section-band">
+      <div class="wrap">
+        <div class="section-intro">
+          <div class="section-intro-copy">
+            <h2 data-i18n="principles.title">围绕你的真实工程构建，而非演示玩具。</h2>
+            <p data-i18n="principles.subtitle">页面所见均由真实仓库源码提取：玩具画法只有 4 个手绘方块、没有行号引用；ArchRay 直接读取真实代码，经数千文件 Monorepo 验证并区分实测与估算（≈）。</p>
+          </div>
+        </div>
+
+        <!-- Row 1: 3 Real-World Repository Benchmarks -->
+        <div class="real-repo-grid">
+          <article class="real-repo-card">
+            <div class="repo-card-top">
+              <span class="repo-name">calcom/cal.com</span>
+              <span class="repo-tag" data-i18n="principles.r1Tag">大型 Monorepo</span>
+            </div>
+            <div class="repo-metrics" data-i18n="principles.r1Metrics">7,712 文件 · 33 模块 · 75 边 · 7 层</div>
+            <p class="repo-desc" data-i18n="principles.r1Desc">高密子包默认 +N 折叠，196ms 完成 ELK 确定性布局，60fps 流畅缩放。</p>
+            <code class="repo-evidence">apps/web · packages/features · 196ms</code>
+          </article>
+
+          <article class="real-repo-card">
+            <div class="repo-card-top">
+              <span class="repo-name">FreshMart Commerce</span>
+              <span class="repo-tag is-emerald" data-i18n="principles.r2Tag">沙盒同源工程</span>
+            </div>
+            <div class="repo-metrics" data-i18n="principles.r2Metrics">16 模块 · 21 边 · 5 层 · 3 条链路</div>
+            <p class="repo-desc" data-i18n="principles.r2Desc">定位订单服务 6,200 行同步锁热点，给出 Passport → Clerk 平替方案与迁移 Prompt。</p>
+            <code class="repo-evidence">apps/api/src/order/order.service.ts</code>
+          </article>
+
+          <article class="real-repo-card">
+            <div class="repo-card-top">
+              <span class="repo-name">SaaS Starter &amp; RealWorld</span>
+              <span class="repo-tag" data-i18n="principles.r3Tag">前后端真实样本</span>
+            </div>
+            <div class="repo-metrics" data-i18n="principles.r3Metrics">43–49 源文件 · 0.03s 出图 · 零虚构指标</div>
+            <p class="repo-desc" data-i18n="principles.r3Desc">精准映射 App Router、Prisma 与 Stripe 轨道，并捕获 JWT_SECRET 回退高危项。</p>
+            <code class="repo-evidence">middleware.ts · prisma/schema.prisma</code>
+          </article>
+        </div>
+
+        <!-- Row 2: Clean 2-Column Evidence Ledger -->
+        <div class="arch-ledger">
+          <div class="ledger-top">
+            <div class="ledger-pane">
+              <h3 data-i18n="principles.leftTitle">AI 负责语义阅读，引擎负责确定性几何。</h3>
+              <p data-i18n="principles.leftBody">大模型从不直接手写 SVG 坐标，只提取经源码验证的模块与证据；布局与三维投影全由确定性引擎完成，零全局污染（.archray/ 可随时卸载）。</p>
+              <div class="mini-terminal">
+                <div class="mini-term-head"><span>● ● ●</span><span>archray validate &amp; build</span></div>
+                <div class="mini-term-body">
+                  <div>&gt; ./.archray/archray validate .archray/graph.json</div>
+                  <div style="color: #34d399;">✓ TypeBox schema valid · 16 nodes · 21 edges</div>
+                  <div>&gt; ./.archray/archray build .archray/graph.json --force</div>
+                  <div style="color: #fbbf24;">→ .archray/index.html ready (100% offline)</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ledger-pane">
+              <h3 data-i18n="principles.rightTitle">每一处结论都留在仓库可审计的 JSON 里。</h3>
+              <p data-i18n="principles.rightBody">图谱保存为 .archray/graph.json 与 view.json 随 Git 演进，实测值与静态估算（≈）诚实分标，支持无裁切整图与离线扫码海报导出。</p>
+              <div class="mini-doc">
+                <div class="mini-doc-head"><span>.archray/graph.json</span><span>Evidence Schema</span></div>
+                <div class="mini-doc-body">
+                  <div>1 &nbsp;{ "id": "order", "layer": "service",</div>
+                  <div>2 &nbsp;&nbsp;&nbsp;"sourcePaths": ["apps/api/src/order/order.service.ts"],</div>
+                  <div>3 &nbsp;&nbsp;&nbsp;"metrics": { "loc": { "value": 6200, "origin": "measured" } }</div>
+                  <div>4 &nbsp;}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. INSTALL ARCHRAY (Clean 2-Column Stepper) -->
+    <section id="install" class="section-band">
+      <div class="wrap install-layout">
+        <div class="section-intro-copy">
+          <h2 data-i18n="install.title">安装 ArchRay</h2>
+          <p data-i18n="install.subtitle">30 秒装入目标项目根目录，开启新会话输入 /archray，第一张空间架构图即刻生成。</p>
+          <div style="margin-top: 12px;">
+            <a class="link-plain" href="https://github.com/loofare/ArchRay" target="_blank" rel="noopener noreferrer" data-i18n="install.repoLink">浏览 GitHub 源码与完整文档 →</a>
+          </div>
+          <ul class="install-points">
+            <li><b>01</b><span data-i18n="install.point1">不修改业务源码</span></li>
+            <li><b>02</b><span data-i18n="install.point2">CLI、viewer、Skill 自包含在 .archray/tool</span></li>
+            <li><b>03</b><span data-i18n="install.point3">保留 graph/view/index，可随时更新或卸载</span></li>
+          </ul>
+        </div>
+
+        <div class="install-steps">
+          <div class="install-card">
+            <div class="step-head">
+              <span class="step-num">1</span>
+              <h3 data-i18n="install.step1Title">第一步：复制安装命令，在项目根目录运行</h3>
+            </div>
+
+            <div class="host-pills" role="tablist" aria-label="Select AI coding host">
+              <button type="button" class="host-pill is-active" data-host="claude" role="tab" aria-selected="true">Claude Code</button>
+              <button type="button" class="host-pill" data-host="cursor" role="tab" aria-selected="false">Cursor</button>
+              <button type="button" class="host-pill" data-host="antigravity" role="tab" aria-selected="false">Antigravity</button>
+              <button type="button" class="host-pill" data-host="pi" role="tab" aria-selected="false">Pi</button>
+              <button type="button" class="host-pill" data-host="codex" role="tab" aria-selected="false">Codex</button>
+            </div>
+
+            <div class="terminal-pill install-command">
+              <code id="hostInstallCode">$ curl -fsSL https://<wbr>github.com/<wbr>loofare/<wbr>ArchRay/<wbr>releases/<wbr>latest/<wbr>download/<wbr>install.sh | sh -s -- . claude</code>
+              <button type="button" class="copy-icon-btn" id="copyInstallBtn" data-i18n="common.copy">复制</button>
+            </div>
+            <div class="install-verify">SHA-256 校验 · 与 latest.json 同批发布 · <a href="https://github.com/loofare/ArchRay/releases/latest" target="_blank" rel="noopener noreferrer">查看 Release</a></div>
+
+            <dl class="install-meta-grid" style="margin: 0;">
+              <div class="install-meta-box">
+                <dt data-i18n="install.entryLabel">会话触发入口</dt>
+                <dd id="hostEntryVal">/archray</dd>
+              </div>
+              <div class="install-meta-box">
+                <dt data-i18n="install.pathLabel">写入宿主配置</dt>
+                <dd id="hostPathVal">.claude/skills/archray/ · .claude/commands/</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div class="install-card">
+            <div class="step-head">
+              <span class="step-num">2</span>
+              <h3 data-i18n="install.step2Title">第二步：安装好后，复制这句话对你的 AI 说</h3>
+            </div>
+            <div class="terminal-pill">
+              <code><span class="prompt-caret" aria-hidden="true">›</span> <span id="installPromptCode" data-i18n="install.step2Prompt">用 archray 画一下这个项目的架构（或直接输入 /archray）</span></code>
+              <button type="button" class="copy-icon-btn" id="copyInstallPromptBtn" data-i18n="common.copy">复制</button>
+            </div>
+
+            <details class="install-maint">
+              <summary data-i18n="install.maintLabel">日常自检、升级与干净卸载</summary>
+              <div class="terminal-pill">
+                <code id="maintCode">$ ./.archray/archray doctor &amp;&amp; ./.archray/archray update --check</code>
+                <button type="button" class="copy-icon-btn" id="copyMaintBtn" data-i18n="common.copy">复制</button>
+              </div>
+            </details>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. PRIVACY POLICY & AUTHOR / COLLABORATION -->
+    <section id="privacy" class="section-band">
+      <div class="wrap">
+        <div class="section-intro">
+          <div class="section-intro-copy">
+            <h2 data-i18n="privacy.title">隐私协议与合作联系</h2>
+            <p data-i18n="privacy.subtitle">代码资产永远留在你的本地仓库；开源共建、企业定制或技术交流欢迎直接联系。</p>
+          </div>
+        </div>
+
+        <div class="trust-contact-grid">
+          <article class="policy-card">
+            <div style="display: flex; flex-direction: column; gap: 18px;">
+              <h3 data-i18n="privacy.cardTitle">ArchRay 隐私与数据安全声明</h3>
+
+              <!-- Visual Zero-Upload Security Flow Diagram -->
+              <svg class="privacy-flow-svg" viewBox="0 0 520 88" aria-hidden="true">
+                <rect x="8" y="16" width="134" height="56" rx="8" fill="#ffffff" stroke="#10b981" stroke-width="1.5" />
+                <text x="75" y="41" text-anchor="middle" fill="#0f172a" font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="700" data-i18n="privacy.svgRepo">本地项目源码</text>
+                <text x="75" y="58" text-anchor="middle" fill="#059669" font-family="JetBrains Mono, monospace" font-size="9.5">Local Git Repo</text>
+
+                <line x1="144" y1="44" x2="188" y2="44" stroke="#10b981" stroke-width="1.8" />
+                <polygon points="186,40 194,44 186,48" fill="#10b981" />
+
+                <rect x="196" y="16" width="138" height="56" rx="8" fill="#ffffff" stroke="#0d9488" stroke-width="1.5" />
+                <text x="265" y="41" text-anchor="middle" fill="#0f172a" font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="700" data-i18n="privacy.svgOffline">本地离线构建</text>
+                <text x="265" y="58" text-anchor="middle" fill="#0f766e" font-family="JetBrains Mono, monospace" font-size="9.5">Single-File HTML</text>
+
+                <line x1="336" y1="44" x2="378" y2="44" stroke="#dc2626" stroke-dasharray="4 3" stroke-width="1.8" />
+                <circle cx="357" cy="44" r="9" fill="#dc2626" />
+                <text x="357" y="48" text-anchor="middle" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700">✕</text>
+
+                <rect x="384" y="16" width="128" height="56" rx="8" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.3" />
+                <text x="448" y="41" text-anchor="middle" fill="#991b1b" font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="700" data-i18n="privacy.svgCloud">0 字节外传</text>
+                <text x="448" y="58" text-anchor="middle" fill="#b91c1c" font-family="JetBrains Mono, monospace" font-size="9.5">Zero Cloud Upload</text>
+              </svg>
+
+              <ul class="policy-list">
+                <li>
+                  <strong data-i18n="privacy.p1Head">1. 业务源码与图谱 100% 本地零上传</strong>
+                  <span data-i18n="privacy.p1Body">ArchRay CLI 与构建生成的单文件 HTML 完全在本地离线运行，绝不向 archray.dev 或任何远端服务器上传源码、目录名、环境变量或架构数据。</span>
+                </li>
+                <li>
+                  <strong data-i18n="privacy.p2Head">2. 宿主 AI 会话隔离与透明边界</strong>
+                  <span data-i18n="privacy.p2Body">代码审查与架构提取仅发生在你自行授权的 AI 编程助手（Claude Code / Cursor / Antigravity / Pi / Codex）会话内，受你所选模型服务商自身的隐私条款约束。</span>
+                </li>
+                <li>
+                  <strong data-i18n="privacy.p3Head">3. 零埋点、零追踪、全量 MIT 开源可审计</strong>
+                  <span data-i18n="privacy.p3Body">工具链与导出视图不含任何遥测探针或第三方追踪 Cookie；仅在主动执行 update 时只读查询 GitHub Releases 校验 SHA-256。</span>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <a class="link-plain" href="https://github.com/loofare/ArchRay" target="_blank" rel="noopener noreferrer" data-i18n="privacy.auditLink">在 GitHub 审计完整开源代码 →</a>
+            </div>
+          </article>
+
+          <aside class="contact-card" id="contact">
+            <div>
+              <div class="creator-head">
+                <div class="creator-id">
+                  <span class="creator-monogram" aria-hidden="true">DY</span>
+                  <div>
+                    <div class="creator-name">David Yin</div>
+                    <div class="creator-role" data-i18n="contact.role">ArchRay 作者 · 独立开发者与架构设计</div>
+                  </div>
+                </div>
+                <span class="creator-status">
+                  <span class="creator-status-dot" aria-hidden="true"></span>
+                  <span data-i18n="contact.badge">欢迎交流合作</span>
+                </span>
+              </div>
+
+              <p style="margin-top: 16px; font-size: 0.9rem; color: var(--ink-on-dark-muted);" data-i18n="contact.cardDesc">
+                欢迎架构可视化共创、研发效能工具合作、私有化规范定制或问题反馈，以下企业邮箱与个人邮箱均可直接联系。
+              </p>
+
+              <div class="contact-rows" style="margin-top: 18px;">
+                <div class="contact-row">
+                  <span class="contact-label-group" data-i18n="contact.emailLabel">联系邮箱（官方域名）</span>
+                  <span style="display: inline-flex; align-items: center; gap: 8px;">
+                    <a class="contact-val" href="mailto:hello@archray.dev">hello@archray.dev</a>
+                    <button type="button" class="copy-icon-btn" id="copyEmailBtn" data-i18n="common.copy">复制</button>
+                  </span>
+                </div>
+
+                <div class="contact-row">
+                  <span class="contact-label-group" data-i18n="contact.personalEmailLabel">个人邮箱（直达回复）</span>
+                  <span style="display: inline-flex; align-items: center; gap: 8px;">
+                    <a class="contact-val" href="mailto:loofare@gmail.com">loofare@gmail.com</a>
+                    <button type="button" class="copy-icon-btn" id="copyPersonalEmailBtn" data-i18n="common.copy">复制</button>
+                  </span>
+                </div>
+
+                <div class="contact-row">
+                  <span class="contact-label-group" data-i18n="contact.siteLabel">作者个人官网</span>
+                  <a class="contact-val" href="https://davidyin.dev" target="_blank" rel="noopener noreferrer">davidyin.dev ↗</a>
+                </div>
+
+                <div class="contact-row">
+                  <span class="contact-label-group" data-i18n="contact.repoLabel">GitHub 开源仓库</span>
+                  <a class="contact-val" href="https://github.com/loofare/ArchRay" target="_blank" rel="noopener noreferrer">github.com/loofare/ArchRay ↗</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="contact-cta-group">
+              <a class="btn-amber-card" href="mailto:loofare@gmail.com?cc=hello@archray.dev">
+                <span data-i18n="contact.ctaMail">写信联系我</span>
+                <span aria-hidden="true">→</span>
+              </a>
+              <a class="btn-ghost-dark" href="https://davidyin.dev" target="_blank" rel="noopener noreferrer">
+                <span data-i18n="contact.ctaSite">访问 davidyin.dev</span>
+                <span aria-hidden="true">↗</span>
+              </a>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-row">
+      <p style="font-size: 0.88rem;">
+        <strong style="color: var(--ink-strong);">ArchRay</strong> · <span data-i18n="footer.note">MIT 开源项目 · AI 优先的空间架构可视化工具</span>
+      </p>
+      <div class="footer-links">
+        <a href="https://archray.dev">archray.dev</a>
+        <a href="https://davidyin.dev" target="_blank" rel="noopener noreferrer">davidyin.dev</a>
+        <a href="mailto:hello@archray.dev">hello@archray.dev</a>
+        <a href="mailto:loofare@gmail.com">loofare@gmail.com</a>
+        <a href="#privacy" data-i18n="footer.privacy">隐私协议</a>
+        <a href="https://github.com/loofare/ArchRay" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="./demo.html" target="_blank" rel="noopener noreferrer" data-i18n="footer.demo">全屏沙盒</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="./app.js?v=056"></script>
+</body>
+</html>

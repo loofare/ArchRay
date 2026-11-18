@@ -1,0 +1,17 @@
+{
+  "name": "archray-web",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./site"
+  },
+  "routes": [
+    {
+      "pattern": "archray.dev",
+      "custom_domain": true
+    },
+    {
+      "pattern": "www.archray.dev",
+      "custom_domain": true
+    }
+  ]
+}
