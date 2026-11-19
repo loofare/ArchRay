@@ -1177,7 +1177,7 @@
     if (subTag) subTag.textContent = activeDemoPreset;
 
     const params = new URLSearchParams();
-    params.set('lang', lang);
+    params.set('locale', lang === 'en' ? 'en' : 'zh-CN');
     if (activeDemoPreset === '2d') {
       params.set('projection', '2d');
       params.set('mode', 'topology');
@@ -1284,6 +1284,9 @@
       if (active) link.setAttribute('aria-current', 'page');
       else link.removeAttribute('aria-current');
     });
+    document.querySelectorAll('[data-demo-link]').forEach((link) => {
+      link.href = '/demo.html?locale=' + (lang === 'en' ? 'en' : 'zh-CN');
+    });
     updateShareAssets();
   }
 
@@ -1332,7 +1335,7 @@
       image.alt = t('share.previewAlt');
     }
     const demoLink = document.getElementById('shareDemoLink');
-    if (demoLink) demoLink.href = '/demo.html?lang=' + (lang === 'en' ? 'en' : 'zh-CN');
+    if (demoLink) demoLink.href = '/demo.html?locale=' + (lang === 'en' ? 'en' : 'zh-CN');
     const link = document.getElementById('shareLink');
     if (link) {
       link.href = sharePageUrl();
