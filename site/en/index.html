@@ -17,14 +17,14 @@
   <meta property="og:site_name" content="ArchRay">
   <meta property="og:locale" content="en_US">
   <meta property="og:locale:alternate" content="zh_CN">
-  <meta property="og:image" content="https://archray.dev/og.png">
+  <meta property="og:image" content="https://archray.dev/share-en.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="ArchRay — AI-first 3D architecture maps with source evidence">
+  <meta property="og:image:alt" content="ArchRay share card: a 3D architecture X-ray of your codebase">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="ArchRay — 3D Architecture Maps with Source Evidence for AI Coding Agents">
   <meta name="twitter:description" content="ArchRay is an AI-first architecture visualiser: type /archray in Claude Code, Cursor, Antigravity, Pi or Codex, read real repository source, and get a layered, interactive, offline 3D/2D single-file HTML map.">
-  <meta name="twitter:image" content="https://archray.dev/og.png">
+  <meta name="twitter:image" content="https://archray.dev/share-en.png">
   <link rel="canonical" href="https://archray.dev/en/">
   <link rel="alternate" hreflang="zh-CN" href="https://archray.dev/">
   <link rel="alternate" hreflang="en" href="https://archray.dev/en/">
@@ -68,6 +68,7 @@
       "operatingSystem": "macOS, Linux, Windows",
       "softwareVersion": "0.5.0",
       "url": "https://archray.dev/",
+      "image": "https://archray.dev/share.png",
       "downloadUrl": "https://github.com/loofare/ArchRay/releases/latest",
       "codeRepository": "https://github.com/loofare/ArchRay",
       "license": "https://opensource.org/license/mit",
@@ -104,7 +105,7 @@
       },
       "primaryImageOfPage": {
         "@type": "ImageObject",
-        "url": "https://archray.dev/og.png",
+        "url": "https://archray.dev/share-en.png",
         "width": 1200,
         "height": 630
       },
@@ -180,8 +181,8 @@
   <noscript>
     <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Alumni+Sans:wght@200;300;400;600&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet" />
   </noscript>
-  <link rel="stylesheet" href="/styles/tokens.css?v=061">
-  <link rel="stylesheet" href="/styles/site.css?v=061">
+  <link rel="stylesheet" href="/styles/tokens.css?v=062">
+  <link rel="stylesheet" href="/styles/site.css?v=062">
 </head>
 <body>
   <header class="site-header">
@@ -215,6 +216,15 @@
             <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
           </svg>
           <span class="hide-xs" data-i18n="nav.themeLabel">Dark</span>
+        </button>
+        <button type="button" class="pill-ctl share-ctl" id="shareToggle" aria-label="Share" aria-haspopup="dialog" aria-controls="shareDialog" title="Share">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="18" cy="5" r="3"></circle>
+            <circle cx="6" cy="12" r="3"></circle>
+            <circle cx="18" cy="19" r="3"></circle>
+            <path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"></path>
+          </svg>
+          <span class="hide-xs" data-i18n="share.label">Share</span>
         </button>
         <button type="button" class="nav-toggle" id="navToggle" aria-label="Open navigation" aria-expanded="false" aria-controls="primaryNav">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
@@ -1239,7 +1249,56 @@
     </div>
   </footer>
 
-  <script src="/app.js?v=061"></script>
+  <dialog id="shareDialog" class="share-dialog" aria-labelledby="shareTitle" style="--share-card-bg: url(&quot;/share-en.png&quot;);">
+    <div class="share-panel">
+      <button type="button" class="share-close" id="shareClose" aria-label="Close share dialog" title="Close share dialog">×</button>
+      <div class="share-media">
+        <img id="sharePreview" src="/share-en.png" width="1200" height="630" loading="lazy" decoding="async" alt="ArchRay share card: a 3D architecture X-ray of your codebase">
+      </div>
+      <div class="share-copy">
+        <div class="share-kicker">ARCHRAY · SHARE</div>
+        <h2 id="shareTitle" data-i18n="share.title">Send this to the next person who has to read the code.</h2>
+        <p class="share-lede" data-i18n="share.lede">One image for the real layers and dependencies, plus a live interactive demo behind the link.</p>
+        <div class="share-caption-box">
+          <div class="share-caption-head">
+            <span data-i18n="share.captionLabel">Share copy</span>
+            <span class="share-caption-hint" data-i18n="share.captionHint">Ready to paste</span>
+          </div>
+          <p id="shareCaption" data-i18n="share.caption">Say goodbye to hand-drawn diagrams that become outdated with every code change—run /archray to inspect real source code and generate a layered, interactive, offline-shareable 3D/2D single-file HTML. Run /archray in your local project now to capture an interactive, drill-down 3D architecture X-ray of your own codebase.</p>
+          <div class="share-link-row"><span data-i18n="share.linkLabel">Link</span><a id="shareLink" href="https://archray.dev/en/" target="_blank" rel="noopener noreferrer">archray.dev/en</a></div>
+        </div>
+        <div class="share-actions">
+          <button type="button" class="share-btn primary" id="shareNativeBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"></path></svg>
+            <span data-i18n="share.native">Share image + link</span>
+          </button>
+          <button type="button" class="share-btn" id="shareImageOnlyBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"></rect><circle cx="8.5" cy="9" r="1.5"></circle><path d="m21 15-5-5L5 20"></path></svg>
+            <span data-i18n="share.imageOnly">Share image only</span>
+          </button>
+          <button type="button" class="share-btn" id="shareCopyImageBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></svg>
+            <span data-i18n="share.copyImage">Copy image</span>
+          </button>
+          <button type="button" class="share-btn" id="shareDownloadBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M4 21h16"></path></svg>
+            <span data-i18n="share.download">Save image</span>
+          </button>
+          <button type="button" class="share-btn" id="shareCopyLinkBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l2-2a5 5 0 0 0-7-7l-1.1 1.1"></path><path d="M14 11a5 5 0 0 0-7.5-.5l-2 2a5 5 0 0 0 7 7l1.1-1.1"></path></svg>
+            <span data-i18n="share.copyLink">Copy link</span>
+          </button>
+          <button type="button" class="share-btn" id="shareCopyCaptionBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></svg>
+            <span data-i18n="share.copyCaption">Copy caption</span>
+          </button>
+        </div>
+        <p class="share-status" id="shareStatus" role="status" aria-live="polite"></p>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="/app.js?v=062"></script>
 
 
 </body></html>

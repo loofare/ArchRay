@@ -80,7 +80,7 @@ function schemaFor(html, faqItems) {
     about: { '@id': 'https://archray.dev/#software' },
     primaryImageOfPage: {
       '@type': 'ImageObject',
-      url: 'https://archray.dev/og.png',
+      url: 'https://archray.dev/share-en.png',
       width: 1200,
       height: 630
     },

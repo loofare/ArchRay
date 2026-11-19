@@ -20,6 +20,27 @@
       'nav.themeToDark': '深色',
       'nav.themeToLight': '浅色',
       'nav.menu': '打开导航',
+      'share.label': '分享',
+      'share.title': '把这张图，发给下一位要读代码的人。',
+      'share.lede': '一张图看懂真实仓库的分层与依赖，链接里还有可交互的 Demo。',
+      'share.captionLabel': '分享文案',
+      'share.captionHint': '可直接粘贴',
+      'share.caption': '告别一改代码就过时的手绘框图，输入 /archray 读取真实源码，直接生成可分层、可交互且离线分享的 3D/2D 单文件 HTML。立即在你的本地项目运行 /archray，为自己的代码库拍一张可下钻探索的立体架构透视图。',
+      'share.linkLabel': '链接',
+      'share.native': '分享图片 + 链接',
+      'share.imageOnly': '只分享图片',
+      'share.copyImage': '复制图片',
+      'share.download': '保存图片',
+      'share.copyLink': '复制链接',
+      'share.copyCaption': '复制文案',
+      'share.previewAlt': 'ArchRay 分享卡片：给代码库拍张立体架构透视图',
+      'share.statusNative': '已打开系统分享。',
+      'share.statusFallback': '图片已保存，文案和链接已复制。',
+      'share.statusImage': '图片已保存，可粘贴到聊天或社交平台。',
+      'share.statusCopied': '已复制。',
+      'share.statusImageCopied': '图片已复制，可粘贴分享。',
+      'share.statusFailed': '浏览器不支持，已为你保存图片。',
+      'share.close': '关闭分享',
       'common.copy': '复制',
       'common.copied': '已复制 ✓',
 
@@ -218,6 +239,27 @@
       'nav.themeToDark': 'Dark',
       'nav.themeToLight': 'Light',
       'nav.menu': 'Open navigation',
+      'share.label': 'Share',
+      'share.title': 'Send this to the next person who has to read the code.',
+      'share.lede': 'One image for the real layers and dependencies, plus a live interactive demo behind the link.',
+      'share.captionLabel': 'Share copy',
+      'share.captionHint': 'Ready to paste',
+      'share.caption': 'Say goodbye to hand-drawn diagrams that become outdated with every code change—run /archray to inspect real source code and generate a layered, interactive, offline-shareable 3D/2D single-file HTML. Run /archray in your local project now to capture an interactive, drill-down 3D architecture X-ray of your own codebase.',
+      'share.linkLabel': 'Link',
+      'share.native': 'Share image + link',
+      'share.imageOnly': 'Share image only',
+      'share.copyImage': 'Copy image',
+      'share.download': 'Save image',
+      'share.copyLink': 'Copy link',
+      'share.copyCaption': 'Copy caption',
+      'share.previewAlt': 'ArchRay share card: a 3D architecture X-ray of your codebase',
+      'share.statusNative': 'System share opened.',
+      'share.statusFallback': 'Image saved; caption and link copied.',
+      'share.statusImage': 'Image saved. Paste it into chat or social.',
+      'share.statusCopied': 'Copied.',
+      'share.statusImageCopied': 'Image copied. Paste it to share.',
+      'share.statusFailed': 'Not supported here, so the image was saved.',
+      'share.close': 'Close share dialog',
       'common.copy': 'Copy',
       'common.copied': 'Copied ✓',
 
@@ -1202,6 +1244,12 @@
     if (twTitle) twTitle.setAttribute('content', t('page.title'));
     const twDescription = document.querySelector('meta[name="twitter:description"]');
     if (twDescription) twDescription.setAttribute('content', t('page.description'));
+    const ogImage = document.querySelector('meta[property="og:image"]');
+    if (ogImage) ogImage.setAttribute('content', isEnglish ? 'https://archray.dev/share-en.png' : 'https://archray.dev/share.png');
+    const twImage = document.querySelector('meta[name="twitter:image"]');
+    if (twImage) twImage.setAttribute('content', isEnglish ? 'https://archray.dev/share-en.png' : 'https://archray.dev/share.png');
+    const ogImageAlt = document.querySelector('meta[property="og:image:alt"]');
+    if (ogImageAlt) ogImageAlt.setAttribute('content', t('share.previewAlt'));
 
     document.querySelectorAll('[data-i18n]').forEach((el) => {
       const k = el.getAttribute('data-i18n');
@@ -1220,6 +1268,7 @@
     renderDetector();
     renderAllConsole();
     renderHostInstaller();
+    updateShareAssets();
   }
 
   function initMobileNav() {
@@ -1247,9 +1296,198 @@
     window.addEventListener('resize', () => { if (window.innerWidth > 1080) close(); });
   }
 
+  /* ---- Share Card ---- */
+  const shareStatusTimers = new WeakMap();
+
+  function shareImagePath() {
+    return lang === 'en' ? '/share-en.png' : '/share.png';
+  }
+
+  function sharePageUrl() {
+    return lang === 'en' ? 'https://archray.dev/en/' : 'https://archray.dev/';
+  }
+
+  function updateShareAssets() {
+    const dialog = document.getElementById('shareDialog');
+    if (dialog) dialog.style.setProperty('--share-card-bg', `url("${shareImagePath()}")`);
+    const image = document.getElementById('sharePreview');
+    if (image) {
+      image.src = shareImagePath();
+      image.alt = t('share.previewAlt');
+    }
+    const link = document.getElementById('shareLink');
+    if (link) {
+      link.href = sharePageUrl();
+      link.textContent = lang === 'en' ? 'archray.dev/en' : 'archray.dev';
+    }
+    const trigger = document.getElementById('shareToggle');
+    if (trigger) {
+      trigger.setAttribute('aria-label', t('share.label'));
+      trigger.setAttribute('title', t('share.label'));
+    }
+    const close = document.getElementById('shareClose');
+    if (close) {
+      close.setAttribute('aria-label', t('share.close'));
+      close.setAttribute('title', t('share.close'));
+    }
+  }
+
+  function showShareStatus(key) {
+    const el = document.getElementById('shareStatus');
+    if (!el) return;
+    const previous = shareStatusTimers.get(el);
+    if (previous) clearTimeout(previous);
+    el.textContent = t(key);
+    shareStatusTimers.set(el, setTimeout(() => { el.textContent = ''; }, 5200));
+  }
+
+  async function copyText(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      const area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', '');
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      let copied = false;
+      try { copied = document.execCommand('copy'); } catch { copied = false; }
+      area.remove();
+      return copied;
+    }
+  }
+
+  async function getShareFile() {
+    const response = await fetch(shareImagePath(), { cache: 'no-store' });
+    if (!response.ok) throw new Error('share image unavailable');
+    const blob = await response.blob();
+    const name = lang === 'en' ? 'archray-share-en.png' : 'archray-share.png';
+    return new File([blob], name, { type: 'image/png' });
+  }
+
+  function downloadBlob(blob) {
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = lang === 'en' ? 'archray-share-en.png' : 'archray-share.png';
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function downloadShareImage() {
+    const anchor = document.createElement('a');
+    anchor.href = shareImagePath();
+    anchor.download = lang === 'en' ? 'archray-share-en.png' : 'archray-share.png';
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+  }
+
+  async function copyShareImage() {
+    try {
+      const file = await getShareFile();
+      if (!navigator.clipboard || !navigator.clipboard.write || typeof ClipboardItem === 'undefined') {
+        throw new Error('clipboard image unsupported');
+      }
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': file })]);
+      showShareStatus('share.statusImageCopied');
+    } catch {
+      try { downloadShareImage(); } catch { /* no-op */ }
+      showShareStatus('share.statusImage');
+    }
+  }
+
+  async function shareCard(withLink) {
+    try {
+      const file = await getShareFile();
+      const caption = t('share.caption') + (withLink ? '\n\n' + sharePageUrl() : '');
+      const payload = withLink
+        ? { files: [file], title: t('share.title'), text: caption }
+        : { files: [file], title: t('share.title') };
+      let canShareFiles = false;
+      try {
+        canShareFiles = typeof navigator.canShare === 'function' && navigator.canShare(payload);
+      } catch { canShareFiles = false; }
+
+      if (typeof navigator.share === 'function' && canShareFiles) {
+        await navigator.share(payload);
+        showShareStatus('share.statusNative');
+        return;
+      }
+
+      if (withLink) {
+        downloadBlob(file);
+        await copyText(caption);
+        showShareStatus('share.statusFallback');
+      } else {
+        downloadBlob(file);
+        showShareStatus('share.statusImage');
+      }
+    } catch (error) {
+      if (error && error.name === 'AbortError') return;
+      showShareStatus('share.statusFailed');
+    }
+  }
+
+  function initShare() {
+    const dialog = document.getElementById('shareDialog');
+    const trigger = document.getElementById('shareToggle');
+    if (!dialog || !trigger) return;
+
+    const close = () => {
+      if (typeof dialog.close === 'function') dialog.close();
+      else dialog.removeAttribute('open');
+      document.body.classList.remove('share-open');
+    };
+
+    trigger.addEventListener('click', () => {
+      updateShareAssets();
+      const status = document.getElementById('shareStatus');
+      if (status) status.textContent = '';
+      if (typeof dialog.showModal === 'function') dialog.showModal();
+      else dialog.setAttribute('open', '');
+      document.body.classList.add('share-open');
+    });
+
+    const closeBtn = document.getElementById('shareClose');
+    if (closeBtn) closeBtn.addEventListener('click', close);
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) close();
+    });
+    dialog.addEventListener('close', () => document.body.classList.remove('share-open'));
+
+    const nativeBtn = document.getElementById('shareNativeBtn');
+    const imageBtn = document.getElementById('shareImageOnlyBtn');
+    const copyImageBtn = document.getElementById('shareCopyImageBtn');
+    const downloadBtn = document.getElementById('shareDownloadBtn');
+    const copyLinkBtn = document.getElementById('shareCopyLinkBtn');
+    const copyCaptionBtn = document.getElementById('shareCopyCaptionBtn');
+
+    if (nativeBtn) nativeBtn.addEventListener('click', () => { void shareCard(true); });
+    if (imageBtn) imageBtn.addEventListener('click', () => { void shareCard(false); });
+    if (copyImageBtn) copyImageBtn.addEventListener('click', () => { void copyShareImage(); });
+    if (downloadBtn) downloadBtn.addEventListener('click', () => {
+      downloadShareImage();
+      showShareStatus('share.statusImage');
+    });
+    if (copyLinkBtn) copyLinkBtn.addEventListener('click', () => {
+      void copyText(sharePageUrl()).then((ok) => showShareStatus(ok ? 'share.statusCopied' : 'share.statusFailed'));
+    });
+    if (copyCaptionBtn) copyCaptionBtn.addEventListener('click', () => {
+      void copyText(t('share.caption') + '\n\n' + sharePageUrl())
+        .then((ok) => showShareStatus(ok ? 'share.statusCopied' : 'share.statusFailed'));
+    });
+  }
+
   function init() {
     initHeroComparison();
     initMobileNav();
+    initShare();
 
     const langBtn = document.getElementById('langToggle');
     if (langBtn) {
