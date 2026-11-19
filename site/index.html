@@ -3,26 +3,127 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ArchRay — AI 编程助手的空间架构可视化语言</title>
-  <meta name="description" content="ArchRay reads real repository source in your AI coding session and builds deterministic, interactive, 100% offline 3D Spatial & 2D Bento HTML architecture maps." />
-  <meta property="og:title" content="ArchRay — Spatial Architecture Vocabulary for Coding Agents" />
-  <meta property="og:description" content="Install into any repo once, type /archray in Claude Code, Cursor, Antigravity, Pi, or Codex, and export offline 3D/2D HTML." />
+  <title>ArchRay — AI 编程助手的 3D 架构图与源码证据链</title>
+  <meta name="description" content="ArchRay 是 AI 优先的架构可视化工具：在 Claude Code、Cursor、Antigravity、Pi 或 Codex 里输入 /archray，读取真实仓库源码，生成可分层、可交互、可离线分享的 3D/2D 单文件 HTML。" />
+  <meta name="author" content="David Yin" />
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+  <meta name="theme-color" content="#f9fafb" />
+  <meta name="application-name" content="ArchRay" />
+  <meta name="keywords" content="ArchRay, AI architecture visualization, 3D architecture diagram, 2D Bento, /archray, Claude Code, Cursor, Codex, offline HTML, source evidence" />
+  <meta property="og:title" content="ArchRay — AI 编程助手的 3D 架构图与源码证据链" />
+  <meta property="og:description" content="在 AI 助手里输入 /archray，读取真实仓库源码，生成可分层、可交互、可离线分享的 3D/2D 单文件 HTML。" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://archray.dev/" />
   <meta property="og:site_name" content="ArchRay" />
+  <meta property="og:locale" content="zh_CN" />
+  <meta property="og:locale:alternate" content="en_US" />
+  <meta property="og:image" content="https://archray.dev/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="ArchRay — AI-first 3D architecture maps with source evidence" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="ArchRay — Spatial Architecture Vocabulary for Coding Agents" />
-  <meta name="twitter:description" content="Turn tangled AI box diagrams into verified, layered 3D & 2D single-file HTML architecture maps." />
+  <meta name="twitter:title" content="ArchRay — AI 编程助手的 3D 架构图与源码证据链" />
+  <meta name="twitter:description" content="在 AI 助手里输入 /archray，读取真实仓库源码，生成可分层、可交互、可离线分享的 3D/2D 单文件 HTML。" />
+  <meta name="twitter:image" content="https://archray.dev/og.png" />
   <link rel="canonical" href="https://archray.dev/" />
-  <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+  <link rel="alternate" hreflang="zh-CN" href="https://archray.dev/" />
+  <link rel="alternate" hreflang="en" href="https://archray.dev/?lang=en" />
+  <link rel="alternate" hreflang="x-default" href="https://archray.dev/" />
+  <link rel="alternate" type="text/markdown" href="https://archray.dev/llms.txt" title="LLM summary" />
+  <link rel="alternate" type="text/plain" href="https://archray.dev/llms-full.txt" title="Full LLM context" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://archray.dev/#website",
+        "url": "https://archray.dev/",
+        "name": "ArchRay",
+        "description": "AI-first layered architecture visualiser that turns real repository source into offline 3D/2D single-file HTML maps.",
+        "inLanguage": ["zh-CN", "en"],
+        "publisher": { "@id": "https://archray.dev/#person" }
+      },
+      {
+        "@type": "Person",
+        "@id": "https://archray.dev/#person",
+        "name": "David Yin",
+        "url": "https://davidyin.dev",
+        "sameAs": ["https://github.com/loofare", "https://davidyin.dev"]
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://archray.dev/#software",
+        "name": "ArchRay",
+        "applicationCategory": "DeveloperApplication",
+        "applicationSubCategory": "Architecture visualization",
+        "operatingSystem": "macOS, Linux, Windows",
+        "softwareVersion": "0.5.0",
+        "url": "https://archray.dev/",
+        "downloadUrl": "https://github.com/loofare/ArchRay/releases/latest",
+        "codeRepository": "https://github.com/loofare/ArchRay",
+        "license": "https://opensource.org/license/mit",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "author": { "@id": "https://archray.dev/#person" },
+        "featureList": [
+          "Layered 3D and 2D architecture maps",
+          "Offline single-file HTML",
+          "Source paths and file:line evidence",
+          "Health hotspots and replaceability views",
+          "Claude Code, Cursor, Antigravity, Pi and Codex support",
+          "In-project update and uninstall commands"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://archray.dev/#faq",
+        "inLanguage": "zh-CN",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "ArchRay 是什么？",
+            "acceptedAnswer": { "@type": "Answer", "text": "ArchRay 是 AI 优先的架构可视化工具。安装到仓库后，在 AI 助手里输入 /archray，它会读取真实源码并生成可分层、可交互、可离线分享的 3D/2D 单文件 HTML。" }
+          },
+          {
+            "@type": "Question",
+            "name": "ArchRay 会上传我的源码吗？",
+            "acceptedAnswer": { "@type": "Answer", "text": "不会。分析发生在你授权使用的 AI 编程助手会话里，产物保存在本地 .archray 目录；HTML 是自包含离线文件。只有主动执行 update 时才会访问 GitHub Releases 读取版本和校验文件。" }
+          },
+          {
+            "@type": "Question",
+            "name": "ArchRay 支持哪些 AI 宿主？",
+            "acceptedAnswer": { "@type": "Answer", "text": "支持 Claude Code、Cursor、Antigravity、Pi 和 Codex。Claude/Cursor/Pi 使用 /archray，Codex 使用 $archray 或 /skills。安装时可用 --agent all 或逗号列表。" }
+          },
+          {
+            "@type": "Question",
+            "name": "如何安装和更新 ArchRay？",
+            "acceptedAnswer": { "@type": "Answer", "text": "从 GitHub Releases 下载安装包或运行 bootstrap install.sh，安装到目标仓库根目录。安装后使用 ./.archray/archray update --check 检查，再用 update 应用更新；旧版 v0.4 需要一次 bootstrap 升级。" }
+          },
+          {
+            "@type": "Question",
+            "name": "它和普通 AI 架构图有什么区别？",
+            "acceptedAnswer": { "@type": "Answer", "text": "ArchRay 把语义事实和确定性布局分开：AI 记录源码证据与依赖，布局引擎计算坐标和 3D/2D 投影。它强调可追溯路径、离线交付、分层查看、健康度和可替代性，而不是让模型直接画一张不可复现的图。" }
+          },
+          {
+            "@type": "Question",
+            "name": "它适合哪些仓库？",
+            "acceptedAnswer": { "@type": "Answer", "text": "适合需要理解真实分层、跨层依赖、技术债或迁移评估的仓库，尤其是希望把架构图离线分享给团队的项目。它不是运行时监控或自动扫描器；没有源码证据、只靠描述的图需要额外复核。" }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+<link rel="icon" href="./favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Alumni+Sans:wght@200;300;400;600&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
   <noscript>
     <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Alumni+Sans:wght@200;300;400;600&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet" />
   </noscript>
-  <link rel="stylesheet" href="./styles/tokens.css?v=059" />
-  <link rel="stylesheet" href="./styles/site.css?v=059" />
+  <link rel="stylesheet" href="./styles/tokens.css?v=060" />
+  <link rel="stylesheet" href="./styles/site.css?v=060" />
 </head>
 <body>
   <header class="site-header">
@@ -910,7 +1011,45 @@
       </div>
     </section>
 
-    <!-- 7. PRIVACY POLICY & AUTHOR / COLLABORATION -->
+    <!-- 7. FAQ: concise answers for search and generative engines -->
+    <section id="faq" class="section-band faq-band">
+      <div class="wrap">
+        <div class="section-intro">
+          <div class="section-intro-copy">
+            <h2 data-i18n="faq.title">常见问题</h2>
+            <p data-i18n="faq.subtitle">关于 ArchRay 的能力、数据边界、宿主和更新方式，先看这几条。</p>
+          </div>
+        </div>
+        <div class="faq-grid">
+          <details class="faq-item" open>
+            <summary data-i18n="faq.q1">ArchRay 是什么？</summary>
+            <p data-i18n="faq.a1">ArchRay 是 AI 优先的架构可视化工具。安装到仓库后，在 AI 助手里输入 /archray，它会读取真实源码并生成可分层、可交互、可离线分享的 3D/2D 单文件 HTML。</p>
+          </details>
+          <details class="faq-item">
+            <summary data-i18n="faq.q2">会上传我的源码吗？</summary>
+            <p data-i18n="faq.a2">不会。分析发生在你授权使用的 AI 编程助手会话里，产物保存在本地 .archray 目录；HTML 是自包含离线文件。只有主动执行 update 时才会访问 GitHub Releases 读取版本和校验文件。</p>
+          </details>
+          <details class="faq-item">
+            <summary data-i18n="faq.q3">支持哪些 AI 宿主？</summary>
+            <p data-i18n="faq.a3">支持 Claude Code、Cursor、Antigravity、Pi 和 Codex。Claude/Cursor/Pi 使用 /archray，Codex 使用 $archray 或 /skills。安装时可用 --agent all 或逗号列表。</p>
+          </details>
+          <details class="faq-item">
+            <summary data-i18n="faq.q4">如何安装和更新？</summary>
+            <p data-i18n="faq.a4">从 GitHub Releases 下载安装包或运行 bootstrap install.sh，安装到目标仓库根目录。安装后使用 ./.archray/archray update --check 检查，再用 update 应用更新；旧版 v0.4 需要一次 bootstrap 升级。</p>
+          </details>
+          <details class="faq-item">
+            <summary data-i18n="faq.q5">它和普通 AI 架构图有什么区别？</summary>
+            <p data-i18n="faq.a5">ArchRay 把语义事实和确定性布局分开：AI 记录源码证据与依赖，布局引擎计算坐标和 3D/2D 投影。它强调可追溯路径、离线交付、分层查看、健康度和可替代性，而不是让模型直接画一张不可复现的图。</p>
+          </details>
+          <details class="faq-item">
+            <summary data-i18n="faq.q6">它适合哪些仓库？</summary>
+            <p data-i18n="faq.a6">适合需要理解真实分层、跨层依赖、技术债或迁移评估的仓库，尤其是希望把架构图离线分享给团队的项目。它不是运行时监控或自动扫描器；没有源码证据、只靠描述的图需要额外复核。</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. PRIVACY POLICY & AUTHOR / COLLABORATION -->
     <section id="privacy" class="section-band">
       <div class="wrap">
         <div class="section-intro">
@@ -1042,6 +1181,7 @@
         <a href="https://davidyin.dev" target="_blank" rel="noopener noreferrer">davidyin.dev</a>
         <a href="mailto:hello@archray.dev">hello@archray.dev</a>
         <a href="mailto:loofare@gmail.com">loofare@gmail.com</a>
+        <a href="#faq" data-i18n="footer.faq">常见问题</a>
         <a href="#privacy" data-i18n="footer.privacy">隐私协议</a>
         <a href="https://github.com/loofare/ArchRay" target="_blank" rel="noopener noreferrer">GitHub</a>
         <a href="./demo.html" target="_blank" rel="noopener noreferrer" data-i18n="footer.demo">全屏沙盒</a>
@@ -1049,6 +1189,6 @@
     </div>
   </footer>
 
-  <script src="./app.js?v=059"></script>
+  <script src="./app.js?v=060"></script>
 </body>
 </html>

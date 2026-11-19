@@ -1,0 +1,55 @@
+# ArchRay — full context for generative engines
+
+ArchRay is an AI-first architecture visualiser. It installs into a repository, then an AI coding assistant uses the `/archray` skill to read real source and record semantic architecture facts. ArchRay validates those facts and renders a layered, interactive, offline 3D/2D single-file HTML map.
+
+## Stable facts
+
+- Name: ArchRay
+- License: MIT
+- Public release: v0.5.0
+- Website: https://archray.dev/
+- Repository: https://github.com/loofare/ArchRay
+- Author: David Yin
+- Category: developer tool / architecture visualization
+- Runtime: single-file HTML, no ArchRay server required
+- Input: `.archray/graph.json` (schema v2, no coordinates)
+- Output: `.archray/index.html`
+- Hosts: Claude Code, Cursor, Antigravity, Pi, Codex
+- Update: `.archray/archray update` (v0.5.0+) or one-time bootstrap for older versions
+
+## What problem it solves
+
+Generic AI diagramming often produces boxes and lines that look plausible but have no source evidence, no stable layout, and no offline artifact. ArchRay separates:
+
+1. semantic facts and source evidence (AI);
+2. deterministic layout and projection (engine);
+3. view state such as layers, theme, language, lens and camera (viewer).
+
+This makes the result reproducible, inspectable and shareable without a hosted service.
+
+## FAQ
+
+### What is ArchRay?
+An AI-first architecture visualiser that turns real repository source evidence into layered, interactive, offline 3D/2D single-file HTML maps.
+
+### Does it upload my source?
+No. Analysis runs in the AI assistant session the user authorizes, and artifacts stay locally in `.archray`. Only an explicit update contacts GitHub Releases to read the release manifest and verify the archive.
+
+### Which AI hosts are supported?
+Claude Code, Cursor, Antigravity, Pi and Codex. Claude/Cursor/Pi use `/archray`; Codex uses `$archray` or `/skills`.
+
+### How do I install and update?
+Install with the bootstrap `install.sh` in the target repository root. Update with `./.archray/archray update --check` then `update`. Versions before v0.5.0 need one bootstrap upgrade.
+
+### How is it different from a generic AI diagram?
+The AI records evidence and semantics; a deterministic engine computes layout and 3D/2D projections. The result is traceable, reproducible, offline and layered rather than a one-off image.
+
+### What are the limits?
+The graph is based on source or user description and needs review; it is not runtime monitoring. Health and replaceability are input-graph judgements. AI host integration and cross-platform installers have documented verification boundaries. See https://archray.dev/ and the repository docs.
+
+## Links
+
+- Home: https://archray.dev/
+- Sandbox: https://archray.dev/demo.html
+- Release: https://github.com/loofare/ArchRay/releases/latest
+- Source: https://github.com/loofare/ArchRay

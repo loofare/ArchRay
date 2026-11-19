@@ -1,0 +1,73 @@
+# ArchRay
+
+> ArchRay is an AI-first architecture visualiser. Install it into a repository, type `/archray` in an AI coding assistant, and it turns real source evidence into a layered, interactive, offline 3D/2D single-file HTML architecture map.
+
+## What it is
+
+- Product: ArchRay (open source, MIT)
+- Website: https://archray.dev/
+- Repository: https://github.com/loofare/ArchRay
+- Latest release: https://github.com/loofare/ArchRay/releases/latest
+- Current public release: v0.5.0
+- Maker: David Yin (https://davidyin.dev)
+
+ArchRay is not runtime monitoring, not an automatic source scanner, and not a hosted diagram service. An AI agent performs the semantic reading; a deterministic engine computes layout, projections, and the single-file viewer.
+
+## How it works
+
+1. Install ArchRay in a repository once.
+2. Open a new AI session and use `/archray`.
+3. The AI records modules, layers, dependencies, source paths, flows, health findings and optional alternatives.
+4. ArchRay validates the graph and builds `.archray/index.html`.
+5. Open the HTML offline, or share the single file.
+
+## Hosts
+
+- Claude Code: `/archray`
+- Cursor: `/archray`
+- Antigravity: Skill; slash-command discovery depends on host version
+- Pi: `/archray`, `/archray-frontend`, or `/skill:archray`
+- Codex: `$archray` or `/skills`
+
+## Install
+
+```sh
+tmp=$(mktemp)
+if curl -fsSL https://github.com/loofare/ArchRay/releases/latest/download/install.sh -o "$tmp"; then
+  sh "$tmp" . claude
+  archray_install_status=$?
+else
+  archray_install_status=$?
+fi
+rm -f "$tmp"
+test "$archray_install_status" -eq 0
+```
+
+Replace `claude` with `cursor`, `antigravity`, `pi`, `codex`, `claude,pi`, or `all`.
+
+## Update and uninstall
+
+```sh
+./.archray/archray update --check
+./.archray/archray update
+./.archray/archray uninstall --dry-run
+./.archray/archray uninstall
+```
+
+Updates refresh the tool, Skill, commands and templates. They do not re-analyse source and keep `.archray/graph.json`, `view.json` and `index.html`. `uninstall` keeps that data by default; `--purge` removes the whole `.archray`.
+
+v0.4.0 and older have no `update` command; use the latest bootstrap once.
+
+## Data boundary
+
+- Source analysis happens in the AI assistant session the user authorises.
+- Outputs stay in the local `.archray` directory.
+- The HTML is self-contained and works over `file://`.
+- Only an explicit `update` contacts GitHub Releases, reads `latest.json`, and verifies the archive by SHA-256.
+- Health and replaceability are input-graph judgements, not runtime monitoring.
+
+## Canonical pages
+
+- Home: https://archray.dev/
+- Live sandbox: https://archray.dev/demo.html
+- Full LLM context: https://archray.dev/llms-full.txt

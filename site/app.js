@@ -8,7 +8,8 @@
 
   const I18N = {
     'zh-CN': {
-      'page.title': 'ArchRay — AI 编程助手的空间架构可视化语言',
+      'page.title': 'ArchRay — AI 编程助手的 3D 架构图与源码证据链',
+      'page.description': 'ArchRay 是 AI 优先的架构可视化工具：在 Claude Code、Cursor、Antigravity、Pi 或 Codex 里输入 /archray，读取真实仓库源码，生成可分层、可交互、可离线分享的 3D/2D 单文件 HTML。',
       'nav.home': '首页',
       'nav.detector': '痛点解剖',
       'nav.console': '命令与分层',
@@ -175,6 +176,20 @@
       'privacy.p3Body': '工具链与导出视图不含任何遥测探针或第三方追踪 Cookie；仅在主动执行 update 时只读查询 GitHub Releases 校验 SHA-256。',
       'privacy.auditLink': '在 GitHub 审计完整开源代码 →',
 
+      'faq.title': '常见问题',
+      'faq.subtitle': '关于 ArchRay 的能力、数据边界、宿主和更新方式，先看这几条。',
+      'faq.q1': 'ArchRay 是什么？',
+      'faq.a1': 'ArchRay 是 AI 优先的架构可视化工具。安装到仓库后，在 AI 助手里输入 /archray，它会读取真实源码并生成可分层、可交互、可离线分享的 3D/2D 单文件 HTML。',
+      'faq.q2': '会上传我的源码吗？',
+      'faq.a2': '不会。分析发生在你授权使用的 AI 编程助手会话里，产物保存在本地 .archray 目录；HTML 是自包含离线文件。只有主动执行 update 时才会访问 GitHub Releases 读取版本和校验文件。',
+      'faq.q3': '支持哪些 AI 宿主？',
+      'faq.a3': '支持 Claude Code、Cursor、Antigravity、Pi 和 Codex。Claude/Cursor/Pi 使用 /archray，Codex 使用 $archray 或 /skills。安装时可用 --agent all 或逗号列表。',
+      'faq.q4': '如何安装和更新？',
+      'faq.a4': '从 GitHub Releases 下载安装包或运行 bootstrap install.sh，安装到目标仓库根目录。安装后使用 ./.archray/archray update --check 检查，再用 update 应用更新；旧版 v0.4 需要一次 bootstrap 升级。',
+      'faq.q5': '它和普通 AI 架构图有什么区别？',
+      'faq.a5': 'ArchRay 把语义事实和确定性布局分开：AI 记录源码证据与依赖，布局引擎计算坐标和 3D/2D 投影。它强调可追溯路径、离线交付、分层查看、健康度和可替代性，而不是让模型直接画一张不可复现的图。',
+      'faq.q6': '它适合哪些仓库？',
+      'faq.a6': '适合需要理解真实分层、跨层依赖、技术债或迁移评估的仓库，尤其是希望把架构图离线分享给团队的项目。它不是运行时监控或自动扫描器；没有源码证据、只靠描述的图需要额外复核。',
       'contact.role': 'ArchRay 作者 · 独立开发者与架构设计',
       'contact.badge': '欢迎交流合作',
       'contact.cardDesc': '欢迎架构可视化共创、研发效能工具合作、私有化规范定制或问题反馈，以下企业邮箱与个人邮箱均可直接联系。',
@@ -186,11 +201,13 @@
       'contact.ctaSite': '访问 davidyin.dev',
 
       'footer.note': 'MIT 开源项目 · AI 优先的空间架构可视化工具',
+      'footer.faq': '常见问题',
       'footer.privacy': '隐私协议',
       'footer.demo': '全屏沙盒'
     },
     en: {
-      'page.title': 'ArchRay — The Spatial Architecture Vocabulary for Coding Agents',
+      'page.title': 'ArchRay — 3D Architecture Maps with Source Evidence for AI Coding Agents',
+      'page.description': 'ArchRay is an AI-first architecture visualiser: type /archray in Claude Code, Cursor, Antigravity, Pi or Codex, read real repository source, and get a layered, interactive, offline 3D/2D single-file HTML map.',
       'nav.home': 'Home',
       'nav.detector': 'Anti-Slop',
       'nav.console': 'Commands & Layers',
@@ -357,6 +374,20 @@
       'privacy.svgOffline': 'Offline Build',
       'privacy.svgCloud': '0 Bytes Sent',
 
+      'faq.title': 'FAQ',
+      'faq.subtitle': 'Short answers about ArchRay capabilities, data boundaries, hosts and updates.',
+      'faq.q1': 'What is ArchRay?',
+      'faq.a1': 'ArchRay is an AI-first architecture visualiser. Install it into a repository, type /archray in your AI assistant, and it reads real source to produce layered, interactive, offline 3D/2D single-file HTML.',
+      'faq.q2': 'Does it upload my source?',
+      'faq.a2': 'No. Analysis runs inside the AI assistant session you authorize, and artifacts stay in the local .archray directory; the HTML is self-contained. Only an explicit update contacts GitHub Releases to read the version and verify the archive.',
+      'faq.q3': 'Which AI hosts are supported?',
+      'faq.a3': 'Claude Code, Cursor, Antigravity, Pi and Codex. Claude/Cursor/Pi use /archray; Codex uses $archray or /skills. Install with --agent all or a comma-separated list.',
+      'faq.q4': 'How do I install and update?',
+      'faq.a4': 'Download the release or run the bootstrap install.sh in the target repository root. Then use ./.archray/archray update --check followed by update; v0.4 and older need a one-time bootstrap upgrade.',
+      'faq.q5': 'How is it different from a generic AI diagram?',
+      'faq.a5': 'ArchRay separates semantic facts from deterministic layout: the AI records source evidence and dependencies, while the layout engine computes coordinates and 3D/2D projections. It focuses on traceable paths, offline delivery, layers, health and replaceability instead of a one-off image.',
+      'faq.q6': 'Which repositories is it for?',
+      'faq.a6': 'It fits repositories where you need to understand real layers, cross-layer dependencies, technical debt or migration options, especially when the map should be shared offline. It is not runtime monitoring or an automatic scanner; description-only maps need extra review.',
       'contact.role': 'Creator of ArchRay · Builder & Architect',
       'contact.badge': 'Open to Inquiries',
       'contact.cardDesc': 'Open to developer-tool collaborations, enterprise architecture workflows, and feedback via either domain or personal email.',
@@ -368,6 +399,7 @@
       'contact.ctaSite': 'Visit davidyin.dev',
 
       'footer.note': 'MIT Open-Source Project · AI-First Spatial Architecture Visualizer',
+      'footer.faq': 'FAQ',
       'footer.privacy': 'Privacy',
       'footer.demo': 'Fullscreen Demo'
     }
@@ -672,7 +704,8 @@
     codex: { flag: 'codex', entry: '$archray · /skills', paths: '.agents/skills/archray/SKILL.md' }
   };
 
-  let lang = 'zh-CN';
+  const initialLang = new URLSearchParams(location.search).get('lang');
+  let lang = initialLang === 'en' ? 'en' : 'zh-CN';
   let theme = 'light';
   let detectorResolved = false;
   let activePreset = 'all';
@@ -1147,6 +1180,26 @@
     document.documentElement.lang = lang;
     document.documentElement.setAttribute('data-theme', theme);
     document.title = t('page.title');
+    const isEnglish = lang === 'en';
+    const canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical) canonical.setAttribute('href', isEnglish ? 'https://archray.dev/?lang=en' : 'https://archray.dev/');
+    const ogUrl = document.querySelector('meta[property="og:url"]');
+    if (ogUrl) ogUrl.setAttribute('content', isEnglish ? 'https://archray.dev/?lang=en' : 'https://archray.dev/');
+    const ogLocale = document.querySelector('meta[property="og:locale"]');
+    if (ogLocale) ogLocale.setAttribute('content', isEnglish ? 'en_US' : 'zh_CN');
+    const ogLocaleAlt = document.querySelector('meta[property="og:locale:alternate"]');
+    if (ogLocaleAlt) ogLocaleAlt.setAttribute('content', isEnglish ? 'zh_CN' : 'en_US');
+
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) metaDescription.setAttribute('content', t('page.description'));
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', t('page.title'));
+    const ogDescription = document.querySelector('meta[property="og:description"]');
+    if (ogDescription) ogDescription.setAttribute('content', t('page.description'));
+    const twTitle = document.querySelector('meta[name="twitter:title"]');
+    if (twTitle) twTitle.setAttribute('content', t('page.title'));
+    const twDescription = document.querySelector('meta[name="twitter:description"]');
+    if (twDescription) twDescription.setAttribute('content', t('page.description'));
 
     document.querySelectorAll('[data-i18n]').forEach((el) => {
       const k = el.getAttribute('data-i18n');
