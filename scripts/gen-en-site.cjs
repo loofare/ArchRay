@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /*
- * Generate the crawlable English entry point at site/en/index.html.
+ * Generate the crawlable English home page at site/index.html.
  *
- * The site keeps one interactive source page, so the English page is rendered
- * from the same source with ?lang=en, then its metadata and JSON-LD are made
- * self-canonical for /en/. Regenerate after changing site/index.html or
+ * The Chinese source page lives at site/zh/index.html. English is the default
+ * language, so this script renders the source with ?lang=en and makes the
+ * result self-canonical for /. Regenerate after changing site/zh/index.html or
  * site/app.js:
  *
  *   PLAYWRIGHT_PATH=/path/to/playwright node scripts/gen-en-site.cjs
@@ -14,7 +14,7 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..', 'site');
-const OUT = path.join(ROOT, 'en', 'index.html');
+const OUT = path.join(ROOT, 'index.html');
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -56,10 +56,12 @@ function schemaFor(html, faqItems) {
   const graph = data['@graph'];
   const website = graph.find((entry) => entry['@type'] === 'WebSite');
   const faq = graph.find((entry) => entry['@type'] === 'FAQPage');
+  const software = graph.find((entry) => entry['@type'] === 'SoftwareApplication');
   if (!website || !faq) throw new Error('Website or FAQ schema missing');
+  if (software) software.image = 'https://archray.dev/share-en.png';
 
-  const pageId = 'https://archray.dev/en/#webpage';
-  const faqId = 'https://archray.dev/en/#faq';
+  const pageId = 'https://archray.dev/#webpage';
+  const faqId = 'https://archray.dev/#faq';
   faq['@id'] = faqId;
   faq.inLanguage = 'en';
   faq.isPartOf = { '@id': pageId };
@@ -72,7 +74,7 @@ function schemaFor(html, faqItems) {
   const webPage = {
     '@type': 'WebPage',
     '@id': pageId,
-    url: 'https://archray.dev/en/',
+    url: 'https://archray.dev/',
     name: 'ArchRay — 3D Architecture Maps with Source Evidence for AI Coding Agents',
     description: 'ArchRay is an AI-first architecture visualiser: type /archray in Claude Code, Cursor, Antigravity, Pi or Codex, read real repository source, and get a layered, interactive, offline 3D/2D single-file HTML map.',
     inLanguage: 'en',
@@ -88,7 +90,7 @@ function schemaFor(html, faqItems) {
   };
 
   // Keep WebSite/Person/SoftwareApplication first; add the page and keep FAQ last.
-  const ordered = graph.filter((entry) => entry !== faq);
+  const ordered = graph.filter((entry) => entry !== faq && entry['@type'] !== 'WebPage');
   ordered.push(webPage, faq);
   data['@graph'] = ordered;
   return { match, serialized: JSON.stringify(data, null, 2) };
@@ -114,7 +116,8 @@ function schemaFor(html, faqItems) {
       reducedMotion: 'reduce'
     });
     const page = await context.newPage();
-    await page.goto(`http://127.0.0.1:${port}/?lang=en`, { waitUntil: 'networkidle' });
+    await page.goto(`http://127.0.0.1:${port}/zh/?lang=en`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.waitForTimeout(1200);
     await page.evaluate(() => document.fonts && document.fonts.ready);
     await page.waitForTimeout(500);
 
@@ -126,14 +129,13 @@ function schemaFor(html, faqItems) {
 
     let html = await page.evaluate(() => '<!doctype html>\n' + document.documentElement.outerHTML);
     // The source page already uses root-relative assets; keep the generated
-    // page independent of /en/ depth if a future edit reintroduces ./ paths.
+    // page independent of /zh/ depth if a future edit reintroduces ./ paths.
     html = html.replace(/(href|src)="\.\/([^"]*)"/g, '$1="/$2"');
-    html = html.replaceAll('https://archray.dev/?lang=en', 'https://archray.dev/en/');
     html = html.replaceAll('/demo.html?lang=zh-CN', '/demo.html?lang=en');
 
     const { match, serialized } = schemaFor(html, faqItems);
     html = html.replace(match[0], `<script type="application/ld+json">\n${serialized}\n  </script>`);
-    html = html.replace('<!doctype html>', '<!doctype html>\n<!-- Generated from site/index.html by scripts/gen-en-site.cjs. Do not edit directly. -->');
+    html = html.replace('<!doctype html>', '<!doctype html>\n<!-- Generated from site/zh/index.html by scripts/gen-en-site.cjs. Do not edit directly. -->');
 
     fs.mkdirSync(path.dirname(OUT), { recursive: true });
     fs.writeFileSync(OUT, html);

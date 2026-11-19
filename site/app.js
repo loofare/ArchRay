@@ -181,6 +181,8 @@
       'install.entryLabel': '会话触发入口',
       'install.pathLabel': '写入宿主配置',
       'install.step2Title': '第二步：安装好后，复制这句话对你的 AI 说',
+      'install.verify': 'SHA-256 校验 · 与 latest.json 同批发布',
+      'install.release': '查看 Release',
       'install.step2Prompt': '用 archray 画一下这个项目的架构（或直接输入 /archray）',
       'install.maintLabel': '日常自检、升级与干净卸载：',
 
@@ -401,6 +403,8 @@
       'install.entryLabel': 'Session trigger',
       'install.pathLabel': 'Host files written',
       'install.step2Title': 'Step 2: Once installed, copy & say this to your AI',
+      'install.verify': 'SHA-256 verified · shipped with latest.json',
+      'install.release': 'View release',
       'install.step2Prompt': 'Map this project architecture with archray (or type /archray)',
       'install.maintLabel': 'Health check, update & clean uninstall:',
 
@@ -749,8 +753,12 @@
   };
 
   const initialLang = new URLSearchParams(location.search).get('lang');
-  const pathIsEnglish = /^\/en(?:\/|$)/.test(location.pathname);
-  let lang = pathIsEnglish || initialLang === 'en' ? 'en' : 'zh-CN';
+  const pathIsChinese = /^\/zh(?:\/|$)/.test(location.pathname);
+  let lang = initialLang === 'en'
+    ? 'en'
+    : initialLang === 'zh-CN'
+      ? 'zh-CN'
+      : (pathIsChinese ? 'zh-CN' : 'en');
   let theme = 'light';
   let detectorResolved = false;
   let activePreset = 'all';
@@ -1226,7 +1234,7 @@
     document.documentElement.setAttribute('data-theme', theme);
     document.title = t('page.title');
     const isEnglish = lang === 'en';
-    const canonicalUrl = isEnglish ? 'https://archray.dev/en/' : 'https://archray.dev/';
+    const canonicalUrl = isEnglish ? 'https://archray.dev/' : 'https://archray.dev/zh/';
     const canonical = document.querySelector('link[rel="canonical"]');
     if (canonical) canonical.setAttribute('href', canonicalUrl);
     const ogUrl = document.querySelector('meta[property="og:url"]');
@@ -1270,6 +1278,12 @@
     renderDetector();
     renderAllConsole();
     renderHostInstaller();
+    document.querySelectorAll('[data-lang-switch]').forEach((link) => {
+      const active = link.getAttribute('data-lang-switch') === lang;
+      link.classList.toggle('is-active', active);
+      if (active) link.setAttribute('aria-current', 'page');
+      else link.removeAttribute('aria-current');
+    });
     updateShareAssets();
   }
 
@@ -1295,7 +1309,7 @@
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') close();
     });
-    window.addEventListener('resize', () => { if (window.innerWidth > 1080) close(); });
+    window.addEventListener('resize', () => { if (window.innerWidth > 1240) close(); });
   }
 
   /* ---- Share Card ---- */
@@ -1306,7 +1320,7 @@
   }
 
   function sharePageUrl() {
-    return lang === 'en' ? 'https://archray.dev/en/' : 'https://archray.dev/';
+    return lang === 'en' ? 'https://archray.dev/' : 'https://archray.dev/zh/';
   }
 
   function updateShareAssets() {
@@ -1322,7 +1336,7 @@
     const link = document.getElementById('shareLink');
     if (link) {
       link.href = sharePageUrl();
-      link.textContent = lang === 'en' ? 'archray.dev/en' : 'archray.dev';
+      link.textContent = lang === 'en' ? 'archray.dev' : 'archray.dev/zh';
     }
     const trigger = document.getElementById('shareToggle');
     if (trigger) {
@@ -1492,14 +1506,6 @@
     initHeroComparison();
     initMobileNav();
     initShare();
-
-    const langBtn = document.getElementById('langToggle');
-    if (langBtn) {
-      langBtn.addEventListener('click', () => {
-        const target = lang === 'en' ? '/' : '/en/';
-        window.location.assign(target + window.location.hash);
-      });
-    }
 
     const themeBtn = document.getElementById('themeToggle');
     if (themeBtn) {

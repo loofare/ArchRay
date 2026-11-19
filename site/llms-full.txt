@@ -49,8 +49,8 @@ The graph is based on source or user description and needs review; it is not run
 
 ## Links
 
-- Home (Chinese): https://archray.dev/
-- Home (English): https://archray.dev/en/
+- Home (English, default): https://archray.dev/
+- Home (Chinese): https://archray.dev/zh/
 - Sandbox: https://archray.dev/demo.html
 - Release: https://github.com/loofare/ArchRay/releases/latest
 - Source: https://github.com/loofare/ArchRay

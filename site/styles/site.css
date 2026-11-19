@@ -163,6 +163,7 @@ a {
   display: inline-flex;
   align-items: center;
   gap: 7px;
+  white-space: nowrap;
   text-decoration: none;
   font-size: 0.92rem;
   font-weight: 500;
@@ -201,6 +202,43 @@ a {
   gap: 8px;
 }
 
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  box-shadow: 0 1px 2px oklch(0% 0 0 / 0.03);
+}
+.lang-option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  padding: 4px 8px;
+  border-radius: var(--r-pill);
+  white-space: nowrap;
+  flex: 0 0 auto;
+  color: var(--ink-muted);
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.25;
+  text-decoration: none;
+  transition: background 0.16s var(--ease-out), color 0.16s var(--ease-out);
+}
+.lang-option:hover { color: var(--ink-strong); }
+.lang-option.is-active {
+  background: var(--ink-strong);
+  color: var(--bg-page);
+}
+.lang-option.is-active:hover { color: var(--bg-page); }
+@media (max-width: 640px) {
+  .lang-switch { padding: 2px; }
+  .lang-option { min-width: 27px; padding: 4px 6px; font-size: 0.7rem; }
+}
 .pill-ctl {
   display: inline-flex;
   align-items: center;
@@ -571,6 +609,7 @@ a {
 }
 @media (max-width: 360px) {
   .nav-github { display: none; }
+  .brand-name { display: none; }
 }
 
 @media (max-width: 640px) {
@@ -2573,6 +2612,33 @@ html[lang="en"] .share-dialog .share-copy h2 { font-size: 2rem; }
 }
 
 /* ---- Responsive Adaptation ---- */
+@media (max-width: 1440px) and (min-width: 1241px) {
+  .nav-links { gap: 18px; }
+  .nav-links a { font-size: 0.86rem; }
+}
+@media (max-width: 1240px) {
+  .nav-bar { position: relative; }
+  .nav-toggle { display: inline-flex; }
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    z-index: 70;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 8px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--surface);
+    box-shadow: var(--shadow-window);
+  }
+  .nav-links.is-open { display: flex; }
+  .nav-links a { padding: 10px 12px; border-radius: var(--r-xs); }
+  .nav-links a:hover, .nav-links a.is-active { background: var(--bg-subtle); }
+}
 @media (max-width: 1080px) {
   .nav-bar { position: relative; }
   .nav-toggle { display: inline-flex; }
@@ -2614,6 +2680,7 @@ html[lang="en"] .share-dialog .share-copy h2 { font-size: 2rem; }
 
 @media (max-width: 360px) {
   .nav-github { display: none; }
+  .brand-name { display: none; }
 }
 
 @media (max-width: 640px) {
