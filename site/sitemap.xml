@@ -20,7 +20,7 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://archray.dev/"/>
   </url>
   <url>
-    <loc>https://archray.dev/demo.html</loc>
+    <loc>https://archray.dev/demo</loc>
     <lastmod>2026-11-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>

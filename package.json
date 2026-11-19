@@ -27,7 +27,7 @@
     "test:hosts": "node scripts/check-pi.mjs",
     "test:brands": "node --import tsx scripts/check-brands.mjs",
     "test:update": "npm run package && node scripts/update-regression.mjs",
-    "build:site": "npm run build && node cli/bin/archray.mjs build examples/freshmart.graph.json --output site/demo.html --force --no-open",
+    "build:site": "npm run build && node cli/bin/archray.mjs build examples/freshmart.graph.json --output site/demo.html --force --no-open && node scripts/seo-postprocess-demo.mjs",
     "deploy:site": "npm run build:site && npx --yes wrangler deploy",
     "gen:en-site": "node scripts/gen-en-site.cjs"
   },

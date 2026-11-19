@@ -5,5 +5,5 @@
 /index.html
   X-Frame-Options: SAMEORIGIN
 
-/demo.html
+/demo
   X-Frame-Options: SAMEORIGIN

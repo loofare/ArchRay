@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ArchRay — AI 编程助手的 3D 架构图与源码证据链</title>
-  <meta name="description" content="ArchRay 是 AI 优先的架构可视化工具：在 Claude Code、Cursor、Antigravity、Pi 或 Codex 里输入 /archray，读取真实仓库源码，生成可分层、可交互、可离线分享的 3D/2D 单文件 HTML。" />
+  <title>ArchRay — 从真实仓库源码生成可交互的 3D 架构图</title>
+  <meta name="description" content="ArchRay 读取真实仓库源码，在 Claude Code、Cursor、Antigravity、Pi 或 Codex 里输入 /archray，生成可分层、可交互、可离线分享的 3D/2D 架构图，每个节点都带有文件与行号证据。" />
   <meta name="author" content="David Yin" />
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
   <meta name="theme-color" content="#f9fafb" />
   <meta name="application-name" content="ArchRay" />
   <meta name="keywords" content="ArchRay, AI architecture visualization, 3D architecture diagram, 2D Bento, /archray, Claude Code, Cursor, Codex, offline HTML, source evidence" />
-  <meta property="og:title" content="ArchRay — AI 编程助手的 3D 架构图与源码证据链" />
-  <meta property="og:description" content="在 AI 助手里输入 /archray，读取真实仓库源码，生成可分层、可交互、可离线分享的 3D/2D 单文件 HTML。" />
+  <meta property="og:title" content="ArchRay — 从真实仓库源码生成可交互的 3D 架构图" />
+  <meta property="og:description" content="ArchRay 读取真实仓库源码，在 Claude Code、Cursor、Antigravity、Pi 或 Codex 里输入 /archray，生成可分层、可交互、可离线分享的 3D/2D 架构图，每个节点都带有文件与行号证据。" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://archray.dev/zh/" />
   <meta property="og:site_name" content="ArchRay" />
@@ -22,8 +22,8 @@
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="ArchRay 分享卡：给代码库拍张立体架构透视图" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="ArchRay — AI 编程助手的 3D 架构图与源码证据链" />
-  <meta name="twitter:description" content="在 AI 助手里输入 /archray，读取真实仓库源码，生成可分层、可交互、可离线分享的 3D/2D 单文件 HTML。" />
+  <meta name="twitter:title" content="ArchRay — 从真实仓库源码生成可交互的 3D 架构图" />
+  <meta name="twitter:description" content="ArchRay 读取真实仓库源码，在 Claude Code、Cursor、Antigravity、Pi 或 Codex 里输入 /archray，生成可分层、可交互、可离线分享的 3D/2D 架构图，每个节点都带有文件与行号证据。" />
   <meta name="twitter:image" content="https://archray.dev/share.png" />
   <link rel="canonical" href="https://archray.dev/zh/" />
   <link rel="alternate" hreflang="zh-CN" href="https://archray.dev/zh/" />
@@ -93,8 +93,8 @@
       "@type": "WebPage",
       "@id": "https://archray.dev/zh/#webpage",
       "url": "https://archray.dev/zh/",
-      "name": "ArchRay — AI 编程助手的 3D 架构图与源码证据链",
-      "description": "ArchRay 是 AI 优先的架构可视化工具：在 Claude Code、Cursor、Antigravity、Pi 或 Codex 里输入 /archray，读取真实仓库源码，生成可分层、可交互、可离线分享的 3D/2D 单文件 HTML。",
+      "name": "ArchRay — 从真实仓库源码生成可交互的 3D 架构图",
+      "description": "ArchRay 读取真实仓库源码，在 Claude Code、Cursor、Antigravity、Pi 或 Codex 里输入 /archray，生成可分层、可交互、可离线分享的 3D/2D 架构图，每个节点都带有文件与行号证据。",
       "inLanguage": "zh-CN",
       "isPartOf": {
         "@id": "https://archray.dev/#website"
@@ -713,7 +713,7 @@
               <button type="button" class="preset-btn" data-demo-preset="2d" data-i18n="live.p2d">2D Bento 版图</button>
               <button type="button" class="preset-btn" data-demo-preset="health" data-i18n="live.pHealth">健康度热点</button>
               <button type="button" class="preset-btn" data-demo-preset="replace" data-i18n="live.pReplace">可替代性评估</button>
-              <a class="preset-btn" href="/demo.html?locale=zh-CN" data-demo-link target="_blank" rel="noopener noreferrer" data-i18n="live.openFull">新窗口全屏 ↗</a>
+              <a class="preset-btn" href="/demo?locale=zh-CN" data-demo-link target="_blank" rel="noopener noreferrer" data-i18n="live.openFull">新窗口全屏 ↗</a>
             </div>
           </div>
 
@@ -735,7 +735,7 @@
             <iframe
               id="demoFrame"
               class="demo-iframe"
-              src="/demo.html?locale=zh-CN"
+              src="/demo?locale=zh-CN"
               title="ArchRay Live Interactive 3D and 2D Architecture Demo"
               loading="lazy"
             ></iframe>
@@ -1253,7 +1253,7 @@
         <a href="#faq" data-i18n="footer.faq">常见问题</a>
         <a href="#privacy" data-i18n="footer.privacy">隐私协议</a>
         <a href="https://github.com/loofare/ArchRay" target="_blank" rel="noopener noreferrer">GitHub</a>
-        <a href="/demo.html?locale=zh-CN" data-demo-link target="_blank" rel="noopener noreferrer" data-i18n="footer.demo">全屏沙盒</a>
+        <a href="/demo?locale=zh-CN" data-demo-link target="_blank" rel="noopener noreferrer" data-i18n="footer.demo">全屏沙盒</a>
       </div>
     </div>
   </footer>
@@ -1269,7 +1269,7 @@
         <h2 id="shareTitle" data-i18n="share.title">接手新仓库？
 先拍张立体架构图</h2>
         <p class="share-lede" data-i18n="share.lede">不用硬啃成百上千个文件，把真实依赖与架构分层立体铺开。</p>
-        <a class="share-demo-link" id="shareDemoLink" href="/demo.html?locale=zh-CN" target="_blank" rel="noopener noreferrer">
+        <a class="share-demo-link" id="shareDemoLink" href="/demo?locale=zh-CN" target="_blank" rel="noopener noreferrer">
           <span data-i18n="share.demoCta">先看真实 Demo</span><span aria-hidden="true">→</span>
         </a>
         <div class="share-caption-box">

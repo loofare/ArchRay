@@ -75,8 +75,8 @@ function schemaFor(html, faqItems) {
     '@type': 'WebPage',
     '@id': pageId,
     url: 'https://archray.dev/',
-    name: 'ArchRay — 3D Architecture Maps with Source Evidence for AI Coding Agents',
-    description: 'ArchRay is an AI-first architecture visualiser: type /archray in Claude Code, Cursor, Antigravity, Pi or Codex, read real repository source, and get a layered, interactive, offline 3D/2D single-file HTML map.',
+    name: 'ArchRay — 3D Architecture Maps from Real Source Code',
+    description: 'Run /archray in Claude Code, Cursor, Antigravity, Pi or Codex to turn real repository source into a layered, interactive 3D/2D map with file-and-line evidence.',
     inLanguage: 'en',
     isPartOf: { '@id': 'https://archray.dev/#website' },
     about: { '@id': 'https://archray.dev/#software' },
@@ -128,10 +128,13 @@ function schemaFor(html, faqItems) {
     if (faqItems.length !== 6) throw new Error(`expected 6 FAQ items, got ${faqItems.length}`);
 
     let html = await page.evaluate(() => '<!doctype html>\n' + document.documentElement.outerHTML);
+    // The font stylesheet starts as media="print" and flips to "all" on load;
+    // normalize it so generation does not depend on whether the CDN responded.
+    html = html.replace(/(<link[^>]*fonts\.googleapis\.com[^>]*?) media="print"/, '$1 media="all"');
     // The source page already uses root-relative assets; keep the generated
     // page independent of /zh/ depth if a future edit reintroduces ./ paths.
     html = html.replace(/(href|src)="\.\/([^"]*)"/g, '$1="/$2"');
-    html = html.replaceAll('/demo.html?lang=zh-CN', '/demo.html?lang=en');
+    html = html.replaceAll('/demo?locale=zh-CN', '/demo?locale=en');
 
     const { match, serialized } = schemaFor(html, faqItems);
     html = html.replace(match[0], `<script type="application/ld+json">\n${serialized}\n  </script>`);

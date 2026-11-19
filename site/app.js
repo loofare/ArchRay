@@ -8,8 +8,8 @@
 
   const I18N = {
     'zh-CN': {
-      'page.title': 'ArchRay — AI 编程助手的 3D 架构图与源码证据链',
-      'page.description': 'ArchRay 是 AI 优先的架构可视化工具：在 Claude Code、Cursor、Antigravity、Pi 或 Codex 里输入 /archray，读取真实仓库源码，生成可分层、可交互、可离线分享的 3D/2D 单文件 HTML。',
+      'page.title': 'ArchRay — 从真实仓库源码生成可交互的 3D 架构图',
+      'page.description': 'ArchRay 读取真实仓库源码，在 Claude Code、Cursor、Antigravity、Pi 或 Codex 里输入 /archray，生成可分层、可交互、可离线分享的 3D/2D 架构图，每个节点都带有文件与行号证据。',
       'nav.home': '首页',
       'nav.detector': '痛点解剖',
       'nav.console': '命令与分层',
@@ -230,8 +230,8 @@
       'footer.demo': '全屏沙盒'
     },
     en: {
-      'page.title': 'ArchRay — 3D Architecture Maps with Source Evidence for AI Coding Agents',
-      'page.description': 'ArchRay is an AI-first architecture visualiser: type /archray in Claude Code, Cursor, Antigravity, Pi or Codex, read real repository source, and get a layered, interactive, offline 3D/2D single-file HTML map.',
+      'page.title': 'ArchRay — 3D Architecture Maps from Real Source Code',
+      'page.description': 'Run /archray in Claude Code, Cursor, Antigravity, Pi or Codex to turn real repository source into a layered, interactive 3D/2D map with file-and-line evidence.',
       'nav.home': 'Home',
       'nav.detector': 'Anti-Slop',
       'nav.console': 'Commands & Layers',
@@ -1191,7 +1191,7 @@
       params.set('proj', '3d');
       params.set('mode', 'topology');
     }
-    frame.src = '/demo.html?' + params.toString();
+    frame.src = '/demo?' + params.toString();
   }
 
   /* ---- Host Installer (Install Section Selector; Hero stays on `. all`) ---- */
@@ -1285,7 +1285,7 @@
       else link.removeAttribute('aria-current');
     });
     document.querySelectorAll('[data-demo-link]').forEach((link) => {
-      link.href = '/demo.html?locale=' + (lang === 'en' ? 'en' : 'zh-CN');
+      link.href = '/demo?locale=' + (lang === 'en' ? 'en' : 'zh-CN');
     });
     updateShareAssets();
   }
@@ -1335,7 +1335,7 @@
       image.alt = t('share.previewAlt');
     }
     const demoLink = document.getElementById('shareDemoLink');
-    if (demoLink) demoLink.href = '/demo.html?locale=' + (lang === 'en' ? 'en' : 'zh-CN');
+    if (demoLink) demoLink.href = '/demo?locale=' + (lang === 'en' ? 'en' : 'zh-CN');
     const link = document.getElementById('shareLink');
     if (link) {
       link.href = sharePageUrl();

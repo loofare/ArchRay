@@ -3,15 +3,15 @@
 <html lang="en" data-theme="light"><head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ArchRay — 3D Architecture Maps with Source Evidence for AI Coding Agents</title>
-  <meta name="description" content="ArchRay is an AI-first architecture visualiser: type /archray in Claude Code, Cursor, Antigravity, Pi or Codex, read real repository source, and get a layered, interactive, offline 3D/2D single-file HTML map.">
+  <title>ArchRay — 3D Architecture Maps from Real Source Code</title>
+  <meta name="description" content="Run /archray in Claude Code, Cursor, Antigravity, Pi or Codex to turn real repository source into a layered, interactive 3D/2D map with file-and-line evidence.">
   <meta name="author" content="David Yin">
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
   <meta name="theme-color" content="#f9fafb">
   <meta name="application-name" content="ArchRay">
   <meta name="keywords" content="ArchRay, AI architecture visualization, 3D architecture diagram, 2D Bento, /archray, Claude Code, Cursor, Codex, offline HTML, source evidence">
-  <meta property="og:title" content="ArchRay — 3D Architecture Maps with Source Evidence for AI Coding Agents">
-  <meta property="og:description" content="ArchRay is an AI-first architecture visualiser: type /archray in Claude Code, Cursor, Antigravity, Pi or Codex, read real repository source, and get a layered, interactive, offline 3D/2D single-file HTML map.">
+  <meta property="og:title" content="ArchRay — 3D Architecture Maps from Real Source Code">
+  <meta property="og:description" content="Run /archray in Claude Code, Cursor, Antigravity, Pi or Codex to turn real repository source into a layered, interactive 3D/2D map with file-and-line evidence.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://archray.dev/">
   <meta property="og:site_name" content="ArchRay">
@@ -22,8 +22,8 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="ArchRay share card: a 3D architecture X-ray of your codebase">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="ArchRay — 3D Architecture Maps with Source Evidence for AI Coding Agents">
-  <meta name="twitter:description" content="ArchRay is an AI-first architecture visualiser: type /archray in Claude Code, Cursor, Antigravity, Pi or Codex, read real repository source, and get a layered, interactive, offline 3D/2D single-file HTML map.">
+  <meta name="twitter:title" content="ArchRay — 3D Architecture Maps from Real Source Code">
+  <meta name="twitter:description" content="Run /archray in Claude Code, Cursor, Antigravity, Pi or Codex to turn real repository source into a layered, interactive 3D/2D map with file-and-line evidence.">
   <meta name="twitter:image" content="https://archray.dev/share-en.png">
   <link rel="canonical" href="https://archray.dev/">
   <link rel="alternate" hreflang="zh-CN" href="https://archray.dev/zh/">
@@ -94,8 +94,8 @@
       "@type": "WebPage",
       "@id": "https://archray.dev/#webpage",
       "url": "https://archray.dev/",
-      "name": "ArchRay — 3D Architecture Maps with Source Evidence for AI Coding Agents",
-      "description": "ArchRay is an AI-first architecture visualiser: type /archray in Claude Code, Cursor, Antigravity, Pi or Codex, read real repository source, and get a layered, interactive, offline 3D/2D single-file HTML map.",
+      "name": "ArchRay — 3D Architecture Maps from Real Source Code",
+      "description": "Run /archray in Claude Code, Cursor, Antigravity, Pi or Codex to turn real repository source into a layered, interactive 3D/2D map with file-and-line evidence.",
       "inLanguage": "en",
       "isPartOf": {
         "@id": "https://archray.dev/#website"
@@ -715,7 +715,7 @@
               <button type="button" class="preset-btn" data-demo-preset="2d" data-i18n="live.p2d">2D Bento Map</button>
               <button type="button" class="preset-btn" data-demo-preset="health" data-i18n="live.pHealth">Health Hotspots</button>
               <button type="button" class="preset-btn" data-demo-preset="replace" data-i18n="live.pReplace">Replaceability</button>
-              <a class="preset-btn" href="/demo.html?locale=en" data-demo-link="" target="_blank" rel="noopener noreferrer" data-i18n="live.openFull">Open Fullscreen ↗</a>
+              <a class="preset-btn" href="/demo?locale=en" data-demo-link="" target="_blank" rel="noopener noreferrer" data-i18n="live.openFull">Open Fullscreen ↗</a>
             </div>
           </div>
 
@@ -734,7 +734,7 @@
           </div>
 
           <div class="live-iframe-stage">
-            <iframe id="demoFrame" class="demo-iframe" src="/demo.html?locale=en&amp;proj=3d&amp;mode=topology" title="ArchRay Live Interactive 3D and 2D Architecture Demo" loading="lazy"></iframe>
+            <iframe id="demoFrame" class="demo-iframe" src="/demo?locale=en&amp;proj=3d&amp;mode=topology" title="ArchRay Live Interactive 3D and 2D Architecture Demo" loading="lazy"></iframe>
             <div class="iframe-veil" id="demoVeil">
               <button type="button" class="veil-pill" id="unlockDemoBtn" data-i18n="live.unlock">Click to unlock interactive 3D orbit &amp; zoom</button>
             </div>
@@ -1247,7 +1247,7 @@
         <a href="#faq" data-i18n="footer.faq">FAQ</a>
         <a href="#privacy" data-i18n="footer.privacy">Privacy</a>
         <a href="https://github.com/loofare/ArchRay" target="_blank" rel="noopener noreferrer">GitHub</a>
-        <a href="/demo.html?locale=en" data-demo-link="" target="_blank" rel="noopener noreferrer" data-i18n="footer.demo">Fullscreen Demo</a>
+        <a href="/demo?locale=en" data-demo-link="" target="_blank" rel="noopener noreferrer" data-i18n="footer.demo">Fullscreen Demo</a>
       </div>
     </div>
   </footer>
@@ -1263,7 +1263,7 @@
         <h2 id="shareTitle" data-i18n="share.title">Taking Over a Codebase?
 X-Ray It in 3D</h2>
         <p class="share-lede" data-i18n="share.lede">Skip wading through hundreds of files—unfold real layers and dependencies in three dimensions.</p>
-        <a class="share-demo-link" id="shareDemoLink" href="/demo.html?locale=en" target="_blank" rel="noopener noreferrer">
+        <a class="share-demo-link" id="shareDemoLink" href="/demo?locale=en" target="_blank" rel="noopener noreferrer">
           <span data-i18n="share.demoCta">Open the live demo</span><span aria-hidden="true">→</span>
         </a>
         <div class="share-caption-box">

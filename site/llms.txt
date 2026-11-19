@@ -70,5 +70,5 @@ v0.4.0 and older have no `update` command; use the latest bootstrap once.
 
 - Home (English, default): https://archray.dev/
 - Home (Chinese): https://archray.dev/zh/
-- Live sandbox: https://archray.dev/demo.html
+- Live sandbox: https://archray.dev/demo
 - Full LLM context: https://archray.dev/llms-full.txt
