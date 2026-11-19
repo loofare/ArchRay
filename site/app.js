@@ -21,11 +21,12 @@
       'nav.themeToLight': '浅色',
       'nav.menu': '打开导航',
       'share.label': '分享',
-      'share.title': '把这张图，发给下一位要读代码的人。',
-      'share.lede': '一张图看懂真实仓库的分层与依赖，链接里还有可交互的 Demo。',
+      'share.title': '接手新仓库？\n先拍张立体架构图',
+      'share.lede': '不用硬啃成百上千个文件，把真实依赖与架构分层立体铺开。',
       'share.captionLabel': '分享文案',
       'share.captionHint': '可直接粘贴',
-      'share.caption': '告别一改代码就过时的手绘框图，输入 /archray 读取真实源码，直接生成可分层、可交互且离线分享的 3D/2D 单文件 HTML。立即在你的本地项目运行 /archray，为自己的代码库拍一张可下钻探索的立体架构透视图。',
+      'share.caption': '输入 /archray 自动解析代码库，生成可下钻、可交互且支持离线发送的 3D/2D 单文件 HTML。点开 Demo 亲手拆解一遍，或在本地项目输入 /archray 跑一张。',
+      'share.demoCta': '先看真实 Demo',
       'share.linkLabel': '链接',
       'share.native': '分享图片 + 链接',
       'share.imageOnly': '只分享图片',
@@ -240,11 +241,12 @@
       'nav.themeToLight': 'Light',
       'nav.menu': 'Open navigation',
       'share.label': 'Share',
-      'share.title': 'Send this to the next person who has to read the code.',
-      'share.lede': 'One image for the real layers and dependencies, plus a live interactive demo behind the link.',
+      'share.title': 'Taking Over a Codebase?\nX-Ray It in 3D',
+      'share.lede': 'Skip wading through hundreds of files—unfold real layers and dependencies in three dimensions.',
       'share.captionLabel': 'Share copy',
       'share.captionHint': 'Ready to paste',
-      'share.caption': 'Say goodbye to hand-drawn diagrams that become outdated with every code change—run /archray to inspect real source code and generate a layered, interactive, offline-shareable 3D/2D single-file HTML. Run /archray in your local project now to capture an interactive, drill-down 3D architecture X-ray of your own codebase.',
+      'share.caption': 'Run /archray to parse your repo and instantly generate a drillable, offline-shareable 3D/2D single-file HTML. Open the live demo and explore it, or run /archray in your local project.',
+      'share.demoCta': 'Open the live demo',
       'share.linkLabel': 'Link',
       'share.native': 'Share image + link',
       'share.imageOnly': 'Share image only',
@@ -1315,6 +1317,8 @@
       image.src = shareImagePath();
       image.alt = t('share.previewAlt');
     }
+    const demoLink = document.getElementById('shareDemoLink');
+    if (demoLink) demoLink.href = '/demo.html?lang=' + (lang === 'en' ? 'en' : 'zh-CN');
     const link = document.getElementById('shareLink');
     if (link) {
       link.href = sharePageUrl();
@@ -1407,8 +1411,8 @@
       const file = await getShareFile();
       const caption = t('share.caption') + (withLink ? '\n\n' + sharePageUrl() : '');
       const payload = withLink
-        ? { files: [file], title: t('share.title'), text: caption }
-        : { files: [file], title: t('share.title') };
+        ? { files: [file], title: t('share.title').replace(/\n/g, ' '), text: caption }
+        : { files: [file], title: t('share.title').replace(/\n/g, ' ') };
       let canShareFiles = false;
       try {
         canShareFiles = typeof navigator.canShare === 'function' && navigator.canShare(payload);
