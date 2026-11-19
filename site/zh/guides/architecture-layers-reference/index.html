@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ArchRay 技术参考：L0–L9 架构层、节点类型、协议与 CLI</title>
+  <meta name="description" content="ArchRay Graph v2 规范完全参考：L0–L9 十个标准架构层、3D 象限分区规则、19 种节点类型、14 种协议、4 套主题与全部命令行参数。" />
+  <meta name="author" content="David Yin" />
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+  <meta name="theme-color" content="#f9fafb" />
+  <meta property="og:title" content="ArchRay 技术参考：L0–L9 架构层、节点类型、协议与 CLI" />
+  <meta property="og:description" content="ArchRay Graph v2 规范完全参考：L0–L9 十个标准架构层、3D 象限分区规则、19 种节点类型、14 种协议、4 套主题与全部命令行参数。" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://archray.dev/zh/guides/architecture-layers-reference/" />
+  <meta property="og:site_name" content="ArchRay" />
+  <meta property="og:locale" content="zh_CN" />
+  <meta property="og:locale:alternate" content="en_US" />
+  <meta property="og:image" content="https://archray.dev/share.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="ArchRay 分享卡：给代码库拍张立体架构透视图" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ArchRay 技术参考：L0–L9 架构层、节点类型、协议与 CLI" />
+  <meta name="twitter:description" content="ArchRay Graph v2 规范完全参考：L0–L9 十个标准架构层、3D 象限分区规则、19 种节点类型、14 种协议、4 套主题与全部命令行参数。" />
+  <meta name="twitter:image" content="https://archray.dev/share.png" />
+  <meta name="twitter:image:alt" content="ArchRay 分享卡：给代码库拍张立体架构透视图" />
+  <link rel="canonical" href="https://archray.dev/zh/guides/architecture-layers-reference/" />
+  <link rel="alternate" hreflang="en" href="https://archray.dev/guides/architecture-layers-reference/" />
+  <link rel="alternate" hreflang="zh-CN" href="https://archray.dev/zh/guides/architecture-layers-reference/" />
+  <link rel="alternate" hreflang="x-default" href="https://archray.dev/guides/architecture-layers-reference/" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="alternate" type="text/markdown" href="https://archray.dev/llms.txt" hreflang="en" title="LLM summary" />
+  <link rel="alternate" type="text/markdown" href="https://archray.dev/llms-zh.txt" hreflang="zh-CN" title="ArchRay 中文 LLM 完整文档" />
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "@id": "https://archray.dev/zh/guides/architecture-layers-reference/#article",
+      "url": "https://archray.dev/zh/guides/architecture-layers-reference/",
+      "headline": "L0–L9 十层架构、节点类型与 CLI 技术参考",
+      "name": "ArchRay 技术参考：L0–L9 架构层、节点类型、协议与 CLI",
+      "description": "ArchRay Graph v2 规范完全参考：L0–L9 十个标准架构层、3D 象限分区规则、19 种节点类型、14 种协议、4 套主题与全部命令行参数。",
+      "inLanguage": "zh-CN",
+      "datePublished": "2026-11-20",
+      "dateModified": "2026-11-20",
+      "author": {
+        "@type": "Person",
+        "@id": "https://archray.dev/#person",
+        "name": "David Yin",
+        "url": "https://davidyin.dev"
+      },
+      "publisher": {
+        "@type": "Person",
+        "@id": "https://archray.dev/#person",
+        "name": "David Yin",
+        "url": "https://davidyin.dev"
+      },
+      "about": {
+        "@type": "SoftwareApplication",
+        "@id": "https://archray.dev/#software",
+        "name": "ArchRay",
+        "url": "https://archray.dev/"
+      },
+      "isPartOf": {
+        "@id": "https://archray.dev/#website"
+      },
+      "mainEntityOfPage": {
+        "@id": "https://archray.dev/zh/guides/architecture-layers-reference/#webpage"
+      },
+      "image": {
+        "@type": "ImageObject",
+        "url": "https://archray.dev/share.png",
+        "width": 1200,
+        "height": 630
+      },
+      "speakable": {
+        "@type": "SpeakableSpecification",
+        "cssSelector": [
+          ".answer-box p",
+          ".guide-faq summary",
+          ".guide-faq p"
+        ]
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://archray.dev/zh/guides/architecture-layers-reference/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首页",
+          "item": "https://archray.dev/zh/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "指南",
+          "item": "https://archray.dev/zh/guides/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "十层架构与 CLI 参考",
+          "item": "https://archray.dev/zh/guides/architecture-layers-reference/"
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://archray.dev/zh/guides/architecture-layers-reference/#faq",
+      "inLanguage": "zh-CN",
+      "isPartOf": {
+        "@id": "https://archray.dev/zh/guides/architecture-layers-reference/#webpage"
+      },
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "每个仓库必须把 10 层全部填满吗？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "不需要。建议按仓库真实复杂度只声明 3–6 个实际存在的层（例如官网在线沙盒 FreshMart 只使用了 5 层），同时每层归属会自动匹配十层布局规则。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "子模块怎么归属到父节点实现自动折叠？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "在平铺 `nodes` 数组中为子节点填写 `parent: \"<父节点ID>\"`，确保全库节点 ID 唯一（例如 `order/repo`），缩放到全景比例时引擎会自动折叠显示 `+N` 数量标记。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "自定义调好的 3D 角度、隐藏层与筛选状态如何发给别人？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "点击画布顶部工具栏导出 `view.json` 并发送，对方在你导出的同一份 `index.html` 中导入该 `view.json` 即可还原完全相同的视角与高亮状态。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "内嵌的 167 枚技术栈品牌图标会走外部 CDN 请求吗？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "绝对不会。所有 SVG 图标全部来自构建期封装的离线图标包，生成的单文件 HTML 断网环境下照常高清展示。"
+          }
+        }
+      ]
+    }
+  ]
+}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Alumni+Sans:wght@200;300;400;600&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles/tokens.css?v=064" />
+  <link rel="stylesheet" href="/styles/site.css?v=064" />
+  <link rel="stylesheet" href="/styles/guides.css?v=064" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap nav-bar">
+      <a class="brand-mark" href="/zh/" aria-label="ArchRay 首页">
+        <span class="brand-glyph" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round">
+            <polygon points="12 2 21 7 21 17 12 22 3 17 3 7" />
+            <polyline points="3 7 12 12 21 7" />
+            <line x1="12" y1="12" x2="12" y2="22" />
+          </svg>
+        </span>
+        <span class="brand-name">ArchRay</span>
+      </a>
+
+      <nav class="nav-links" id="primaryNav" aria-label="主导航">
+        <a href="/zh/">首页</a>
+        <a href="/zh/guides/">指南合集</a>
+        <a href="/zh/compare/mermaid-structurizr-eraser/">工具对比</a>
+        <a href="/demo?locale=zh-CN">实机沙盒</a>
+        <a href="/zh/#install">一键安装</a>
+      </nav>
+
+      <div class="nav-tools">
+        <div class="lang-switch" role="group" aria-label="Language / 语言">
+          <a href="/guides/architecture-layers-reference/" class="lang-option" hreflang="en" lang="en">EN</a>
+          <a href="/zh/guides/architecture-layers-reference/" class="lang-option is-active" aria-current="page" hreflang="zh-CN" lang="zh-CN">中文</a>
+        </div>
+        <button type="button" class="pill-ctl" id="themeToggle" aria-label="切换深浅主题">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+          </svg>
+          <span class="hide-xs" data-theme-label>深色</span>
+        </button>
+        <button type="button" class="nav-toggle" id="navToggle" aria-label="打开导航" aria-expanded="false" aria-controls="primaryNav">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <line x1="4" y1="7" x2="20" y2="7" />
+            <line x1="4" y1="12" x2="20" y2="12" />
+            <line x1="4" y1="17" x2="20" y2="17" />
+          </svg>
+        </button>
+        <a class="pill-ctl nav-github" href="https://github.com/loofare/ArchRay" target="_blank" rel="noopener noreferrer" aria-label="ArchRay GitHub repository">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.11.78-.25.78-.55v-1.93c-3.2.7-3.87-1.54-3.87-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.69 1.25 3.34.95.1-.74.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.68 0-1.25.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.16 1.18a10.9 10.9 0 0 1 5.76 0c2.19-1.49 3.16-1.18 3.16-1.18.62 1.58.23 2.75.11 3.04.74.8 1.18 1.83 1.18 3.08 0 4.41-2.69 5.39-5.25 5.67.41.35.78 1.05.78 2.12v3.14c0 .31.21.67.79.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
+          </svg>
+          <span>GitHub</span>
+          <span class="star-glyph" aria-hidden="true">★</span>
+        </a>
+      </div>
+    </div>
+    <div class="scroll-progress-bar" id="scrollProgressBar" aria-hidden="true"></div>
+  </header>
+
+  <main class="wrap guide-main">
+    <nav class="guide-crumb" aria-label="面包屑导航"><a href="/zh/">首页</a><span class="guide-crumb-sep" aria-hidden="true">/</span><a href="/zh/guides/">指南</a><span class="guide-crumb-sep" aria-hidden="true">/</span><span aria-current="page">十层架构与 CLI 参考</span></nav>
+    <div class="guide-shell">
+  <article class="guide-article">
+    <h1>L0–L9 十层架构、节点类型与 CLI 技术参考</h1>
+    <p class="guide-lead">面向架构师与研发工具团队的 ArchRay Graph v2 技术词典：完整收录十层分层语义、三维空间分区、中英文别名及命令行全参数。</p>
+    <div class="guide-meta">
+      <span>ArchRay v0.6.0</span>
+      <span>作者：David Yin · 更新 2026-11-20</span>
+      <span>MIT Open Source</span>
+    </div>
+    <section class="answer-box" aria-label="核心结论">
+      <p>ArchRay Graph v2 定义了 10 个规范架构层（`client` 至 `observability`）、19 种节点类型（`kind`）与 14 种已知连接协议，支持 `tech`/`blueprint`/`glass`/`paper` 四套皮肤，内置 212 条技术栈识别提示与 167 枚离线矢量品牌徽标。</p>
+    </section>
+    <section id="layers">
+  <h2>1. L0–L9 十个规范架构层与 3D 空间象限</h2>
+  <p>每个模块归属的 canonical layer 不仅决定三维空间纵深与体块形态，还直接绑定斜杠命令和 CLI `--layers` 的中英文别名筛选：</p>
+  
+  <div class="table-scroll">
+  <table class="spec-table">
+    <thead><tr><th scope="col">层级</th><th scope="col">标准层 ID</th><th scope="col">可用中英文别名</th><th scope="col">3D 空间分区与体块造型</th><th scope="col">典型技术栈示例</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">L0</th><td>client</td><td>frontend, client, 前端, 客户端</td><td>顶层入口 · 倾斜屏幕薄板</td><td>Next.js, Vue 3, React Native, Electron</td></tr>
+      <tr><th scope="row">L1</th><td>edge</td><td>network, edge, 网络, 边缘</td><td>上层接入缓冲 · 宽幅接入层板</td><td>Cloudflare, Nginx, Envoy, Traefik</td></tr>
+      <tr><th scope="row">L2</th><td>gateway</td><td>security, gateway, 网关, 鉴权</td><td>鉴权枢纽 · 网关分流棱台</td><td>Kong, Better Auth, Clerk, Keycloak</td></tr>
+      <tr><th scope="row">L3</th><td>service</td><td>service, backend, 后端, 服务</td><td>中央主塔 · 圆角核心方台</td><td>NestJS, FastAPI, Spring Boot, Go</td></tr>
+      <tr><th scope="row">L4</th><td>async</td><td>async, worker, 异步, 队列</td><td>左侧任务翼 (-X) · 胶囊任务体</td><td>Kafka, BullMQ, Socket.IO, Celery</td></tr>
+      <tr><th scope="row">L5</th><td>data</td><td>data, db, 数据, 存储</td><td>核心存储底座 · 三段存储圆柱</td><td>PostgreSQL, Redis, Elasticsearch, S3</td></tr>
+      <tr><th scope="row">L6</th><td>ai</td><td>ai, model, AI, 智能</td><td>智能侧翼 (-X) · 推理核心体</td><td>Gemini, Claude, Qdrant, pgvector</td></tr>
+      <tr><th scope="row">L7</th><td>external</td><td>external, saas, 外部, 三方</td><td>右侧独立轨 (+X) · 虚线外部边界</td><td>Stripe, Resend, Twilio, OAuth SaaS</td></tr>
+      <tr><th scope="row">L8</th><td>platform</td><td>platform, infra, 平台, 运维</td><td>底层地基 · 基础设施宽台</td><td>Docker, Kubernetes, Terraform, Actions</td></tr>
+      <tr><th scope="row">L9</th><td>observability</td><td>observability, obs, 可观测, 监控</td><td>底层遥测面 · 遥测追踪平面</td><td>OpenTelemetry, Prometheus, Grafana, Sentry</td></tr>
+    </tbody>
+  </table>
+</div>
+  
+</section>
+<section id="kinds-protocols">
+  <h2>2. 19 种节点类型（kind）与 14 种连线协议</h2>
+  <p>212 条分类提示会优先匹配 167 枚内嵌矢量徽标；如未识别到特定产品徽标，会自动匹配对应角色的三维体块图标：</p>
+  <ul><li>19 种已知节点 kind：client、cli、gateway、service、worker、function、library、module、database、cache、queue、storage、search、external-api、ai-model、config、group、saas、archive（也允许自定义字符串）。</li><li>14 种已知连接协议：http、grpc、graphql、ws、sse、amqp、kafka、sql、redis、ipc、import、fs、llm、event。</li><li>4 套视觉主题（--style）：tech（科技深空，默认）、blueprint（架构蓝图）、glass（极光磨砂）、paper（高对比打印白底）。</li><li>3 档动效控制（--motion）：full、calm、off（遵循系统减弱动效偏好）。</li></ul>
+  
+  
+</section>
+<section id="schema-example">
+  <h2>3. Graph v2 极简双语 JSON 示例</h2>
+  <p>`.archray/graph.json` 严格禁止大模型写入像素坐标，仅表达节点、父子层级与连线关系：</p>
+  
+  
+  <div class="code-block">
+  <div class="code-head"><span>最小双语 v2 图谱结构（.archray/graph.json）</span><button type="button" class="code-copy-btn" data-copy-code>复制</button></div>
+  <pre><code>{
+  &quot;schemaVersion&quot;: &quot;2.0&quot;,
+  &quot;meta&quot;: { &quot;name&quot;: { &quot;zh-CN&quot;: &quot;Acme 系统&quot;, &quot;en&quot;: &quot;Acme App&quot; }, &quot;locales&quot;: [&quot;zh-CN&quot;, &quot;en&quot;], &quot;generatedAt&quot;: &quot;2026-11-20T00:00:00Z&quot; },
+  &quot;layers&quot;: [
+    { &quot;id&quot;: &quot;client&quot;, &quot;name&quot;: { &quot;zh-CN&quot;: &quot;客户端&quot;, &quot;en&quot;: &quot;Client&quot; }, &quot;order&quot;: 0 },
+    { &quot;id&quot;: &quot;service&quot;, &quot;name&quot;: { &quot;zh-CN&quot;: &quot;核心服务&quot;, &quot;en&quot;: &quot;Services&quot; }, &quot;order&quot;: 3 },
+    { &quot;id&quot;: &quot;data&quot;, &quot;name&quot;: { &quot;zh-CN&quot;: &quot;数据存储&quot;, &quot;en&quot;: &quot;Data&quot; }, &quot;order&quot;: 5 }
+  ],
+  &quot;nodes&quot;: [
+    { &quot;id&quot;: &quot;web&quot;, &quot;layer&quot;: &quot;client&quot;, &quot;kind&quot;: &quot;client&quot;, &quot;name&quot;: { &quot;zh-CN&quot;: &quot;Web 控制台&quot;, &quot;en&quot;: &quot;Web App&quot; }, &quot;sourcePaths&quot;: [&quot;apps/web/src/app/page.tsx&quot;] },
+    { &quot;id&quot;: &quot;api&quot;, &quot;layer&quot;: &quot;service&quot;, &quot;kind&quot;: &quot;service&quot;, &quot;name&quot;: { &quot;zh-CN&quot;: &quot;订单服务&quot;, &quot;en&quot;: &quot;Order API&quot; }, &quot;sourcePaths&quot;: [&quot;apps/api/src/order.ts&quot;] },
+    { &quot;id&quot;: &quot;pg&quot;, &quot;layer&quot;: &quot;data&quot;, &quot;kind&quot;: &quot;database&quot;, &quot;name&quot;: { &quot;zh-CN&quot;: &quot;PostgreSQL 主库&quot;, &quot;en&quot;: &quot;PostgreSQL&quot; }, &quot;tech&quot;: [&quot;PostgreSQL&quot;], &quot;sourcePaths&quot;: [&quot;prisma/schema.prisma&quot;] }
+  ],
+  &quot;edges&quot;: [
+    { &quot;id&quot;: &quot;e1&quot;, &quot;from&quot;: &quot;web&quot;, &quot;to&quot;: &quot;api&quot;, &quot;protocol&quot;: &quot;http&quot; },
+    { &quot;id&quot;: &quot;e2&quot;, &quot;from&quot;: &quot;api&quot;, &quot;to&quot;: &quot;pg&quot;, &quot;protocol&quot;: &quot;sql&quot; }
+  ]
+}</code></pre>
+</div>
+</section>
+<section id="cli-ref">
+  <h2>4. 全部 CLI 子命令速查</h2>
+  <p>在项目根目录直接调用 `./.archray/archray`（Windows 下使用 `.archray\archray.cmd`）：</p>
+  
+  <div class="table-scroll">
+  <table class="spec-table">
+    <thead><tr><th scope="col">CLI 命令</th><th scope="col">功能与常用选项</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">./.archray/archray doctor</th><td>检查 Node.js 20+、内嵌 Schema、查看器与图标资源完整性</td></tr>
+      <tr><th scope="row">./.archray/archray validate .archray/graph.json</th><td>TypeBox 校验、唯一 ID 冲突检测、双语完整度与 UTF-8 无乱码检测</td></tr>
+      <tr><th scope="row">./.archray/archray build &lt;json&gt; [选项]</th><td>离线构建单文件 HTML（支持 --layers、--style、--lang、--motion、--output、--force、--no-open）</td></tr>
+      <tr><th scope="row">./.archray/archray update [--check]</th><td>只读检查新版本或 SHA-256 校验更新工具链（保留现有图谱成果）</td></tr>
+      <tr><th scope="row">./.archray/archray uninstall [--dry-run] [--purge]</th><td>预览或卸载适配器与命令文件，加 --purge 清除全部产物</td></tr>
+    </tbody>
+  </table>
+</div>
+  
+</section>
+    <section id="faq">
+  <h2>常见问题</h2>
+  <div class="guide-faq">
+    <details class="faq-item" open>
+  <summary>每个仓库必须把 10 层全部填满吗？</summary>
+  <p>不需要。建议按仓库真实复杂度只声明 3–6 个实际存在的层（例如官网在线沙盒 FreshMart 只使用了 5 层），同时每层归属会自动匹配十层布局规则。</p>
+</details>
+<details class="faq-item">
+  <summary>子模块怎么归属到父节点实现自动折叠？</summary>
+  <p>在平铺 `nodes` 数组中为子节点填写 `parent: &quot;&lt;父节点ID&gt;&quot;`，确保全库节点 ID 唯一（例如 `order/repo`），缩放到全景比例时引擎会自动折叠显示 `+N` 数量标记。</p>
+</details>
+<details class="faq-item">
+  <summary>自定义调好的 3D 角度、隐藏层与筛选状态如何发给别人？</summary>
+  <p>点击画布顶部工具栏导出 `view.json` 并发送，对方在你导出的同一份 `index.html` 中导入该 `view.json` 即可还原完全相同的视角与高亮状态。</p>
+</details>
+<details class="faq-item">
+  <summary>内嵌的 167 枚技术栈品牌图标会走外部 CDN 请求吗？</summary>
+  <p>绝对不会。所有 SVG 图标全部来自构建期封装的离线图标包，生成的单文件 HTML 断网环境下照常高清展示。</p>
+</details>
+  </div>
+</section>
+    <div class="guide-cta-band">
+  <div>
+    <h2>30 秒装入你的仓库实测</h2>
+    <p>纯本地运行、零源码上传，支持 Claude Code、Cursor、Antigravity、Pi 与 Codex。</p>
+  </div>
+  <div class="guide-cta-actions">
+    <a class="btn-ink" href="/zh/#install">获取安装命令 <span class="arrow-amber" aria-hidden="true">→</span></a>
+    <a class="btn-outline" href="/demo?locale=zh-CN">体验 3D 沙盒</a>
+  </div>
+</div>
+    <section style="margin-top: 44px;">
+  <h2>继续阅读相关指南</h2>
+  <div class="related-list"><a class="related-link" href="/zh/compare/mermaid-structurizr-eraser/">
+  <span>ArchRay 对比 Mermaid、Structurizr 与 Eraser</span>
+  <span>查看详情 →</span>
+</a>
+<a class="related-link" href="/zh/guides/offline-codebase-architecture-audit/">
+  <span>大型 Monorepo 离线架构审计与实测基准</span>
+  <span>查看详情 →</span>
+</a>
+<a class="related-link" href="/zh/guides/claude-code-architecture-diagram/">
+  <span>Claude Code 生成 3D 架构图实战教程</span>
+  <span>查看详情 →</span>
+</a>
+<a class="related-link" href="/zh/guides/codex-pi-antigravity/">
+  <span>Codex、Pi 与 Antigravity 集成指南</span>
+  <span>查看详情 →</span>
+</a></div>
+</section>
+  </article>
+  <aside class="guide-toc" aria-label="本文目录">
+  <div class="guide-toc-title">本页目录</div>
+  <ul><li><a href="#layers">1. L0–L9 十个规范架构层与 3D 空间象限</a></li><li><a href="#kinds-protocols">2. 19 种节点类型（kind）与 14 种连线协议</a></li><li><a href="#schema-example">3. Graph v2 极简双语 JSON 示例</a></li><li><a href="#cli-ref">4. 全部 CLI 子命令速查</a></li><li><a href="#faq">常见问题</a></li></ul>
+</aside>
+</div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-row">
+      <p style="font-size: 0.88rem;">
+        <strong style="color: var(--ink-strong);">ArchRay</strong> · MIT 开源项目 · AI 优先的空间架构可视化工具
+      </p>
+      <div class="footer-links">
+        <a href="/zh/">首页</a>
+        <a href="/zh/guides/">指南合集</a>
+        <a href="/zh/compare/mermaid-structurizr-eraser/">工具对比</a>
+        <a href="/demo?locale=zh-CN">全屏沙盒</a>
+        <a href="/llms-zh.txt">llms-zh.txt</a>
+        <a href="https://github.com/loofare/ArchRay" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="mailto:hello@archray.dev">hello@archray.dev</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/guides.js?v=064"></script>
+</body>
+</html>

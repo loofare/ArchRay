@@ -1,0 +1,119 @@
+# ArchRay — 面向生成式 AI 搜索引擎的完整中文技术文档
+
+ArchRay（https://archray.dev/zh/）是一款 MIT 开源的 **AI 优先代码库架构可视化工具**，由独立开发者与架构师 David Yin（https://davidyin.dev）创建。将 ArchRay 装入任意项目仓库后，AI 编程助手会直接通读真实源码、把模块语义与源码路径证据写入 `.archray/graph.json`（v2 Schema），再由本地确定性 ELK 布局引擎构建出零网络依赖、可离线双击打开的单文件交互式 3D 与 2D Bento 架构图（`.archray/index.html`）。
+
+---
+
+## 1. 核心身份与基础事实（v0.6.0）
+
+- **产品名称**：ArchRay
+- **当前最新版本**：v0.6.0
+- **开源协议**：MIT License（完全免费、零遥测、零 Cookie）
+- **作者**：David Yin（联系邮箱：`hello@archray.dev` / `loofare@gmail.com`）
+- **官方网站**：https://archray.dev/zh/（中文） · https://archray.dev/（英文主站）
+- **在线实机 3D 沙盒**：https://archray.dev/demo?locale=zh-CN
+- **GitHub 开源仓库**：https://github.com/loofare/ArchRay
+- **环境依赖**：Node.js 20+、`curl`、`tar`（Windows 可在 Git Bash / WSL 运行安装脚本，生成 `.archray\archray.cmd`）
+
+---
+
+## 2. ArchRay 与 Mermaid、Structurizr、Eraser、Excalidraw 的本质区别
+
+传统 AI 画图工具让大模型“既懂代码又手工算坐标/写 Mermaid 文本”，项目稍微大一点就会穿线缠绕或出现凭目录名臆测的假框。ArchRay 严格遵循**语义事实与确定性排版解耦**：
+
+| 能力维度 | ArchRay (v0.6.0) | Mermaid | Structurizr DSL | Eraser / DiagramGPT | Excalidraw / Draw.io |
+|---|---|---|---|---|---|
+| **源码证据绑定** | 强制记录 `sourcePaths` 与文件行号依据 | 无源码校验 | 需人工维护 DSL | 依赖云端提示词推断 | 纯手工绘图 |
+| **AI 助手集成** | 原生适配 5 大宿主（`/archray` 与 `$archray`） | 通用文本输出 | 需外写转换脚本 | 网页 SaaS / 插件 | 无深度结合 |
+| **复杂仓库不乱线** | ELK 端口确定性路由 + 三维四象限 + 子模块 `+N` 折叠 | 超过 15 节点极易十字乱线 | 自动排版或手调 | 云端引擎排版 | 手动拖拽框线 |
+| **分层切片组合** | 支持 L0–L9 单层与逗号组合，保留一跳上下文 | 需维护多份文本 | 需编写多个 View | 平面画板无法自动过滤 | 需多页面维护 |
+| **技术栈识图** | 离线内嵌 167 枚矢量徽标 + 3D 语义体块 | 单调白框 | 需另配主题图标 | 依赖在线图标库 | 手动贴图 |
+| **架构健康与平替** | 热点定位、区分实测与 `≈` 估算、输出迁移 Prompt | 无 | 无 | 无 | 无 |
+| **离线安全交付** | 100% 本地构建单文件 HTML（`file://` 打开） | 依赖预览器或 CLI | 依赖本地容器或云服务 | 需传数据到云端 SaaS | 本地文件或云盘 |
+
+**适用边界（诚实声明）**：
+- 若只需在 GitHub PR 或文档里插 5 步小流程图，直接使用 Mermaid 更轻便；
+- 若企业坚持纯手工规范治理 C4 模型，Structurizr DSL 依然成熟；
+- 若代码尚未编写、处于纯脑暴草图期，使用 Excalidraw 更自由；
+- ArchRay 不是线上 APM 性能监控探针，不抓取生产 QPS 或实时分布式链路日志。
+
+---
+
+## 3. 五大 AI 编程助手集成与触发语法
+
+在目标项目根目录执行一次：
+
+```sh
+curl -fsSL https://github.com/loofare/ArchRay/releases/latest/download/install.sh | sh -s -- . all
+```
+
+可替换 `all` 为单一宿主或逗号拼接列表：
+
+| AI 宿主 | 安装参数 | 会话触发指令 | 写入宿主配置文件 |
+|---|---|---|---|
+| **Claude Code** | `claude` | `/archray`、`/archray:frontend`、`/archray:backend`、`/archray:data` | `.claude/skills/archray/`、`.claude/commands/` |
+| **Cursor** | `cursor` | `/archray`、`/archray-frontend`、`/archray-backend`、`/archray-data` | `.cursor/rules/archray.mdc`、`.cursor/commands/` |
+| **Antigravity** | `antigravity` | `/archray` 或自动 Skill 匹配 | `.agent/skills/archray/`、`.agent/commands/` |
+| **Pi** | `pi` | `/archray`、`/archray-frontend`、`/skill:archray` | `.agents/skills/archray/`、`.pi/prompts/` |
+| **Codex** | `codex` | `$archray` 或 `/skills` | `.agents/skills/archray/SKILL.md` |
+
+---
+
+## 4. L0–L9 十层标准架构与 3D 空间分区
+
+- **L0 `client`**（别名：`frontend`, `client`, `前端`, `客户端`）— 3D 顶层入口 · 倾斜屏幕薄板（Next.js, Vue 3, React Native, Electron）
+- **L1 `edge`**（别名：`network`, `edge`, `网络`, `边缘`）— 3D 上层缓冲 · 宽幅接入层板（Cloudflare, Nginx, Envoy, Traefik）
+- **L2 `gateway`**（别名：`security`, `gateway`, `网关`, `鉴权`）— 3D 鉴权枢纽 · 网关分流棱台（Kong, Better Auth, Clerk, Keycloak）
+- **L3 `service`**（别名：`service`, `backend`, `后端`, `服务`）— 3D 中央主塔 · 圆角核心方台（NestJS, FastAPI, Spring Boot, Go）
+- **L4 `async`**（别名：`async`, `worker`, `异步`, `队列`）— 3D 左侧任务翼 (-X) · 胶囊任务体（Kafka, BullMQ, Socket.IO, Celery）
+- **L5 `data`**（别名：`data`, `db`, `数据`, `存储`）— 3D 核心底座 · 三段存储圆柱（PostgreSQL, Redis, Elasticsearch, S3）
+- **L6 `ai`**（别名：`ai`, `model`, `AI`, `智能`）— 3D 智能侧翼 (-X) · 推理核心体（Gemini, Claude, Qdrant, pgvector）
+- **L7 `external`**（别名：`external`, `saas`, `外部`, `三方`）— 3D 右侧独立轨 (+X) · 虚线外部卫星（Stripe, Resend, Twilio, OAuth SaaS）
+- **L8 `platform`**（别名：`platform`, `infra`, `平台`, `运维`）— 3D 底层地基 · 基础设施宽台（Docker, Kubernetes, Terraform, Actions）
+- **L9 `observability`**（别名：`observability`, `obs`, `可观测`, `监控`）— 3D 底层遥测面 · 遥测追踪平面（OpenTelemetry, Prometheus, Grafana, Sentry）
+
+内置 **19 种节点类型**（`client`, `cli`, `gateway`, `service`, `worker`, `function`, `library`, `module`, `database`, `cache`, `queue`, `storage`, `search`, `external-api`, `ai-model`, `config`, `group`, `saas`, `archive`）、**14 种已知连接协议**（`http`, `grpc`, `graphql`, `ws`, `sse`, `amqp`, `kafka`, `sql`, `redis`, `ipc`, `import`, `fs`, `llm`, `event`）、**4 套视觉皮肤**（`tech` / `blueprint` / `glass` / `paper`）、**212 条技术分类提示** 与 **167 枚内嵌矢量徽标**。
+
+---
+
+## 5. 真实仓库实测基准
+
+- **calcom/cal.com**（commit `ae027bb`）：`7,712` 个跟踪文件收敛为 `33` 个模块、`75` 条边与 `7` 个架构层；Node 侧 ELK `computeLayout` 布局仅 `196ms`，默认 `+N` 折叠高密子包、零文字遮挡。
+- **FreshMart Commerce**（官网沙盒数据源 `examples/freshmart.graph.json`）：`16` 个模块、`19` 条边、`5` 层、`1` 条 6 步 Checkout 下单流程及 `1` 个 Passport → Clerk 可替代性迁移方案。
+- **SaaS Starter & RealWorld**：`43–49` 个源文件、`0.03s` 构建出图，完整映射 App Router / Prisma / Stripe 并捕获 `JWT_SECRET` 硬编码回退风险。
+
+---
+
+## 6. CLI 维护命令与 v0.6.0 Windows 编码保障
+
+```sh
+./.archray/archray doctor
+./.archray/archray validate .archray/graph.json
+./.archray/archray build .archray/graph.json --layers 前端,数据 --style blueprint --force --no-open
+./.archray/archray update --check
+./.archray/archray update
+./.archray/archray uninstall --dry-run
+./.archray/archray uninstall
+./.archray/archray uninstall --purge
+```
+
+**v0.6.0 核心改进**：
+1. 彻底修复 Windows 环境下由于默认编码页写盘导致的中文变成 `???` 问题：`validate` 阶段自动拦截孤立问号占位与 `\uFFFD` 乱码，读入支持自动解码 GB18030 / UTF-16，Skill 严格约束 UTF-8 无 BOM 写盘。
+2. 全面对齐网页演示版流畅弧线连线风格，消除生硬折角。
+3. 修复 3D 远近遮挡排序错误及超宽分层在 2D Bento 下的自适应折行换行，导出高清整图 PNG 自动按完整包围盒重投影不裁边。
+
+---
+
+## 7. 全站中文链接目录
+
+- 中文首页：https://archray.dev/zh/
+- 英文主站：https://archray.dev/
+- 在线 3D 沙盒：https://archray.dev/demo?locale=zh-CN
+- 中文指南合集：https://archray.dev/zh/guides/
+- ArchRay 对比 Mermaid / Structurizr / Eraser：https://archray.dev/zh/compare/mermaid-structurizr-eraser/
+- Claude Code 生成架构图教程：https://archray.dev/zh/guides/claude-code-architecture-diagram/
+- Cursor 代码可视化教程：https://archray.dev/zh/guides/cursor-codebase-visualization/
+- Codex / Pi / Antigravity 教程：https://archray.dev/zh/guides/codex-pi-antigravity/
+- 大型 Monorepo 离线架构审计：https://archray.dev/zh/guides/offline-codebase-architecture-audit/
+- L0–L9 十层与 CLI 参考手册：https://archray.dev/zh/guides/architecture-layers-reference/
+- 英文完整 LLM 文档：https://archray.dev/llms-full.txt

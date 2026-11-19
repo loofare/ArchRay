@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Codex、Pi 与 Antigravity 多 AI 宿主接入指南</title>
+  <meta name="description" content="一文掌握 OpenAI Codex（$archray）、Pi（/skill:archray）与 Antigravity 的 ArchRay 安装部署、SHA-256 在线检查更新与安全卸载命令。" />
+  <meta name="author" content="David Yin" />
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+  <meta name="theme-color" content="#f9fafb" />
+  <meta property="og:title" content="Codex、Pi 与 Antigravity 多 AI 宿主接入指南" />
+  <meta property="og:description" content="一文掌握 OpenAI Codex（$archray）、Pi（/skill:archray）与 Antigravity 的 ArchRay 安装部署、SHA-256 在线检查更新与安全卸载命令。" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://archray.dev/zh/guides/codex-pi-antigravity/" />
+  <meta property="og:site_name" content="ArchRay" />
+  <meta property="og:locale" content="zh_CN" />
+  <meta property="og:locale:alternate" content="en_US" />
+  <meta property="og:image" content="https://archray.dev/share.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="ArchRay 分享卡：给代码库拍张立体架构透视图" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Codex、Pi 与 Antigravity 多 AI 宿主接入指南" />
+  <meta name="twitter:description" content="一文掌握 OpenAI Codex（$archray）、Pi（/skill:archray）与 Antigravity 的 ArchRay 安装部署、SHA-256 在线检查更新与安全卸载命令。" />
+  <meta name="twitter:image" content="https://archray.dev/share.png" />
+  <meta name="twitter:image:alt" content="ArchRay 分享卡：给代码库拍张立体架构透视图" />
+  <link rel="canonical" href="https://archray.dev/zh/guides/codex-pi-antigravity/" />
+  <link rel="alternate" hreflang="en" href="https://archray.dev/guides/codex-pi-antigravity/" />
+  <link rel="alternate" hreflang="zh-CN" href="https://archray.dev/zh/guides/codex-pi-antigravity/" />
+  <link rel="alternate" hreflang="x-default" href="https://archray.dev/guides/codex-pi-antigravity/" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="alternate" type="text/markdown" href="https://archray.dev/llms.txt" hreflang="en" title="LLM summary" />
+  <link rel="alternate" type="text/markdown" href="https://archray.dev/llms-zh.txt" hreflang="zh-CN" title="ArchRay 中文 LLM 完整文档" />
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "@id": "https://archray.dev/zh/guides/codex-pi-antigravity/#article",
+      "url": "https://archray.dev/zh/guides/codex-pi-antigravity/",
+      "headline": "Codex、Pi 与 Antigravity 集成指南",
+      "name": "Codex、Pi 与 Antigravity 多 AI 宿主接入指南",
+      "description": "一文掌握 OpenAI Codex（$archray）、Pi（/skill:archray）与 Antigravity 的 ArchRay 安装部署、SHA-256 在线检查更新与安全卸载命令。",
+      "inLanguage": "zh-CN",
+      "datePublished": "2026-11-20",
+      "dateModified": "2026-11-20",
+      "author": {
+        "@type": "Person",
+        "@id": "https://archray.dev/#person",
+        "name": "David Yin",
+        "url": "https://davidyin.dev"
+      },
+      "publisher": {
+        "@type": "Person",
+        "@id": "https://archray.dev/#person",
+        "name": "David Yin",
+        "url": "https://davidyin.dev"
+      },
+      "about": {
+        "@type": "SoftwareApplication",
+        "@id": "https://archray.dev/#software",
+        "name": "ArchRay",
+        "url": "https://archray.dev/"
+      },
+      "isPartOf": {
+        "@id": "https://archray.dev/#website"
+      },
+      "mainEntityOfPage": {
+        "@id": "https://archray.dev/zh/guides/codex-pi-antigravity/#webpage"
+      },
+      "image": {
+        "@type": "ImageObject",
+        "url": "https://archray.dev/share.png",
+        "width": 1200,
+        "height": 630
+      },
+      "speakable": {
+        "@type": "SpeakableSpecification",
+        "cssSelector": [
+          ".answer-box p",
+          ".guide-faq summary",
+          ".guide-faq p"
+        ]
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://archray.dev/zh/guides/codex-pi-antigravity/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首页",
+          "item": "https://archray.dev/zh/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "指南",
+          "item": "https://archray.dev/zh/guides/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Codex / Pi / Antigravity",
+          "item": "https://archray.dev/zh/guides/codex-pi-antigravity/"
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://archray.dev/zh/guides/codex-pi-antigravity/#faq",
+      "inLanguage": "zh-CN",
+      "isPartOf": {
+        "@id": "https://archray.dev/zh/guides/codex-pi-antigravity/#webpage"
+      },
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "在 Codex 里输入 /archray 没反应怎么办？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Codex 原生技能调用使用 `$archray` 前缀或运行 `/skills` 选择 `archray`，也可直接用自然语言“使用 archray Skill 检查源码并构建架构图”。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Antigravity 如何触发 ArchRay？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "安装参数使用 `antigravity` 会写入 `.agent/skills/archray/` 与 `.agent/commands/`，重开会话即可按命令或 Skill 描述触发。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "执行 update 会覆盖我辛辛苦苦标注的 graph.json 吗？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "绝对不会。`update` 只更新工具链、Skill 与查看器模板，严格保留 `.archray/graph.json`、`view.json` 与 `index.html`。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "v0.4 或更早版本如何升级到 v0.6.0？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "v0.4.0 及更早版本尚未内置自升级命令，只需在项目根目录重新运行一次最新版 `install.sh`（可带 `. auto --force` 参数），之后即可永久享受 `.archray/archray update`。"
+          }
+        }
+      ]
+    }
+  ]
+}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Alumni+Sans:wght@200;300;400;600&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles/tokens.css?v=064" />
+  <link rel="stylesheet" href="/styles/site.css?v=064" />
+  <link rel="stylesheet" href="/styles/guides.css?v=064" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap nav-bar">
+      <a class="brand-mark" href="/zh/" aria-label="ArchRay 首页">
+        <span class="brand-glyph" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round">
+            <polygon points="12 2 21 7 21 17 12 22 3 17 3 7" />
+            <polyline points="3 7 12 12 21 7" />
+            <line x1="12" y1="12" x2="12" y2="22" />
+          </svg>
+        </span>
+        <span class="brand-name">ArchRay</span>
+      </a>
+
+      <nav class="nav-links" id="primaryNav" aria-label="主导航">
+        <a href="/zh/">首页</a>
+        <a href="/zh/guides/">指南合集</a>
+        <a href="/zh/compare/mermaid-structurizr-eraser/">工具对比</a>
+        <a href="/demo?locale=zh-CN">实机沙盒</a>
+        <a href="/zh/#install">一键安装</a>
+      </nav>
+
+      <div class="nav-tools">
+        <div class="lang-switch" role="group" aria-label="Language / 语言">
+          <a href="/guides/codex-pi-antigravity/" class="lang-option" hreflang="en" lang="en">EN</a>
+          <a href="/zh/guides/codex-pi-antigravity/" class="lang-option is-active" aria-current="page" hreflang="zh-CN" lang="zh-CN">中文</a>
+        </div>
+        <button type="button" class="pill-ctl" id="themeToggle" aria-label="切换深浅主题">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+          </svg>
+          <span class="hide-xs" data-theme-label>深色</span>
+        </button>
+        <button type="button" class="nav-toggle" id="navToggle" aria-label="打开导航" aria-expanded="false" aria-controls="primaryNav">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <line x1="4" y1="7" x2="20" y2="7" />
+            <line x1="4" y1="12" x2="20" y2="12" />
+            <line x1="4" y1="17" x2="20" y2="17" />
+          </svg>
+        </button>
+        <a class="pill-ctl nav-github" href="https://github.com/loofare/ArchRay" target="_blank" rel="noopener noreferrer" aria-label="ArchRay GitHub repository">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.11.78-.25.78-.55v-1.93c-3.2.7-3.87-1.54-3.87-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.69 1.25 3.34.95.1-.74.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.68 0-1.25.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.16 1.18a10.9 10.9 0 0 1 5.76 0c2.19-1.49 3.16-1.18 3.16-1.18.62 1.58.23 2.75.11 3.04.74.8 1.18 1.83 1.18 3.08 0 4.41-2.69 5.39-5.25 5.67.41.35.78 1.05.78 2.12v3.14c0 .31.21.67.79.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
+          </svg>
+          <span>GitHub</span>
+          <span class="star-glyph" aria-hidden="true">★</span>
+        </a>
+      </div>
+    </div>
+    <div class="scroll-progress-bar" id="scrollProgressBar" aria-hidden="true"></div>
+  </header>
+
+  <main class="wrap guide-main">
+    <nav class="guide-crumb" aria-label="面包屑导航"><a href="/zh/">首页</a><span class="guide-crumb-sep" aria-hidden="true">/</span><a href="/zh/guides/">指南</a><span class="guide-crumb-sep" aria-hidden="true">/</span><span aria-current="page">Codex / Pi / Antigravity</span></nav>
+    <div class="guide-shell">
+  <article class="guide-article">
+    <h1>Codex、Pi 与 Antigravity 集成指南</h1>
+    <p class="guide-lead">当团队同时使用 Codex CLI、Pi、Antigravity、Claude Code 与 Cursor 时，ArchRay 用统一安装器让所有宿主生成完全一致的 Graph v2 立体架构图。</p>
+    <div class="guide-meta">
+      <span>ArchRay v0.6.0</span>
+      <span>作者：David Yin · 更新 2026-11-20</span>
+      <span>MIT Open Source</span>
+    </div>
+    <section class="answer-box" aria-label="核心结论">
+      <p>运行 install.sh 时传入 `codex`、`pi`、`antigravity` 或 `all`，即可按各助手规范写入原生入口（Codex 用 `$archray` 或 `/skills`，Pi 用 `/archray` 或 `/skill:archray`，Antigravity 自动发现 `.agent/skills/archray/`），全员共享同一份 `.archray/graph.json` 规范。</p>
+    </section>
+    <section id="hosts">
+  <h2>1. 五大 AI 宿主触发语法与部署路径</h2>
+  <p>不同编程助手读取技能与命令的目录约定不同，ArchRay 安装器已全部自动适配：</p>
+  
+  <div class="table-scroll">
+  <table class="spec-table">
+    <thead><tr><th scope="col">AI 宿主</th><th scope="col">安装参数</th><th scope="col">会话触发命令</th><th scope="col">写入宿主路径</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Codex</th><td>codex</td><td>$archray 或 /skills</td><td>.agents/skills/archray/SKILL.md</td></tr>
+      <tr><th scope="row">Pi</th><td>pi</td><td>/archray、/archray-frontend、/skill:archray</td><td>.agents/skills/archray/ 与 .pi/prompts/</td></tr>
+      <tr><th scope="row">Antigravity</th><td>antigravity</td><td>/archray 或自动 Skill 匹配</td><td>.agent/skills/archray/ 与 .agent/commands/</td></tr>
+      <tr><th scope="row">Claude Code</th><td>claude</td><td>/archray、/archray:frontend</td><td>.claude/skills/archray/ 与 .claude/commands/</td></tr>
+      <tr><th scope="row">Cursor</th><td>cursor</td><td>/archray、/archray-frontend</td><td>.cursor/rules/archray.mdc 与 .cursor/commands/</td></tr>
+    </tbody>
+  </table>
+</div>
+  
+</section>
+<section id="install">
+  <h2>2. 单独安装或全宿主一键部署</h2>
+  <p>支持单宿主安装、逗号多选安装，或传入 `all` 一次性为所有五大助手部署适配器：</p>
+  
+  
+  <div class="code-block">
+  <div class="code-head"><span>安装 Codex / Pi / Antigravity / 全宿主</span><button type="button" class="code-copy-btn" data-copy-code>复制</button></div>
+  <pre><code># 指定单一或多宿主：
+curl -fsSL https://github.com/loofare/ArchRay/releases/latest/download/install.sh | sh -s -- . codex
+curl -fsSL https://github.com/loofare/ArchRay/releases/latest/download/install.sh | sh -s -- . codex,pi,antigravity
+
+# 全宿主一次安装：
+curl -fsSL https://github.com/loofare/ArchRay/releases/latest/download/install.sh | sh -s -- . all</code></pre>
+</div>
+</section>
+<section id="maint">
+  <h2>3. 自包含检查更新、SHA-256 升级与卸载</h2>
+  <p>从 v0.5.0 起，项目内 `.archray/archray`（Windows 下生成 `.archray\archray.cmd`）内置完整维护命令，升级和默认卸载均保留用户的架构成果：</p>
+  
+  
+  <div class="code-block">
+  <div class="code-head"><span>项目内维护指令（不污染全局 Node）</span><button type="button" class="code-copy-btn" data-copy-code>复制</button></div>
+  <pre><code>./.archray/archray update --check   # 只读检查最新 Release，不改动文件
+./.archray/archray update           # 校验 SHA-256 并升级 CLI/Skill（保留 graph/view/HTML）
+
+./.archray/archray uninstall --dry-run  # 预览将被删除的适配器清单
+./.archray/archray uninstall            # 移除工具和宿主配置（保留已有图谱）
+./.archray/archray uninstall --purge    # 连同 .archray/ 产物一并彻底清除</code></pre>
+</div>
+</section>
+    <section id="faq">
+  <h2>常见问题</h2>
+  <div class="guide-faq">
+    <details class="faq-item" open>
+  <summary>在 Codex 里输入 /archray 没反应怎么办？</summary>
+  <p>Codex 原生技能调用使用 `$archray` 前缀或运行 `/skills` 选择 `archray`，也可直接用自然语言“使用 archray Skill 检查源码并构建架构图”。</p>
+</details>
+<details class="faq-item">
+  <summary>Antigravity 如何触发 ArchRay？</summary>
+  <p>安装参数使用 `antigravity` 会写入 `.agent/skills/archray/` 与 `.agent/commands/`，重开会话即可按命令或 Skill 描述触发。</p>
+</details>
+<details class="faq-item">
+  <summary>执行 update 会覆盖我辛辛苦苦标注的 graph.json 吗？</summary>
+  <p>绝对不会。`update` 只更新工具链、Skill 与查看器模板，严格保留 `.archray/graph.json`、`view.json` 与 `index.html`。</p>
+</details>
+<details class="faq-item">
+  <summary>v0.4 或更早版本如何升级到 v0.6.0？</summary>
+  <p>v0.4.0 及更早版本尚未内置自升级命令，只需在项目根目录重新运行一次最新版 `install.sh`（可带 `. auto --force` 参数），之后即可永久享受 `.archray/archray update`。</p>
+</details>
+  </div>
+</section>
+    <div class="guide-cta-band">
+  <div>
+    <h2>30 秒装入你的仓库实测</h2>
+    <p>纯本地运行、零源码上传，支持 Claude Code、Cursor、Antigravity、Pi 与 Codex。</p>
+  </div>
+  <div class="guide-cta-actions">
+    <a class="btn-ink" href="/zh/#install">获取安装命令 <span class="arrow-amber" aria-hidden="true">→</span></a>
+    <a class="btn-outline" href="/demo?locale=zh-CN">体验 3D 沙盒</a>
+  </div>
+</div>
+    <section style="margin-top: 44px;">
+  <h2>继续阅读相关指南</h2>
+  <div class="related-list"><a class="related-link" href="/zh/compare/mermaid-structurizr-eraser/">
+  <span>ArchRay 对比 Mermaid、Structurizr 与 Eraser</span>
+  <span>查看详情 →</span>
+</a>
+<a class="related-link" href="/zh/guides/claude-code-architecture-diagram/">
+  <span>Claude Code 生成 3D 架构图实战教程</span>
+  <span>查看详情 →</span>
+</a>
+<a class="related-link" href="/zh/guides/cursor-codebase-visualization/">
+  <span>Cursor 代码库空间可视化指南</span>
+  <span>查看详情 →</span>
+</a>
+<a class="related-link" href="/zh/guides/offline-codebase-architecture-audit/">
+  <span>大型 Monorepo 离线架构审计与实测基准</span>
+  <span>查看详情 →</span>
+</a></div>
+</section>
+  </article>
+  <aside class="guide-toc" aria-label="本文目录">
+  <div class="guide-toc-title">本页目录</div>
+  <ul><li><a href="#hosts">1. 五大 AI 宿主触发语法与部署路径</a></li><li><a href="#install">2. 单独安装或全宿主一键部署</a></li><li><a href="#maint">3. 自包含检查更新、SHA-256 升级与卸载</a></li><li><a href="#faq">常见问题</a></li></ul>
+</aside>
+</div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-row">
+      <p style="font-size: 0.88rem;">
+        <strong style="color: var(--ink-strong);">ArchRay</strong> · MIT 开源项目 · AI 优先的空间架构可视化工具
+      </p>
+      <div class="footer-links">
+        <a href="/zh/">首页</a>
+        <a href="/zh/guides/">指南合集</a>
+        <a href="/zh/compare/mermaid-structurizr-eraser/">工具对比</a>
+        <a href="/demo?locale=zh-CN">全屏沙盒</a>
+        <a href="/llms-zh.txt">llms-zh.txt</a>
+        <a href="https://github.com/loofare/ArchRay" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="mailto:hello@archray.dev">hello@archray.dev</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/guides.js?v=064"></script>
+</body>
+</html>

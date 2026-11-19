@@ -7,7 +7,7 @@
  * result self-canonical for /. Regenerate after changing site/zh/index.html or
  * site/app.js:
  *
- *   PLAYWRIGHT_PATH=/path/to/playwright node scripts/gen-en-site.cjs
+ *   PLAYWRIGHT_PATH=/path/to/playwright CHROME_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" node scripts/gen-en-site.cjs
  */
 const http = require('http');
 const fs = require('fs');
@@ -20,6 +20,7 @@ const MIME = {
   '.css': 'text/css; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
+  '.webmanifest': 'application/manifest+json; charset=utf-8',
   '.svg': 'image/svg+xml',
   '.png': 'image/png',
   '.txt': 'text/plain; charset=utf-8',
@@ -52,47 +53,141 @@ function startServer() {
 function schemaFor(html, faqItems) {
   const match = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
   if (!match) throw new Error('JSON-LD block not found');
-  const data = JSON.parse(match[1]);
-  const graph = data['@graph'];
-  const website = graph.find((entry) => entry['@type'] === 'WebSite');
-  const faq = graph.find((entry) => entry['@type'] === 'FAQPage');
-  const software = graph.find((entry) => entry['@type'] === 'SoftwareApplication');
-  if (!website || !faq) throw new Error('Website or FAQ schema missing');
-  if (software) software.image = 'https://archray.dev/share-en.png';
 
   const pageId = 'https://archray.dev/#webpage';
   const faqId = 'https://archray.dev/#faq';
-  faq['@id'] = faqId;
-  faq.inLanguage = 'en';
-  faq.isPartOf = { '@id': pageId };
-  faq.mainEntity = faqItems.map((item) => ({
-    '@type': 'Question',
-    name: item.q,
-    acceptedAnswer: { '@type': 'Answer', text: item.a }
-  }));
+  const breadcrumbId = 'https://archray.dev/#breadcrumb';
+  const howtoId = 'https://archray.dev/#howto';
 
-  const webPage = {
-    '@type': 'WebPage',
-    '@id': pageId,
-    url: 'https://archray.dev/',
-    name: 'ArchRay — 3D Architecture Maps from Real Source Code',
-    description: 'Run /archray in Claude Code, Cursor, Antigravity, Pi or Codex to turn real repository source into a layered, interactive 3D/2D map with file-and-line evidence.',
-    inLanguage: 'en',
-    isPartOf: { '@id': 'https://archray.dev/#website' },
-    about: { '@id': 'https://archray.dev/#software' },
-    primaryImageOfPage: {
-      '@type': 'ImageObject',
-      url: 'https://archray.dev/share-en.png',
-      width: 1200,
-      height: 630
-    },
-    mainEntity: { '@id': faqId }
+  const data = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebSite',
+        '@id': 'https://archray.dev/#website',
+        url: 'https://archray.dev/',
+        name: 'ArchRay',
+        description: 'AI-first layered architecture visualiser that turns real repository source into offline 3D/2D single-file HTML maps with file-and-line evidence.',
+        inLanguage: ['en', 'zh-CN'],
+        publisher: { '@id': 'https://archray.dev/#person' }
+      },
+      {
+        '@type': 'Person',
+        '@id': 'https://archray.dev/#person',
+        name: 'David Yin',
+        url: 'https://davidyin.dev',
+        sameAs: ['https://github.com/loofare', 'https://davidyin.dev']
+      },
+      {
+        '@type': 'SoftwareApplication',
+        '@id': 'https://archray.dev/#software',
+        name: 'ArchRay',
+        description: 'AI-first codebase architecture visualiser for Claude Code, Cursor, Antigravity, Pi, and Codex that builds offline single-file 3D/2D HTML architecture maps grounded in verified source paths.',
+        applicationCategory: 'DeveloperApplication',
+        applicationSubCategory: 'Architecture visualization and codebase mapping',
+        operatingSystem: 'macOS, Linux, Windows',
+        softwareVersion: '0.6.0',
+        softwareRequirements: 'Node.js 20+',
+        datePublished: '2026-11-17',
+        dateModified: '2026-11-20',
+        url: 'https://archray.dev/',
+        image: 'https://archray.dev/share-en.png',
+        screenshot: 'https://archray.dev/share-en.png',
+        downloadUrl: 'https://github.com/loofare/ArchRay/releases/latest',
+        releaseNotes: 'https://github.com/loofare/ArchRay/releases/tag/v0.6.0',
+        codeRepository: 'https://github.com/loofare/ArchRay',
+        license: 'https://opensource.org/license/mit',
+        sameAs: ['https://github.com/loofare/ArchRay', 'https://archray.dev/'],
+        isAccessibleForFree: true,
+        offers: {
+          '@type': 'Offer',
+          price: '0',
+          priceCurrency: 'USD'
+        },
+        author: { '@id': 'https://archray.dev/#person' },
+        featureList: [
+          'L0-L9 layered 3D Spatial Atrium and 2D Bento architecture maps via deterministic ELK layout',
+          'Zero-upload offline single-file HTML (.archray/index.html)',
+          'Verified source paths and file:line evidence separating measured vs static estimates',
+          'Architecture health hotspots and replaceability migration prompts',
+          'Native integration for Claude Code, Cursor, Antigravity, Pi, and Codex',
+          'Unclipped full-bounds PNG export and offline QR share posters',
+          'Self-contained in-project SHA-256 update and clean uninstall'
+        ]
+      },
+      {
+        '@type': 'WebPage',
+        '@id': pageId,
+        url: 'https://archray.dev/',
+        name: 'ArchRay — 3D Architecture Maps from Real Source Code',
+        description: 'Run /archray in Claude Code, Cursor, Antigravity, Pi or Codex to turn real repository source into a layered, interactive 3D/2D map with file-and-line evidence.',
+        inLanguage: 'en',
+        datePublished: '2026-11-17',
+        dateModified: '2026-11-20',
+        isPartOf: { '@id': 'https://archray.dev/#website' },
+        about: { '@id': 'https://archray.dev/#software' },
+        breadcrumb: { '@id': breadcrumbId },
+        primaryImageOfPage: {
+          '@type': 'ImageObject',
+          url: 'https://archray.dev/share-en.png',
+          width: 1200,
+          height: 630
+        },
+        speakable: {
+          '@type': 'SpeakableSpecification',
+          cssSelector: ['.hero-lead', '.faq-item summary', '.faq-item p']
+        },
+        mainEntity: { '@id': faqId }
+      },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': breadcrumbId,
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'ArchRay', item: 'https://archray.dev/' }
+        ]
+      },
+      {
+        '@type': 'HowTo',
+        '@id': howtoId,
+        name: 'How to generate an offline 3D architecture map from real source code with ArchRay',
+        description: 'Install ArchRay into your repository root, run /archray in your AI coding agent, and open or share the self-contained single-file HTML view.',
+        inLanguage: 'en',
+        totalTime: 'PT2M',
+        step: [
+          {
+            '@type': 'HowToStep',
+            position: 1,
+            name: 'Install ArchRay in the target repository root',
+            text: 'Run install.sh targeting your AI coding host (claude, cursor, antigravity, pi, codex, or all) to unpack the self-contained CLI and skill into .archray/tool.'
+          },
+          {
+            '@type': 'HowToStep',
+            position: 2,
+            name: 'Run /archray inside a fresh AI coding session',
+            text: 'Invoke /archray (or $archray on Codex) so your coding agent reads real source code into .archray/graph.json and triggers ArchRay deterministic validation and build.'
+          },
+          {
+            '@type': 'HowToStep',
+            position: 3,
+            name: 'Explore layers offline and share',
+            text: 'Open .archray/index.html directly over file://, filter across L0-L9 layers, inspect health hotspots and replaceability options, or export full-bounds PNGs and offline QR posters.'
+          }
+        ]
+      },
+      {
+        '@type': 'FAQPage',
+        '@id': faqId,
+        inLanguage: 'en',
+        isPartOf: { '@id': pageId },
+        mainEntity: faqItems.map((item) => ({
+          '@type': 'Question',
+          name: item.q,
+          acceptedAnswer: { '@type': 'Answer', text: item.a }
+        }))
+      }
+    ]
   };
 
-  // Keep WebSite/Person/SoftwareApplication first; add the page and keep FAQ last.
-  const ordered = graph.filter((entry) => entry !== faq && entry['@type'] !== 'WebPage');
-  ordered.push(webPage, faq);
-  data['@graph'] = ordered;
   return { match, serialized: JSON.stringify(data, null, 2) };
 }
 
@@ -109,7 +204,8 @@ function schemaFor(html, faqItems) {
   const port = server.address().port;
   let browser;
   try {
-    browser = await chromium.launch();
+    const launchOpts = process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {};
+    browser = await chromium.launch(launchOpts);
     const context = await browser.newContext({
       viewport: { width: 1440, height: 1000 },
       deviceScaleFactor: 1,
@@ -125,16 +221,18 @@ function schemaFor(html, faqItems) {
       q: (item.querySelector('summary')?.textContent || '').trim(),
       a: (item.querySelector('p')?.textContent || '').trim()
     })));
-    if (faqItems.length !== 6) throw new Error(`expected 6 FAQ items, got ${faqItems.length}`);
+    if (faqItems.length !== 10) throw new Error(`expected 10 FAQ items, got ${faqItems.length}`);
 
     let html = await page.evaluate(() => '<!doctype html>\n' + document.documentElement.outerHTML);
     // The font stylesheet starts as media="print" and flips to "all" on load;
     // normalize it so generation does not depend on whether the CDN responded.
     html = html.replace(/(<link[^>]*fonts\.googleapis\.com[^>]*?) media="print"/, '$1 media="all"');
-    // The source page already uses root-relative assets; keep the generated
-    // page independent of /zh/ depth if a future edit reintroduces ./ paths.
+    // Strip the heavy CJK Google Font request on the English page to improve LCP/FCP.
+    html = html.replace(/&amp;family=Noto\+Sans\+SC:wght@300;400;500;600/g, '');
+    html = html.replace(/&family=Noto\+Sans\+SC:wght@300;400;500;600/g, '');
+    // Keep assets root-relative and canonical demo link clean on EN.
     html = html.replace(/(href|src)="\.\/([^"]*)"/g, '$1="/$2"');
-    html = html.replaceAll('/demo?locale=zh-CN', '/demo?locale=en');
+    html = html.replaceAll('/demo?locale=zh-CN', '/demo');
 
     const { match, serialized } = schemaFor(html, faqItems);
     html = html.replace(match[0], `<script type="application/ld+json">\n${serialized}\n  </script>`);

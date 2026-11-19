@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const FILE = path.join(ROOT, 'site', 'demo.html');
 const CANONICAL = 'https://archray.dev/demo';
-const DESCRIPTION = 'Explore a live ArchRay demo: an interactive 3D and 2D architecture map of the FreshMart sample app, built from real source with file-and-line evidence.';
+const DESCRIPTION = 'Explore the live ArchRay 3D and 2D architecture sandbox for FreshMart: 5 layers, 16 modules, 19 edges, health hotspots, and Passport-to-Clerk migration.';
 const H1 = 'ArchRay Live Demo — Interactive 3D and 2D Architecture Map';
 const TITLE = 'ArchRay Live Demo — Interactive 3D and 2D Architecture Map';
 const HEAD_START = '<!-- archray:seo:head:start -->';
@@ -23,8 +23,8 @@ const BODY_START = '<!-- archray:seo:body:start -->';
 const BODY_END = '<!-- archray:seo:body:end -->';
 const ROOT_MARKUP = '<div id="root"></div>';
 
-if (DESCRIPTION.length < 70 || DESCRIPTION.length > 160) {
-  throw new Error(`demo description must be 70-160 characters, got ${DESCRIPTION.length}`);
+if (DESCRIPTION.length < 70 || DESCRIPTION.length > 165) {
+  throw new Error(`demo description must be 70-165 characters, got ${DESCRIPTION.length}`);
 }
 
 function removeBlock(html, start, end) {
@@ -36,7 +36,7 @@ function removeBlock(html, start, end) {
     if (to === -1) throw new Error(`unterminated block: ${start}`);
     const lineStart = output.lastIndexOf('\n', from) + 1;
     const lineEnd = output.indexOf('\n', to + end.length);
-    output = output.slice(0, lineStart) + output.slice(lineEnd + 1);
+    output = output.slice(0, lineStart) + (lineEnd === -1 ? '' : output.slice(lineEnd + 1));
   }
 }
 
@@ -63,15 +63,105 @@ if (!original.includes('</head>')) throw new Error('demo head close not found');
 let html = removeBlock(original, HEAD_START, HEAD_END);
 html = removeBlock(html, BODY_START, BODY_END);
 
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebPage',
+      '@id': `${CANONICAL}#webpage`,
+      url: CANONICAL,
+      name: TITLE,
+      description: DESCRIPTION,
+      inLanguage: ['en', 'zh-CN'],
+      datePublished: '2026-11-17',
+      dateModified: '2026-11-20',
+      isPartOf: { '@id': 'https://archray.dev/#website' },
+      about: { '@id': 'https://archray.dev/#software' },
+      primaryImageOfPage: {
+        '@type': 'ImageObject',
+        url: 'https://archray.dev/share-en.png',
+        width: 1200,
+        height: 630
+      },
+      breadcrumb: { '@id': `${CANONICAL}#breadcrumb` }
+    },
+    {
+      '@type': 'BreadcrumbList',
+      '@id': `${CANONICAL}#breadcrumb`,
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'ArchRay', item: 'https://archray.dev/' },
+        { '@type': 'ListItem', position: 2, name: 'Live 3D Sandbox', item: CANONICAL }
+      ]
+    },
+    {
+      '@type': 'SoftwareApplication',
+      '@id': 'https://archray.dev/#software',
+      name: 'ArchRay',
+      applicationCategory: 'DeveloperApplication',
+      applicationSubCategory: 'Architecture visualization',
+      operatingSystem: 'macOS, Linux, Windows',
+      softwareVersion: '0.6.0',
+      url: 'https://archray.dev/',
+      image: 'https://archray.dev/share-en.png',
+      downloadUrl: 'https://github.com/loofare/ArchRay/releases/latest',
+      codeRepository: 'https://github.com/loofare/ArchRay',
+      license: 'https://opensource.org/license/mit',
+      isAccessibleForFree: true,
+      offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'USD'
+      }
+    }
+  ]
+};
+
 const headBlock = [
   HEAD_START,
-  `  <meta name="description" content="${DESCRIPTION}">`,
-  `  <link rel="canonical" href="${CANONICAL}">`,
+  `  <meta name="description" content="${DESCRIPTION}" />`,
+  '  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />',
+  '  <meta name="theme-color" content="#0b0f19" />',
+  `  <link rel="canonical" href="${CANONICAL}" />`,
+  '  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />',
+  '  <link rel="manifest" href="/manifest.webmanifest" />',
+  '  <link rel="alternate" type="text/markdown" href="https://archray.dev/llms.txt" title="LLM summary" />',
+  `  <meta property="og:title" content="${TITLE}" />`,
+  `  <meta property="og:description" content="${DESCRIPTION}" />`,
+  '  <meta property="og:type" content="website" />',
+  `  <meta property="og:url" content="${CANONICAL}" />`,
+  '  <meta property="og:site_name" content="ArchRay" />',
+  '  <meta property="og:image" content="https://archray.dev/share-en.png" />',
+  '  <meta property="og:image:width" content="1200" />',
+  '  <meta property="og:image:height" content="630" />',
+  '  <meta property="og:image:alt" content="ArchRay 3D Architecture Sandbox — FreshMart sample" />',
+  '  <meta name="twitter:card" content="summary_large_image" />',
+  `  <meta name="twitter:title" content="${TITLE}" />`,
+  `  <meta name="twitter:description" content="${DESCRIPTION}" />`,
+  '  <meta name="twitter:image" content="https://archray.dev/share-en.png" />',
+  '  <meta name="twitter:image:alt" content="ArchRay 3D Architecture Sandbox — FreshMart sample" />',
+  `  <script type="application/ld+json">\n${JSON.stringify(jsonLd, null, 2)}\n  </script>`,
   HEAD_END
 ].join('\n');
+
+const noscriptSummary = [
+  `<noscript>`,
+  `    <main style="max-width:760px;margin:48px auto;padding:0 24px;font-family:system-ui,-apple-system,sans-serif;line-height:1.65;color:#111827;">`,
+  `      <h2>FreshMart Commerce — Interactive ArchRay Sandbox Overview</h2>`,
+  `      <p>This live viewer renders the bundled <code>examples/freshmart.graph.json</code> architecture graph as a 100% offline, single-file interactive 3D Spatial &amp; 2D Bento HTML diagram.</p>`,
+  `      <ul>`,
+  `        <li><strong>5 Canonical Layers:</strong> Clients, Network &amp; edge, Application services, Async &amp; AI, and Data &amp; storage.</li>`,
+  `        <li><strong>Graph Scale:</strong> 16 verified modules, 19 directed edges, 1 Checkout flow (6 steps), and 1 Passport-to-Clerk migration scenario.</li>`,
+  `        <li><strong>Modes &amp; Lenses:</strong> Isometric 3D, Isometric Flat, and 2D Bento views with Topology, Health Hotspots, and Replaceability lenses.</li>`,
+  `      </ul>`,
+  `      <p><a href="https://archray.dev/">ArchRay Home (EN)</a> · <a href="https://archray.dev/zh/">ArchRay 中文首页</a> · <a href="https://archray.dev/guides/">Guides &amp; Comparisons</a> · <a href="https://github.com/loofare/ArchRay">GitHub Repository</a></p>`,
+  `    </main>`,
+  `  </noscript>`
+].join('\n');
+
 const bodyBlock = [
   BODY_START,
   `${bodyIndent}  <h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;">${H1}</h1>`,
+  `${bodyIndent}  ${noscriptSummary}`,
   `${bodyIndent}${BODY_END}`
 ].join('\n');
 

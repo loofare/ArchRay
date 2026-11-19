@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ArchRay 对比 Mermaid、Structurizr 与 Eraser：源码架构图选型</title>
+  <meta name="description" content="深度对比 ArchRay、Mermaid、Structurizr C4 DSL、Eraser DiagramGPT 与 Excalidraw：源码证据链、ELK 确定性排版、3D/2D 视图、大型仓库表现与离线零上传安全边界。" />
+  <meta name="author" content="David Yin" />
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+  <meta name="theme-color" content="#f9fafb" />
+  <meta property="og:title" content="ArchRay 对比 Mermaid、Structurizr 与 Eraser：源码架构图选型" />
+  <meta property="og:description" content="深度对比 ArchRay、Mermaid、Structurizr C4 DSL、Eraser DiagramGPT 与 Excalidraw：源码证据链、ELK 确定性排版、3D/2D 视图、大型仓库表现与离线零上传安全边界。" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://archray.dev/zh/compare/mermaid-structurizr-eraser/" />
+  <meta property="og:site_name" content="ArchRay" />
+  <meta property="og:locale" content="zh_CN" />
+  <meta property="og:locale:alternate" content="en_US" />
+  <meta property="og:image" content="https://archray.dev/share.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="ArchRay 分享卡：给代码库拍张立体架构透视图" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ArchRay 对比 Mermaid、Structurizr 与 Eraser：源码架构图选型" />
+  <meta name="twitter:description" content="深度对比 ArchRay、Mermaid、Structurizr C4 DSL、Eraser DiagramGPT 与 Excalidraw：源码证据链、ELK 确定性排版、3D/2D 视图、大型仓库表现与离线零上传安全边界。" />
+  <meta name="twitter:image" content="https://archray.dev/share.png" />
+  <meta name="twitter:image:alt" content="ArchRay 分享卡：给代码库拍张立体架构透视图" />
+  <link rel="canonical" href="https://archray.dev/zh/compare/mermaid-structurizr-eraser/" />
+  <link rel="alternate" hreflang="en" href="https://archray.dev/compare/mermaid-structurizr-eraser/" />
+  <link rel="alternate" hreflang="zh-CN" href="https://archray.dev/zh/compare/mermaid-structurizr-eraser/" />
+  <link rel="alternate" hreflang="x-default" href="https://archray.dev/compare/mermaid-structurizr-eraser/" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="alternate" type="text/markdown" href="https://archray.dev/llms.txt" hreflang="en" title="LLM summary" />
+  <link rel="alternate" type="text/markdown" href="https://archray.dev/llms-zh.txt" hreflang="zh-CN" title="ArchRay 中文 LLM 完整文档" />
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "@id": "https://archray.dev/zh/compare/mermaid-structurizr-eraser/#article",
+      "url": "https://archray.dev/zh/compare/mermaid-structurizr-eraser/",
+      "headline": "ArchRay 对比 Mermaid、Structurizr 与 Eraser",
+      "name": "ArchRay 对比 Mermaid、Structurizr 与 Eraser：源码架构图选型",
+      "description": "深度对比 ArchRay、Mermaid、Structurizr C4 DSL、Eraser DiagramGPT 与 Excalidraw：源码证据链、ELK 确定性排版、3D/2D 视图、大型仓库表现与离线零上传安全边界。",
+      "inLanguage": "zh-CN",
+      "datePublished": "2026-11-20",
+      "dateModified": "2026-11-20",
+      "author": {
+        "@type": "Person",
+        "@id": "https://archray.dev/#person",
+        "name": "David Yin",
+        "url": "https://davidyin.dev"
+      },
+      "publisher": {
+        "@type": "Person",
+        "@id": "https://archray.dev/#person",
+        "name": "David Yin",
+        "url": "https://davidyin.dev"
+      },
+      "about": {
+        "@type": "SoftwareApplication",
+        "@id": "https://archray.dev/#software",
+        "name": "ArchRay",
+        "url": "https://archray.dev/"
+      },
+      "isPartOf": {
+        "@id": "https://archray.dev/#website"
+      },
+      "mainEntityOfPage": {
+        "@id": "https://archray.dev/zh/compare/mermaid-structurizr-eraser/#webpage"
+      },
+      "image": {
+        "@type": "ImageObject",
+        "url": "https://archray.dev/share.png",
+        "width": 1200,
+        "height": 630
+      },
+      "speakable": {
+        "@type": "SpeakableSpecification",
+        "cssSelector": [
+          ".answer-box p",
+          ".guide-faq summary",
+          ".guide-faq p"
+        ]
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://archray.dev/zh/compare/mermaid-structurizr-eraser/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首页",
+          "item": "https://archray.dev/zh/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "指南",
+          "item": "https://archray.dev/zh/guides/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "工具选型对比",
+          "item": "https://archray.dev/zh/compare/mermaid-structurizr-eraser/"
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://archray.dev/zh/compare/mermaid-structurizr-eraser/#faq",
+      "inLanguage": "zh-CN",
+      "isPartOf": {
+        "@id": "https://archray.dev/zh/compare/mermaid-structurizr-eraser/#webpage"
+      },
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "ArchRay 生成的结果能嵌入 Confluence、飞书或设计文档吗？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "可以。点击架构图顶部工具栏的“整图 PNG”可导出不裁切画布外沿的高清全景图（例如 4440×4002 级别完整包围盒重投影），或导出带开源溯源二维码的分享海报直接贴入文档。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "ArchRay 的 graph.json 适合提交进 Git 仓库吗？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "非常适合。推荐提交 .archray/graph.json 与 view.json 方便团队同步代码演进中的架构变更与健康度发现，离线单文件 HTML 可随时按需本地重构。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "为什么 3D 全景和 2D Bento 使用同一份数据时能严格一致？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "两种投影渲染同一份验证通过的 graph.json 语义节点和连线，仅改变布局与投影算法。三维视图把异步翼（-X）、外部 SaaS 轨（+X）和底层存储圆柱拉开空间层次；2D Bento 则适合印刷与平面嵌套审查。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "使用 ArchRay 会把企业私有源码发到外部官网吗？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "绝对不会。archray.dev 本身完全是静态站点。代码阅读仅发生于你本地已授权的 AI 编程助手会话中，CLI 离线构建，只有主动运行 update 时才会从 GitHub Releases 只读校验版本。"
+          }
+        }
+      ]
+    }
+  ]
+}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Alumni+Sans:wght@200;300;400;600&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles/tokens.css?v=064" />
+  <link rel="stylesheet" href="/styles/site.css?v=064" />
+  <link rel="stylesheet" href="/styles/guides.css?v=064" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap nav-bar">
+      <a class="brand-mark" href="/zh/" aria-label="ArchRay 首页">
+        <span class="brand-glyph" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round">
+            <polygon points="12 2 21 7 21 17 12 22 3 17 3 7" />
+            <polyline points="3 7 12 12 21 7" />
+            <line x1="12" y1="12" x2="12" y2="22" />
+          </svg>
+        </span>
+        <span class="brand-name">ArchRay</span>
+      </a>
+
+      <nav class="nav-links" id="primaryNav" aria-label="主导航">
+        <a href="/zh/">首页</a>
+        <a href="/zh/guides/">指南合集</a>
+        <a href="/zh/compare/mermaid-structurizr-eraser/" class="is-active">工具对比</a>
+        <a href="/demo?locale=zh-CN">实机沙盒</a>
+        <a href="/zh/#install">一键安装</a>
+      </nav>
+
+      <div class="nav-tools">
+        <div class="lang-switch" role="group" aria-label="Language / 语言">
+          <a href="/compare/mermaid-structurizr-eraser/" class="lang-option" hreflang="en" lang="en">EN</a>
+          <a href="/zh/compare/mermaid-structurizr-eraser/" class="lang-option is-active" aria-current="page" hreflang="zh-CN" lang="zh-CN">中文</a>
+        </div>
+        <button type="button" class="pill-ctl" id="themeToggle" aria-label="切换深浅主题">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+          </svg>
+          <span class="hide-xs" data-theme-label>深色</span>
+        </button>
+        <button type="button" class="nav-toggle" id="navToggle" aria-label="打开导航" aria-expanded="false" aria-controls="primaryNav">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <line x1="4" y1="7" x2="20" y2="7" />
+            <line x1="4" y1="12" x2="20" y2="12" />
+            <line x1="4" y1="17" x2="20" y2="17" />
+          </svg>
+        </button>
+        <a class="pill-ctl nav-github" href="https://github.com/loofare/ArchRay" target="_blank" rel="noopener noreferrer" aria-label="ArchRay GitHub repository">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.11.78-.25.78-.55v-1.93c-3.2.7-3.87-1.54-3.87-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.69 1.25 3.34.95.1-.74.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.68 0-1.25.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.16 1.18a10.9 10.9 0 0 1 5.76 0c2.19-1.49 3.16-1.18 3.16-1.18.62 1.58.23 2.75.11 3.04.74.8 1.18 1.83 1.18 3.08 0 4.41-2.69 5.39-5.25 5.67.41.35.78 1.05.78 2.12v3.14c0 .31.21.67.79.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
+          </svg>
+          <span>GitHub</span>
+          <span class="star-glyph" aria-hidden="true">★</span>
+        </a>
+      </div>
+    </div>
+    <div class="scroll-progress-bar" id="scrollProgressBar" aria-hidden="true"></div>
+  </header>
+
+  <main class="wrap guide-main">
+    <nav class="guide-crumb" aria-label="面包屑导航"><a href="/zh/">首页</a><span class="guide-crumb-sep" aria-hidden="true">/</span><a href="/zh/guides/">指南</a><span class="guide-crumb-sep" aria-hidden="true">/</span><span aria-current="page">工具选型对比</span></nav>
+    <div class="guide-shell">
+  <article class="guide-article">
+    <h1>ArchRay 对比 Mermaid、Structurizr 与 Eraser</h1>
+    <p class="guide-lead">架构图真正的价值在于“忠实映射真实代码、节点多了不乱线、且能在不泄密的前提下离线交付团队”。不同工具各擅胜场，以下是客观选型指南。</p>
+    <div class="guide-meta">
+      <span>ArchRay v0.6.0</span>
+      <span>作者：David Yin · 更新 2026-11-20</span>
+      <span>MIT Open Source</span>
+    </div>
+    <section class="answer-box" aria-label="核心结论">
+      <p>当你需要 AI 编程助手（Claude Code、Cursor、Codex、Pi 或 Antigravity）直接通读真实仓库，输出带文件行号证据、支持 L0–L9 按层切片且可离线双击打开的 3D/2D 单文件架构图时，选择 ArchRay。文档内嵌微型流程图可选 Mermaid，强规范手工 C4 建模可选 Structurizr，前期自由草图头脑风暴可选 Excalidraw。</p>
+    </section>
+    <section id="matrix">
+  <h2>核心能力对比矩阵</h2>
+  <p>传统 AI 制图把“理解代码语义”和“画框算坐标”混在一起，导致复杂项目一画就乱。ArchRay 将工作严格拆为两段：AI 只输出经过源码核验的 .archray/graph.json，坐标计算、端口走线与 3D/2D 投影全部交给离线确定性引擎完成。</p>
+  
+  <div class="table-scroll">
+  <table class="spec-table">
+    <thead><tr><th scope="col">对比维度</th><th scope="col">ArchRay (v0.6.0)</th><th scope="col">Mermaid</th><th scope="col">Structurizr DSL</th><th scope="col">Eraser / DiagramGPT</th><th scope="col">Excalidraw / Draw.io</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">源码证据链</th><td class="is-strong">强制记录 sourcePaths 与文件行号依据</td><td>手写文本，无代码绑定</td><td>手工维护 DSL 模型</td><td>部分依赖提示词或云端解析</td><td>纯手工连线</td></tr>
+      <tr><th scope="row">AI 编程助手集成</th><td class="is-strong">原生适配 5 大宿主（/archray 与 $archray）</td><td>大模型通用输出文本</td><td>需人工编写 DSL</td><td>独立网页或 IDE 插件</td><td>手绘或零散插件</td></tr>
+      <tr><th scope="row">大仓库排版稳定性</th><td class="is-strong">ELK 确定性路由 + 三维象限分离 + 2D Bento</td><td>超过 15 个节点易交叉缠绕</td><td>自动排版或手调坐标</td><td>云端布局引擎</td><td>人工拖拽对齐</td></tr>
+      <tr><th scope="row">按层切片查看</th><td class="is-strong">支持 L0–L9 单层或逗号组合 + 一跳上下游</td><td>需拆分多个代码块</td><td>需提前定义 View 作用域</td><td>单一平面视图</td><td>需切换画布或手动隐藏</td></tr>
+      <tr><th scope="row">技术栈与体块识别</th><td class="is-strong">内嵌 167 枚矢量徽标与语义 3D 体块</td><td>同质普通矩形</td><td>需自配样式主题</td><td>云端图标库</td><td>手动粘贴图标</td></tr>
+      <tr><th scope="row">健康度与平替评估</th><td class="is-strong">内置热点诊断、实测/≈ 区分与迁移 Prompt</td><td>无</td><td>无</td><td>无</td><td>无</td></tr>
+      <tr><th scope="row">离线隐私与交付</th><td class="is-strong">零上传 · 单文件 HTML (file:// 直接打开)</td><td>依赖 Markdown 渲染器或 CLI</td><td>依赖本地容器或云服务</td><td>强制走 SaaS 云服务</td><td>本地文件或云盘</td></tr>
+      <tr><th scope="row">开源协议与费用</th><td class="is-strong">MIT 开源完全免费</td><td>MIT 开源</td><td>DSL 开源 / 云端收费</td><td>SaaS 订阅制</td><td>开源 / 商业版</td></tr>
+    </tbody>
+  </table>
+</div>
+  
+</section>
+<section id="why-mermaid-fails">
+  <h2>为什么大模型直接画 Mermaid / SVG 容易失真？</h2>
+  <p>在小型 Demo 上让大模型画一张 Mermaid 看似顺手，但在真实工程仓库里通常会遇到三个顽疾：</p>
+<p>第一是“凭目录名脑补”：模型没核对真实 import/调用代码就编造模块依赖；第二是“平面穿线蜘蛛网”：前端、网关、消息队列与数据库挤在同一平面互相遮挡；第三是“无法局部增量审视”：前后端联调时只想看端到端核心链路，每次却要让 AI 重写整段图代码。</p>
+  <ul><li>事实与几何解耦：AI 写语义 JSON，ELK 与三维投影算几何坐标，彻底杜绝坐标重叠与标签裁切。</li><li>一次扫描、按需切片：生成一次 .archray/graph.json 后，可瞬间切换 /archray:frontend、backend,data 等多层组合。</li><li>诚实证据口径：TypeBox 严格校验必填字段，将未知依赖隔离到显式清单，并将静态估算指标标注为 ≈。</li></ul>
+  
+  
+</section>
+<section id="non-goals">
+  <h2>坦诚适用边界：哪些场景不建议用 ArchRay？</h2>
+  <p>ArchRay 聚焦“基于真实代码库的拓扑透视与离线团队分享”，以下场景使用对应工具会更合适：</p>
+  <ul><li>GitHub PR 或技术博客里的轻量时序图（5–8 个步骤）：继续使用 Mermaid 代码块最轻量。</li><li>架构委员会强制审计的纯手工 C4 架构治理模型：继续使用 Structurizr DSL 编写标准视图。</li><li>尚未编写任何源码的新项目脑暴草图：使用 Excalidraw 或纸笔自由涂鸦更快捷。</li><li>生产环境全链路追踪与真实 QPS 监控：ArchRay 不是 APM 探针或运行时监控系统，不采集线上流量。</li></ul>
+  
+  
+</section>
+<section id="try-cmd">
+  <h2>30 秒装入当前项目实测对比</h2>
+  <p>所有工具文件全部自包含隔离在 .archray/tool 内，零污染业务源码，支持随时一条命令干净卸载：</p>
+  
+  
+  <div class="code-block">
+  <div class="code-head"><span>安装全宿主并一键切换蓝色蓝图（Blueprint）视图</span><button type="button" class="code-copy-btn" data-copy-code>复制</button></div>
+  <pre><code>curl -fsSL https://github.com/loofare/ArchRay/releases/latest/download/install.sh | sh -s -- . all
+# 重开 AI 会话并输入：
+/archray
+# 随时免重新扫描代码，仅切换配色或分层切片：
+./.archray/archray build .archray/graph.json --layers frontend,backend,data --style blueprint --force</code></pre>
+</div>
+</section>
+    <section id="faq">
+  <h2>常见问题</h2>
+  <div class="guide-faq">
+    <details class="faq-item" open>
+  <summary>ArchRay 生成的结果能嵌入 Confluence、飞书或设计文档吗？</summary>
+  <p>可以。点击架构图顶部工具栏的“整图 PNG”可导出不裁切画布外沿的高清全景图（例如 4440×4002 级别完整包围盒重投影），或导出带开源溯源二维码的分享海报直接贴入文档。</p>
+</details>
+<details class="faq-item">
+  <summary>ArchRay 的 graph.json 适合提交进 Git 仓库吗？</summary>
+  <p>非常适合。推荐提交 .archray/graph.json 与 view.json 方便团队同步代码演进中的架构变更与健康度发现，离线单文件 HTML 可随时按需本地重构。</p>
+</details>
+<details class="faq-item">
+  <summary>为什么 3D 全景和 2D Bento 使用同一份数据时能严格一致？</summary>
+  <p>两种投影渲染同一份验证通过的 graph.json 语义节点和连线，仅改变布局与投影算法。三维视图把异步翼（-X）、外部 SaaS 轨（+X）和底层存储圆柱拉开空间层次；2D Bento 则适合印刷与平面嵌套审查。</p>
+</details>
+<details class="faq-item">
+  <summary>使用 ArchRay 会把企业私有源码发到外部官网吗？</summary>
+  <p>绝对不会。archray.dev 本身完全是静态站点。代码阅读仅发生于你本地已授权的 AI 编程助手会话中，CLI 离线构建，只有主动运行 update 时才会从 GitHub Releases 只读校验版本。</p>
+</details>
+  </div>
+</section>
+    <div class="guide-cta-band">
+  <div>
+    <h2>30 秒装入你的仓库实测</h2>
+    <p>纯本地运行、零源码上传，支持 Claude Code、Cursor、Antigravity、Pi 与 Codex。</p>
+  </div>
+  <div class="guide-cta-actions">
+    <a class="btn-ink" href="/zh/#install">获取安装命令 <span class="arrow-amber" aria-hidden="true">→</span></a>
+    <a class="btn-outline" href="/demo?locale=zh-CN">体验 3D 沙盒</a>
+  </div>
+</div>
+    <section style="margin-top: 44px;">
+  <h2>继续阅读相关指南</h2>
+  <div class="related-list"><a class="related-link" href="/zh/guides/claude-code-architecture-diagram/">
+  <span>Claude Code 生成 3D 架构图实战教程</span>
+  <span>查看详情 →</span>
+</a>
+<a class="related-link" href="/zh/guides/cursor-codebase-visualization/">
+  <span>Cursor 代码库空间可视化指南</span>
+  <span>查看详情 →</span>
+</a>
+<a class="related-link" href="/zh/guides/offline-codebase-architecture-audit/">
+  <span>大型 Monorepo 离线架构审计与实测基准</span>
+  <span>查看详情 →</span>
+</a>
+<a class="related-link" href="/zh/guides/architecture-layers-reference/">
+  <span>L0–L9 十层架构、节点类型与 CLI 技术参考</span>
+  <span>查看详情 →</span>
+</a></div>
+</section>
+  </article>
+  <aside class="guide-toc" aria-label="本文目录">
+  <div class="guide-toc-title">本页目录</div>
+  <ul><li><a href="#matrix">核心能力对比矩阵</a></li><li><a href="#why-mermaid-fails">为什么大模型直接画 Mermaid / SVG 容易失真？</a></li><li><a href="#non-goals">坦诚适用边界：哪些场景不建议用 ArchRay？</a></li><li><a href="#try-cmd">30 秒装入当前项目实测对比</a></li><li><a href="#faq">常见问题</a></li></ul>
+</aside>
+</div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-row">
+      <p style="font-size: 0.88rem;">
+        <strong style="color: var(--ink-strong);">ArchRay</strong> · MIT 开源项目 · AI 优先的空间架构可视化工具
+      </p>
+      <div class="footer-links">
+        <a href="/zh/">首页</a>
+        <a href="/zh/guides/">指南合集</a>
+        <a href="/zh/compare/mermaid-structurizr-eraser/">工具对比</a>
+        <a href="/demo?locale=zh-CN">全屏沙盒</a>
+        <a href="/llms-zh.txt">llms-zh.txt</a>
+        <a href="https://github.com/loofare/ArchRay" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="mailto:hello@archray.dev">hello@archray.dev</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/guides.js?v=064"></script>
+</body>
+</html>

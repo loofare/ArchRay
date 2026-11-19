@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ArchRay Guides — Architecture Maps, Comparisons &amp; Specs</title>
+  <meta name="description" content="Step-by-step ArchRay playbooks for Claude Code, Cursor, Codex, Pi, and Antigravity, plus tool comparisons, monorepo benchmarks, and Graph v2 reference." />
+  <meta name="author" content="David Yin" />
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+  <meta name="theme-color" content="#f9fafb" />
+  <meta property="og:title" content="ArchRay Guides — Architecture Maps, Comparisons &amp; Specs" />
+  <meta property="og:description" content="Step-by-step ArchRay playbooks for Claude Code, Cursor, Codex, Pi, and Antigravity, plus tool comparisons, monorepo benchmarks, and Graph v2 reference." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://archray.dev/guides/" />
+  <meta property="og:site_name" content="ArchRay" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:locale:alternate" content="zh_CN" />
+  <meta property="og:image" content="https://archray.dev/share-en.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="ArchRay share card: a 3D architecture X-ray of your codebase" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ArchRay Guides — Architecture Maps, Comparisons &amp; Specs" />
+  <meta name="twitter:description" content="Step-by-step ArchRay playbooks for Claude Code, Cursor, Codex, Pi, and Antigravity, plus tool comparisons, monorepo benchmarks, and Graph v2 reference." />
+  <meta name="twitter:image" content="https://archray.dev/share-en.png" />
+  <meta name="twitter:image:alt" content="ArchRay share card: a 3D architecture X-ray of your codebase" />
+  <link rel="canonical" href="https://archray.dev/guides/" />
+  <link rel="alternate" hreflang="en" href="https://archray.dev/guides/" />
+  <link rel="alternate" hreflang="zh-CN" href="https://archray.dev/zh/guides/" />
+  <link rel="alternate" hreflang="x-default" href="https://archray.dev/guides/" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="alternate" type="text/markdown" href="https://archray.dev/llms.txt" hreflang="en" title="LLM summary" />
+  <link rel="alternate" type="text/markdown" href="https://archray.dev/llms-zh.txt" hreflang="zh-CN" title="ArchRay 中文 LLM 完整文档" />
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "CollectionPage",
+      "@id": "https://archray.dev/guides/#article",
+      "url": "https://archray.dev/guides/",
+      "headline": "ArchRay Guides & Technical Reference",
+      "name": "ArchRay Guides — Architecture Maps, Comparisons & Specs",
+      "description": "Step-by-step ArchRay playbooks for Claude Code, Cursor, Codex, Pi, and Antigravity, plus tool comparisons, monorepo benchmarks, and Graph v2 reference.",
+      "inLanguage": "en",
+      "datePublished": "2026-11-20",
+      "dateModified": "2026-11-20",
+      "author": {
+        "@type": "Person",
+        "@id": "https://archray.dev/#person",
+        "name": "David Yin",
+        "url": "https://davidyin.dev"
+      },
+      "publisher": {
+        "@type": "Person",
+        "@id": "https://archray.dev/#person",
+        "name": "David Yin",
+        "url": "https://davidyin.dev"
+      },
+      "about": {
+        "@type": "SoftwareApplication",
+        "@id": "https://archray.dev/#software",
+        "name": "ArchRay",
+        "url": "https://archray.dev/"
+      },
+      "isPartOf": {
+        "@id": "https://archray.dev/#website"
+      },
+      "mainEntityOfPage": {
+        "@id": "https://archray.dev/guides/#webpage"
+      },
+      "image": {
+        "@type": "ImageObject",
+        "url": "https://archray.dev/share-en.png",
+        "width": 1200,
+        "height": 630
+      },
+      "speakable": {
+        "@type": "SpeakableSpecification",
+        "cssSelector": [
+          ".answer-box p",
+          ".guide-faq summary",
+          ".guide-faq p"
+        ]
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://archray.dev/guides/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://archray.dev/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Guides",
+          "item": "https://archray.dev/guides/"
+        }
+      ]
+    }
+  ]
+}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Alumni+Sans:wght@200;300;400;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles/tokens.css?v=064" />
+  <link rel="stylesheet" href="/styles/site.css?v=064" />
+  <link rel="stylesheet" href="/styles/guides.css?v=064" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap nav-bar">
+      <a class="brand-mark" href="/" aria-label="ArchRay home">
+        <span class="brand-glyph" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round">
+            <polygon points="12 2 21 7 21 17 12 22 3 17 3 7" />
+            <polyline points="3 7 12 12 21 7" />
+            <line x1="12" y1="12" x2="12" y2="22" />
+          </svg>
+        </span>
+        <span class="brand-name">ArchRay</span>
+      </a>
+
+      <nav class="nav-links" id="primaryNav" aria-label="Primary navigation">
+        <a href="/">Home</a>
+        <a href="/guides/" class="is-active">Guides</a>
+        <a href="/compare/mermaid-structurizr-eraser/">Compare</a>
+        <a href="/demo">Live Demo</a>
+        <a href="/#install">Install</a>
+      </nav>
+
+      <div class="nav-tools">
+        <div class="lang-switch" role="group" aria-label="Language / 语言">
+          <a href="/guides/" class="lang-option is-active" aria-current="page" hreflang="en" lang="en">EN</a>
+          <a href="/zh/guides/" class="lang-option" hreflang="zh-CN" lang="zh-CN">中文</a>
+        </div>
+        <button type="button" class="pill-ctl" id="themeToggle" aria-label="Switch color theme">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+          </svg>
+          <span class="hide-xs" data-theme-label>Dark</span>
+        </button>
+        <button type="button" class="nav-toggle" id="navToggle" aria-label="Open navigation" aria-expanded="false" aria-controls="primaryNav">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <line x1="4" y1="7" x2="20" y2="7" />
+            <line x1="4" y1="12" x2="20" y2="12" />
+            <line x1="4" y1="17" x2="20" y2="17" />
+          </svg>
+        </button>
+        <a class="pill-ctl nav-github" href="https://github.com/loofare/ArchRay" target="_blank" rel="noopener noreferrer" aria-label="ArchRay GitHub repository">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.11.78-.25.78-.55v-1.93c-3.2.7-3.87-1.54-3.87-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.69 1.25 3.34.95.1-.74.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.68 0-1.25.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.16 1.18a10.9 10.9 0 0 1 5.76 0c2.19-1.49 3.16-1.18 3.16-1.18.62 1.58.23 2.75.11 3.04.74.8 1.18 1.83 1.18 3.08 0 4.41-2.69 5.39-5.25 5.67.41.35.78 1.05.78 2.12v3.14c0 .31.21.67.79.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
+          </svg>
+          <span>GitHub</span>
+          <span class="star-glyph" aria-hidden="true">★</span>
+        </a>
+      </div>
+    </div>
+    <div class="scroll-progress-bar" id="scrollProgressBar" aria-hidden="true"></div>
+  </header>
+
+  <main class="wrap guide-main">
+    <nav class="guide-crumb" aria-label="Breadcrumb"><a href="/">Home</a><span class="guide-crumb-sep" aria-hidden="true">/</span><span aria-current="page">Guides</span></nav>
+    <div class="guide-shell is-hub">
+  <article class="guide-article">
+    <h1>ArchRay Guides &amp; Technical Reference</h1>
+    <p class="guide-lead">Practical playbooks for turning real repository source code into deterministic, offline 3D and 2D architecture maps across five AI coding agents.</p>
+    <div class="guide-meta">
+      <span>ArchRay v0.6.0</span>
+      <span>Updated 2026-11-20</span>
+      <span><a href="/demo">Open 3D Sandbox ↗</a></span>
+    </div>
+    <section class="answer-box" aria-label="Summary">
+      <p>Every guide here documents real commands, host file paths, and measured benchmarks from ArchRay v0.6.0. Use these playbooks to set up /archray in Claude Code, Cursor, Codex, Pi, or Antigravity, compare ArchRay against Mermaid and Structurizr, or slice your repo across L0–L9 layers.</p>
+    </section>
+    <section class="hub-section">
+  <h2>Comparisons &amp; Architecture Audits</h2>
+  <ul class="hub-list" style="list-style:none;margin:0;padding:0;">
+    <li class="hub-row">
+  <a class="hub-row-link" href="/compare/mermaid-structurizr-eraser/">
+    <div>
+      <span class="hub-row-title">ArchRay vs Mermaid, Structurizr, Eraser &amp; Draw.io</span>
+      <span class="hub-row-desc">Direct feature matrix comparing source truth, ELK layout determinism, 3D/2D views, file:line evidence, and offline security.</span>
+    </div>
+    <span class="hub-row-arrow" aria-hidden="true">Read →</span>
+  </a>
+</li>
+<li class="hub-row">
+  <a class="hub-row-link" href="/guides/offline-codebase-architecture-audit/">
+    <div>
+      <span class="hub-row-title">Offline Codebase Architecture Audit &amp; Monorepo Benchmarks</span>
+      <span class="hub-row-desc">How ArchRay handles 7,712-file monorepos (calcom/cal.com in 196ms), tracks measured vs ≈ estimates, and enforces UTF-8 on Windows.</span>
+    </div>
+    <span class="hub-row-arrow" aria-hidden="true">Read →</span>
+  </a>
+</li>
+  </ul>
+</section>
+<section class="hub-section">
+  <h2>AI Coding Agent Playbooks</h2>
+  <ul class="hub-list" style="list-style:none;margin:0;padding:0;">
+    <li class="hub-row">
+  <a class="hub-row-link" href="/guides/claude-code-architecture-diagram/">
+    <div>
+      <span class="hub-row-title">Claude Code Architecture Diagram Guide (/archray)</span>
+      <span class="hub-row-desc">Install ArchRay into .claude/skills and .claude/commands, slice layers without re-scanning, and verify source citations.</span>
+    </div>
+    <span class="hub-row-arrow" aria-hidden="true">Read →</span>
+  </a>
+</li>
+<li class="hub-row">
+  <a class="hub-row-link" href="/guides/cursor-codebase-visualization/">
+    <div>
+      <span class="hub-row-title">Cursor Codebase Visualization Guide (/archray)</span>
+      <span class="hub-row-desc">Wire .cursor/rules/archray.mdc and slash commands to explore large repositories visually in 3D and 2D Bento views.</span>
+    </div>
+    <span class="hub-row-arrow" aria-hidden="true">Read →</span>
+  </a>
+</li>
+<li class="hub-row">
+  <a class="hub-row-link" href="/guides/codex-pi-antigravity/">
+    <div>
+      <span class="hub-row-title">Codex, Pi &amp; Antigravity Integration Guide</span>
+      <span class="hub-row-desc">Use $archray in Codex, /skill:archray in Pi, or unified --agent all multi-host setup across teams.</span>
+    </div>
+    <span class="hub-row-arrow" aria-hidden="true">Read →</span>
+  </a>
+</li>
+  </ul>
+</section>
+<section class="hub-section">
+  <h2>Specifications &amp; Reference</h2>
+  <ul class="hub-list" style="list-style:none;margin:0;padding:0;">
+    <li class="hub-row">
+  <a class="hub-row-link" href="/guides/architecture-layers-reference/">
+    <div>
+      <span class="hub-row-title">Canonical Layers (L0–L9), 19 Node Kinds &amp; Graph v2 Reference</span>
+      <span class="hub-row-desc">Complete lookup for all 10 layers, 19 node kinds, 14 edge protocols, 4 visual themes, and every CLI subcommand.</span>
+    </div>
+    <span class="hub-row-arrow" aria-hidden="true">Read →</span>
+  </a>
+</li>
+  </ul>
+</section>
+  </article>
+</div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-row">
+      <p style="font-size: 0.88rem;">
+        <strong style="color: var(--ink-strong);">ArchRay</strong> · MIT Open-Source Project · AI-First Spatial Architecture Visualizer
+      </p>
+      <div class="footer-links">
+        <a href="/">Home</a>
+        <a href="/guides/">Guides</a>
+        <a href="/compare/mermaid-structurizr-eraser/">Compare</a>
+        <a href="/demo">Live Demo</a>
+        <a href="/llms.txt">llms.txt</a>
+        <a href="https://github.com/loofare/ArchRay" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="mailto:hello@archray.dev">hello@archray.dev</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/guides.js?v=064"></script>
+</body>
+</html>

@@ -27,16 +27,34 @@
     "test:hosts": "node scripts/check-pi.mjs",
     "test:brands": "node --import tsx scripts/check-brands.mjs",
     "test:update": "npm run package && node scripts/update-regression.mjs",
-    "build:site": "npm run build && node cli/bin/archray.mjs build examples/freshmart.graph.json --output site/demo.html --force --no-open && node scripts/seo-postprocess-demo.mjs",
+    "build:site": "npm run build && node cli/bin/archray.mjs build examples/freshmart.graph.json --output site/demo.html --force --no-open && node scripts/seo-postprocess-demo.mjs && node scripts/gen-guides.mjs",
     "deploy:site": "npm run build:site && npx --yes wrangler deploy",
-    "gen:en-site": "node scripts/gen-en-site.cjs"
+    "gen:en-site": "node scripts/gen-en-site.cjs",
+    "gen:guides": "node scripts/gen-guides.mjs",
+    "check:seo": "node scripts/check-seo.mjs"
+  },
+  "homepage": "https://archray.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/loofare/ArchRay.git"
+  },
+  "bugs": {
+    "url": "https://github.com/loofare/ArchRay/issues"
   },
   "keywords": [
     "architecture",
+    "architecture-diagram",
+    "codebase-visualization",
     "visualization",
     "ai-skill",
+    "claude-code",
+    "cursor",
+    "codex",
+    "antigravity",
     "slash-commands",
     "layered-architecture",
+    "3d-architecture",
+    "dependency-graph",
     "c4-model",
     "elkjs",
     "offline-html"

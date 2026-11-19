@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claude Code Architecture Diagram Guide (/archray Skill)</title>
+  <meta name="description" content="Install ArchRay into Claude Code to inspect repository source code and generate interactive 3D/2D offline HTML architecture maps via /archray." />
+  <meta name="author" content="David Yin" />
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+  <meta name="theme-color" content="#f9fafb" />
+  <meta property="og:title" content="Claude Code Architecture Diagram Guide (/archray Skill)" />
+  <meta property="og:description" content="Install ArchRay into Claude Code to inspect repository source code and generate interactive 3D/2D offline HTML architecture maps via /archray." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://archray.dev/guides/claude-code-architecture-diagram/" />
+  <meta property="og:site_name" content="ArchRay" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:locale:alternate" content="zh_CN" />
+  <meta property="og:image" content="https://archray.dev/share-en.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="ArchRay share card: a 3D architecture X-ray of your codebase" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Claude Code Architecture Diagram Guide (/archray Skill)" />
+  <meta name="twitter:description" content="Install ArchRay into Claude Code to inspect repository source code and generate interactive 3D/2D offline HTML architecture maps via /archray." />
+  <meta name="twitter:image" content="https://archray.dev/share-en.png" />
+  <meta name="twitter:image:alt" content="ArchRay share card: a 3D architecture X-ray of your codebase" />
+  <link rel="canonical" href="https://archray.dev/guides/claude-code-architecture-diagram/" />
+  <link rel="alternate" hreflang="en" href="https://archray.dev/guides/claude-code-architecture-diagram/" />
+  <link rel="alternate" hreflang="zh-CN" href="https://archray.dev/zh/guides/claude-code-architecture-diagram/" />
+  <link rel="alternate" hreflang="x-default" href="https://archray.dev/guides/claude-code-architecture-diagram/" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="alternate" type="text/markdown" href="https://archray.dev/llms.txt" hreflang="en" title="LLM summary" />
+  <link rel="alternate" type="text/markdown" href="https://archray.dev/llms-zh.txt" hreflang="zh-CN" title="ArchRay 中文 LLM 完整文档" />
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "@id": "https://archray.dev/guides/claude-code-architecture-diagram/#article",
+      "url": "https://archray.dev/guides/claude-code-architecture-diagram/",
+      "headline": "Claude Code Architecture Diagram Guide",
+      "name": "Claude Code Architecture Diagram Guide (/archray Skill)",
+      "description": "Install ArchRay into Claude Code to inspect repository source code and generate interactive 3D/2D offline HTML architecture maps via /archray.",
+      "inLanguage": "en",
+      "datePublished": "2026-11-20",
+      "dateModified": "2026-11-20",
+      "author": {
+        "@type": "Person",
+        "@id": "https://archray.dev/#person",
+        "name": "David Yin",
+        "url": "https://davidyin.dev"
+      },
+      "publisher": {
+        "@type": "Person",
+        "@id": "https://archray.dev/#person",
+        "name": "David Yin",
+        "url": "https://davidyin.dev"
+      },
+      "about": {
+        "@type": "SoftwareApplication",
+        "@id": "https://archray.dev/#software",
+        "name": "ArchRay",
+        "url": "https://archray.dev/"
+      },
+      "isPartOf": {
+        "@id": "https://archray.dev/#website"
+      },
+      "mainEntityOfPage": {
+        "@id": "https://archray.dev/guides/claude-code-architecture-diagram/#webpage"
+      },
+      "image": {
+        "@type": "ImageObject",
+        "url": "https://archray.dev/share-en.png",
+        "width": 1200,
+        "height": 630
+      },
+      "speakable": {
+        "@type": "SpeakableSpecification",
+        "cssSelector": [
+          ".answer-box p",
+          ".guide-faq summary",
+          ".guide-faq p"
+        ]
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://archray.dev/guides/claude-code-architecture-diagram/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://archray.dev/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Guides",
+          "item": "https://archray.dev/guides/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Claude Code Architecture Diagram",
+          "item": "https://archray.dev/guides/claude-code-architecture-diagram/"
+        }
+      ]
+    },
+    {
+      "@type": "HowTo",
+      "@id": "https://archray.dev/guides/claude-code-architecture-diagram/#howto",
+      "name": "Generate an architecture diagram in Claude Code with ArchRay",
+      "inLanguage": "en",
+      "totalTime": "PT2M",
+      "step": [
+        {
+          "@type": "HowToStep",
+          "position": 1,
+          "name": "Install ArchRay with the claude host target",
+          "text": "Run install.sh in your repository root with `. claude` to install .claude/skills/archray/ and .claude/commands/ alongside .archray/tool."
+        },
+        {
+          "@type": "HowToStep",
+          "position": 2,
+          "name": "Open a fresh Claude Code session and run /archray",
+          "text": "Restart or open a new Claude Code terminal so newly installed slash commands register, then type `/archray`."
+        },
+        {
+          "@type": "HowToStep",
+          "position": 3,
+          "name": "Inspect slices, health hotspots, and export PNG/HTML",
+          "text": "Open `.archray/index.html` locally in your browser or run layer slices such as `/archray frontend,backend` without re-analyzing source."
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://archray.dev/guides/claude-code-architecture-diagram/#faq",
+      "inLanguage": "en",
+      "isPartOf": {
+        "@id": "https://archray.dev/guides/claude-code-architecture-diagram/#webpage"
+      },
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Do I have to re-install ArchRay for every repository?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Install once per target repository root so `.archray/` and `.claude/` stay scoped cleanly to that repo without polluting global Node modules or unrelated projects."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why must I open a new Claude Code session after running install.sh?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Claude Code scans `.claude/commands/` and skills when starting a session. Opening a fresh session guarantees `/archray` and its preset variants appear in autocomplete."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does `/archray frontend,data` re-read the entire codebase with tokens?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Once `.archray/graph.json` is built, slicing layers runs deterministically in seconds through `./.archray/archray build --layers ...`—no extra full-repo re-scan required."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I remove ArchRay from a repository cleanly?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Run `./.archray/archray uninstall --dry-run` to inspect all host files to remove, then `uninstall` (keeps your generated maps) or `uninstall --purge` (removes `.archray/` completely)."
+          }
+        }
+      ]
+    }
+  ]
+}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Alumni+Sans:wght@200;300;400;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles/tokens.css?v=064" />
+  <link rel="stylesheet" href="/styles/site.css?v=064" />
+  <link rel="stylesheet" href="/styles/guides.css?v=064" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap nav-bar">
+      <a class="brand-mark" href="/" aria-label="ArchRay home">
+        <span class="brand-glyph" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round">
+            <polygon points="12 2 21 7 21 17 12 22 3 17 3 7" />
+            <polyline points="3 7 12 12 21 7" />
+            <line x1="12" y1="12" x2="12" y2="22" />
+          </svg>
+        </span>
+        <span class="brand-name">ArchRay</span>
+      </a>
+
+      <nav class="nav-links" id="primaryNav" aria-label="Primary navigation">
+        <a href="/">Home</a>
+        <a href="/guides/">Guides</a>
+        <a href="/compare/mermaid-structurizr-eraser/">Compare</a>
+        <a href="/demo">Live Demo</a>
+        <a href="/#install">Install</a>
+      </nav>
+
+      <div class="nav-tools">
+        <div class="lang-switch" role="group" aria-label="Language / 语言">
+          <a href="/guides/claude-code-architecture-diagram/" class="lang-option is-active" aria-current="page" hreflang="en" lang="en">EN</a>
+          <a href="/zh/guides/claude-code-architecture-diagram/" class="lang-option" hreflang="zh-CN" lang="zh-CN">中文</a>
+        </div>
+        <button type="button" class="pill-ctl" id="themeToggle" aria-label="Switch color theme">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+          </svg>
+          <span class="hide-xs" data-theme-label>Dark</span>
+        </button>
+        <button type="button" class="nav-toggle" id="navToggle" aria-label="Open navigation" aria-expanded="false" aria-controls="primaryNav">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <line x1="4" y1="7" x2="20" y2="7" />
+            <line x1="4" y1="12" x2="20" y2="12" />
+            <line x1="4" y1="17" x2="20" y2="17" />
+          </svg>
+        </button>
+        <a class="pill-ctl nav-github" href="https://github.com/loofare/ArchRay" target="_blank" rel="noopener noreferrer" aria-label="ArchRay GitHub repository">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.11.78-.25.78-.55v-1.93c-3.2.7-3.87-1.54-3.87-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.69 1.25 3.34.95.1-.74.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.68 0-1.25.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.16 1.18a10.9 10.9 0 0 1 5.76 0c2.19-1.49 3.16-1.18 3.16-1.18.62 1.58.23 2.75.11 3.04.74.8 1.18 1.83 1.18 3.08 0 4.41-2.69 5.39-5.25 5.67.41.35.78 1.05.78 2.12v3.14c0 .31.21.67.79.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
+          </svg>
+          <span>GitHub</span>
+          <span class="star-glyph" aria-hidden="true">★</span>
+        </a>
+      </div>
+    </div>
+    <div class="scroll-progress-bar" id="scrollProgressBar" aria-hidden="true"></div>
+  </header>
+
+  <main class="wrap guide-main">
+    <nav class="guide-crumb" aria-label="Breadcrumb"><a href="/">Home</a><span class="guide-crumb-sep" aria-hidden="true">/</span><a href="/guides/">Guides</a><span class="guide-crumb-sep" aria-hidden="true">/</span><span aria-current="page">Claude Code Architecture Diagram</span></nav>
+    <div class="guide-shell">
+  <article class="guide-article">
+    <h1>Claude Code Architecture Diagram Guide</h1>
+    <p class="guide-lead">Turn Claude Code from a text-first coding assistant into an evidence-backed spatial architect with a single /archray slash command.</p>
+    <div class="guide-meta">
+      <span>ArchRay v0.6.0</span>
+      <span>By David Yin · Updated 2026-11-20</span>
+      <span>MIT Open Source</span>
+    </div>
+    <section class="answer-box" aria-label="Direct answer">
+      <p>Install ArchRay targeting Claude Code once in your repo root (`sh -s -- . claude`), start a fresh Claude Code session, and run `/archray`. Claude reads real source files into `.archray/graph.json`, runs deterministic validation and ELK layout, and emits a zero-dependency `.archray/index.html` you can slice by layer (`/archray:frontend`, `/archray backend,data`) without re-scanning.</p>
+    </section>
+    <section id="install">
+  <h2>1. Install ArchRay for Claude Code</h2>
+  <p>Run the self-contained installer from the root directory of the repository you want to map. Node.js 20+, curl, and tar are required (on Windows, use Git Bash or WSL). Application source code is never modified.</p>
+  
+  <div class="table-scroll">
+  <table class="spec-table">
+    <thead><tr><th scope="col">Artifact Created</th><th scope="col">Purpose</th><th scope="col">Source Code Touched?</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">.claude/skills/archray/</th><td>Claude Code skill rules &amp; v2 schema prompt</td><td>No</td></tr>
+      <tr><th scope="row">.claude/commands/archray*.md</th><td>Slash presets (/archray, /archray:frontend, etc.)</td><td>No</td></tr>
+      <tr><th scope="row">.archray/tool/ &amp; .archray/archray</th><td>Self-contained CLI, ELK engine &amp; viewer bundle</td><td>No</td></tr>
+      <tr><th scope="row">.archray/graph.json &amp; index.html</th><td>Generated graph facts &amp; offline HTML (after /archray)</td><td>No</td></tr>
+    </tbody>
+  </table>
+</div>
+  <div class="code-block">
+  <div class="code-head"><span>Run in target repository root</span><button type="button" class="code-copy-btn" data-copy-code>Copy</button></div>
+  <pre><code>curl -fsSL https://github.com/loofare/ArchRay/releases/latest/download/install.sh | sh -s -- . claude</code></pre>
+</div>
+</section>
+<section id="commands">
+  <h2>2. Available Claude Code Slash Commands</h2>
+  <p>Open a new Claude Code session after installation so `.claude/commands/` is discovered cleanly. Type `/archray` for the full 10-layer map, or slice straight into specific subsystems once `.archray/graph.json` exists.</p>
+  
+  <div class="table-scroll">
+  <table class="spec-table">
+    <thead><tr><th scope="col">Slash Command</th><th scope="col">Canonical Layers Highlighted</th><th scope="col">When to Use</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">/archray or /archray:full</th><td>All present layers (L0–L9)</td><td>Initial full-repository onboarding &amp; architecture review</td></tr>
+      <tr><th scope="row">/archray:frontend</th><td>client (L0)</td><td>Web SPA/SSR, mobile, and desktop UI surfaces + 1-hop APIs</td></tr>
+      <tr><th scope="row">/archray:backend</th><td>service + async (L3 + L4)</td><td>Core domain services, RPC handlers, queues &amp; background workers</td></tr>
+      <tr><th scope="row">/archray:data</th><td>data (L5)</td><td>PostgreSQL, Redis caches, search indices &amp; object stores</td></tr>
+      <tr><th scope="row">/archray:network</th><td>edge + gateway (L1 + L2)</td><td>CDN, WAF, reverse proxies &amp; ingress gateway routing</td></tr>
+      <tr><th scope="row">/archray:security</th><td>gateway (L2)</td><td>OAuth/OIDC auth boundaries, JWT guards &amp; rate limiting</td></tr>
+      <tr><th scope="row">/archray frontend,backend</th><td>Comma-separated custom combo</td><td>Trace end-to-end feature calls while dimming peripheral infra</td></tr>
+    </tbody>
+  </table>
+</div>
+  
+</section>
+<section id="tips">
+  <h2>3. Best Practices &amp; Windows UTF-8 Reliability</h2>
+  <p>Because Claude Code inspects real files before generating `.archray/graph.json`, results improve significantly when you verify two habits:</p>
+  <ul><li>Always verify with `./.archray/archray doctor` if Claude cannot find the CLI binary after moving folders.</li><li>On Windows PowerShell, avoid piping JSON through Out-File or Set-Content without UTF-8 encoding; ArchRay v0.6.0 guides Claude to use native UTF-8 file writes without BOM and automatically flags any accidental ? placeholder corruption during `validate`.</li><li>Re-style offline at zero LLM token cost: run `./.archray/archray build .archray/graph.json --style blueprint --lang en --force` in your terminal to switch between tech, blueprint, glass, and paper themes.</li></ul>
+  
+  
+</section>
+    <section id="faq">
+  <h2>Frequently Asked Questions</h2>
+  <div class="guide-faq">
+    <details class="faq-item" open>
+  <summary>Do I have to re-install ArchRay for every repository?</summary>
+  <p>Install once per target repository root so `.archray/` and `.claude/` stay scoped cleanly to that repo without polluting global Node modules or unrelated projects.</p>
+</details>
+<details class="faq-item">
+  <summary>Why must I open a new Claude Code session after running install.sh?</summary>
+  <p>Claude Code scans `.claude/commands/` and skills when starting a session. Opening a fresh session guarantees `/archray` and its preset variants appear in autocomplete.</p>
+</details>
+<details class="faq-item">
+  <summary>Does `/archray frontend,data` re-read the entire codebase with tokens?</summary>
+  <p>Once `.archray/graph.json` is built, slicing layers runs deterministically in seconds through `./.archray/archray build --layers ...`—no extra full-repo re-scan required.</p>
+</details>
+<details class="faq-item">
+  <summary>How do I remove ArchRay from a repository cleanly?</summary>
+  <p>Run `./.archray/archray uninstall --dry-run` to inspect all host files to remove, then `uninstall` (keeps your generated maps) or `uninstall --purge` (removes `.archray/` completely).</p>
+</details>
+  </div>
+</section>
+    <div class="guide-cta-band">
+  <div>
+    <h2>Try ArchRay on your repository in 30 seconds</h2>
+    <p>100% local CLI and single-file offline HTML across Claude Code, Cursor, Antigravity, Pi, and Codex.</p>
+  </div>
+  <div class="guide-cta-actions">
+    <a class="btn-ink" href="/#install">Install ArchRay <span class="arrow-amber" aria-hidden="true">→</span></a>
+    <a class="btn-outline" href="/demo">Open Live Sandbox</a>
+  </div>
+</div>
+    <section style="margin-top: 44px;">
+  <h2>Related Guides & Reference</h2>
+  <div class="related-list"><a class="related-link" href="/compare/mermaid-structurizr-eraser/">
+  <span>ArchRay vs Mermaid, Structurizr &amp; Eraser</span>
+  <span>Read guide →</span>
+</a>
+<a class="related-link" href="/guides/cursor-codebase-visualization/">
+  <span>Cursor Codebase Visualization Guide</span>
+  <span>Read guide →</span>
+</a>
+<a class="related-link" href="/guides/offline-codebase-architecture-audit/">
+  <span>Offline Codebase Architecture Audit &amp; Real Benchmarks</span>
+  <span>Read guide →</span>
+</a>
+<a class="related-link" href="/guides/architecture-layers-reference/">
+  <span>L0–L9 Layers, Node Kinds &amp; Graph v2 Reference</span>
+  <span>Read guide →</span>
+</a></div>
+</section>
+  </article>
+  <aside class="guide-toc" aria-label="On this page">
+  <div class="guide-toc-title">On this page</div>
+  <ul><li><a href="#install">1. Install ArchRay for Claude Code</a></li><li><a href="#commands">2. Available Claude Code Slash Commands</a></li><li><a href="#tips">3. Best Practices &amp; Windows UTF-8 Reliability</a></li><li><a href="#faq">FAQ</a></li></ul>
+</aside>
+</div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-row">
+      <p style="font-size: 0.88rem;">
+        <strong style="color: var(--ink-strong);">ArchRay</strong> · MIT Open-Source Project · AI-First Spatial Architecture Visualizer
+      </p>
+      <div class="footer-links">
+        <a href="/">Home</a>
+        <a href="/guides/">Guides</a>
+        <a href="/compare/mermaid-structurizr-eraser/">Compare</a>
+        <a href="/demo">Live Demo</a>
+        <a href="/llms.txt">llms.txt</a>
+        <a href="https://github.com/loofare/ArchRay" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="mailto:hello@archray.dev">hello@archray.dev</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/guides.js?v=064"></script>
+</body>
+</html>

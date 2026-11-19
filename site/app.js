@@ -10,6 +10,9 @@
     'zh-CN': {
       'page.title': 'ArchRay — 从真实仓库源码生成可交互的 3D 架构图',
       'page.description': 'ArchRay 读取真实仓库源码，在 Claude Code、Cursor、Antigravity、Pi 或 Codex 里输入 /archray，生成可分层、可交互、可离线分享的 3D/2D 架构图，每个节点都带有文件与行号证据。',
+      'page.keywords': 'ArchRay, AI 架构图, 3D 架构图, 代码库可视化, 源码生成架构图, Claude Code 架构图, Cursor 代码可视化, Codex, 离线单文件 HTML, 软件架构分析, C4 架构图',
+      'nav.homeAria': 'ArchRay 首页',
+      'nav.mainAria': '主导航',
       'nav.home': '首页',
       'nav.detector': '痛点解剖',
       'nav.console': '命令与分层',
@@ -17,6 +20,7 @@
       'nav.principles': '真实工程',
       'nav.install': '安装',
       'nav.privacy': '隐私与联系',
+      'nav.guides': '指南',
       'nav.themeToDark': '深色',
       'nav.themeToLight': '浅色',
       'nav.menu': '打开导航',
@@ -161,7 +165,7 @@
       'principles.r1Metrics': '7,712 文件 · 33 模块 · 75 边 · 7 层',
       'principles.r1Desc': '高密子包默认 +N 折叠，196ms 完成 ELK 确定性布局，60fps 流畅缩放。',
       'principles.r2Tag': '沙盒同源工程',
-      'principles.r2Metrics': '16 模块 · 21 边 · 5 层 · 3 条链路',
+      'principles.r2Metrics': '16 模块 · 19 边 · 5 层 · 6 步主链路',
       'principles.r2Desc': '定位订单服务 6,200 行同步锁热点，给出 Passport → Clerk 平替方案与迁移 Prompt。',
       'principles.r3Tag': '前后端真实样本',
       'principles.r3Metrics': '43–49 源文件 · 0.03s 出图 · 零虚构指标',
@@ -214,6 +218,19 @@
       'faq.a5': 'ArchRay 把语义事实和确定性布局分开：AI 记录源码证据与依赖，布局引擎计算坐标和 3D/2D 投影。它强调可追溯路径、离线交付、分层查看、健康度和可替代性，而不是让模型直接画一张不可复现的图。',
       'faq.q6': '它适合哪些仓库？',
       'faq.a6': '适合需要理解真实分层、跨层依赖、技术债或迁移评估的仓库，尤其是希望把架构图离线分享给团队的项目。它不是运行时监控或自动扫描器；没有源码证据、只靠描述的图需要额外复核。',
+      'faq.q7': 'ArchRay 和 Mermaid、Structurizr、Eraser 有什么区别？',
+      'faq.a7': 'Mermaid 适合写文章顺手画流程与小图，但大模型直出跨层大仓库图极易乱线；Structurizr 需要手动维护 C4 DSL 且依赖本地服务或云端渲染；Eraser 等在线 SaaS 需外传元数据。ArchRay 则由 AI 编程助手通读源码产出 .archray/graph.json，再由 ELK 引擎确定性排版为离线单文件 3D/2D HTML。',
+      'faq.q8': '大型 Monorepo（数千文件）会不会卡顿或乱线？',
+      'faq.a8': '不会把所有文件一股脑画成蜘蛛网。在 calcom/cal.com（7,712 个跟踪文件）实测中，ArchRay 将仓库提炼为 33 个核心模块、75 条边与 7 个架构层，高密子模块默认 +N 折叠，ELK 确定性布局耗时约 196ms，并支持按单层或跨端组合（如 frontend,data）局部高亮。',
+      'faq.q9': 'Windows 下生成中文架构图会出现问号乱码吗？',
+      'faq.a9': '从 v0.6.0 起，ArchRay 在 CLI 校验和解码阶段强制检测 UTF-8 无 BOM 与孤立问号/替换符（U+FFFD）损坏，并自动解码 Windows GB18030 或 UTF-16 文件，同时指导 AI 宿主使用原生 UTF-8 文件写入而非 PowerShell 默认重定向上传，彻底避免中文变成 ???。',
+      'faq.q10': '生成的架构图如何离线分享给团队或放进设计文档？',
+      'faq.a10': '产物 .archray/index.html 内嵌全部渲染器、字体回退与 167 枚技术栈矢量徽标，直接发给同事双击即可打开。视图顶栏还内置“导出高清整图 PNG（不裁切画布外沿）”、“离线二维码海报”以及 view.json 视角导入导出。',
+      'faq.moreLabel': '深入了解：',
+      'faq.linkGuides': '全部集成指南与技术参考',
+      'faq.linkCompare': 'ArchRay vs Mermaid / Structurizr / Eraser',
+      'faq.linkClaude': 'Claude Code 生成架构图',
+      'faq.linkCursor': 'Cursor 代码库可视化',
       'contact.role': 'ArchRay 作者 · 独立开发者与架构设计',
       'contact.badge': '欢迎交流合作',
       'contact.cardDesc': '欢迎架构可视化共创、研发效能工具合作、私有化规范定制或问题反馈，以下企业邮箱与个人邮箱均可直接联系。',
@@ -225,13 +242,19 @@
       'contact.ctaSite': '访问 davidyin.dev',
 
       'footer.note': 'MIT 开源项目 · AI 优先的空间架构可视化工具',
+      'footer.guides': '指南与文档',
+      'footer.compare': '工具对比',
       'footer.faq': '常见问题',
       'footer.privacy': '隐私协议',
+      'footer.llms': 'llms-zh.txt',
       'footer.demo': '全屏沙盒'
     },
     en: {
       'page.title': 'ArchRay — 3D Architecture Maps from Real Source Code',
       'page.description': 'Run /archray in Claude Code, Cursor, Antigravity, Pi or Codex to turn real repository source into a layered, interactive 3D/2D map with file-and-line evidence.',
+      'page.keywords': 'ArchRay, AI architecture diagram, codebase visualization, 3D architecture map, Claude Code architecture diagram, Cursor codebase map, Codex, offline C4 diagram, ELK layout, monorepo visualization',
+      'nav.homeAria': 'ArchRay home',
+      'nav.mainAria': 'Primary navigation',
       'nav.home': 'Home',
       'nav.detector': 'Anti-Slop',
       'nav.console': 'Commands & Layers',
@@ -239,6 +262,7 @@
       'nav.principles': 'Real Repos',
       'nav.install': 'Install',
       'nav.privacy': 'Privacy & Contact',
+      'nav.guides': 'Guides',
       'nav.themeToDark': 'Dark',
       'nav.themeToLight': 'Light',
       'nav.menu': 'Open navigation',
@@ -383,7 +407,7 @@
       'principles.r1Metrics': '7,712 files · 33 modules · 75 edges · 7 layers',
       'principles.r1Desc': 'Dense packages auto-collapse (+N) into a 196ms ELK layout with 60fps 3D orbit.',
       'principles.r2Tag': 'Live Sandbox Source',
-      'principles.r2Metrics': '16 modules · 21 edges · 5 layers · 3 flows',
+      'principles.r2Metrics': '16 modules · 19 edges · 5 layers · 6-step flow',
       'principles.r2Desc': 'Finds the 6.2k LOC sync lock hotspot and writes Passport → Clerk migration prompts.',
       'principles.r3Tag': 'FE + BE Real Benchmarks',
       'principles.r3Metrics': '43–49 source files · 0.03s build · Zero fluff',
@@ -436,6 +460,19 @@
       'faq.a5': 'ArchRay separates semantic facts from deterministic layout: the AI records source evidence and dependencies, while the layout engine computes coordinates and 3D/2D projections. It focuses on traceable paths, offline delivery, layers, health and replaceability instead of a one-off image.',
       'faq.q6': 'Which repositories is it for?',
       'faq.a6': 'It fits repositories where you need to understand real layers, cross-layer dependencies, technical debt or migration options, especially when the map should be shared offline. It is not runtime monitoring or an automatic scanner; description-only maps need extra review.',
+      'faq.q7': 'How does ArchRay differ from Mermaid, Structurizr, and Eraser?',
+      'faq.a7': 'Mermaid is great for quick Markdown flowcharts inside docs, but raw LLM-authored Mermaid collapses into crossed lines on multi-layer codebases; Structurizr requires maintaining hand-written C4 DSL and a local/cloud server; Eraser uploads diagram metadata to SaaS servers. ArchRay lets your AI coding agent extract verified source facts into .archray/graph.json, then deterministically computes an offline 3D/2D single-file HTML map via ELK.',
+      'faq.q8': 'Can it handle large monorepos with thousands of files without tangled edges?',
+      'faq.a8': 'Yes. Rather than dumping every file into one flat graph, ArchRay groups code into architectural modules. Benchmarked on calcom/cal.com (7,712 tracked files), it distilled 33 modules, 75 edges, and 7 layers with dense subpackages collapsed (+N) by default and a 196ms Node ELK layout—plus instant single-layer or comma-separated slice filtering like frontend,data.',
+      'faq.q9': 'Does Windows corrupt Chinese architecture labels into ??? question marks?',
+      'faq.a9': 'Starting in v0.6.0, ArchRay enforces UTF-8 without BOM during schema validation, rejects lone ? or U+FFFD encoding corruption, decodes GB18030 or UTF-16 files safely when reading, and instructs coding agents to use native UTF-8 file writes instead of Windows PowerShell ANSI redirection.',
+      'faq.q10': 'How do I share the output offline or embed it in architecture docs?',
+      'faq.a10': 'The output .archray/index.html bundles the entire viewer, typography fallbacks, and 167 vector brand icons—anyone can double-click it locally over file://. From the toolbar, you can also export an unclipped full-bounds PNG, generate an offline QR share poster, or export/import view.json camera states.',
+      'faq.moreLabel': 'Go deeper:',
+      'faq.linkGuides': 'All Guides & Reference',
+      'faq.linkCompare': 'ArchRay vs Mermaid / Structurizr / Eraser',
+      'faq.linkClaude': 'Claude Code Architecture Map',
+      'faq.linkCursor': 'Cursor Codebase Visualization',
       'contact.role': 'Creator of ArchRay · Builder & Architect',
       'contact.badge': 'Open to Inquiries',
       'contact.cardDesc': 'Open to developer-tool collaborations, enterprise architecture workflows, and feedback via either domain or personal email.',
@@ -447,8 +484,11 @@
       'contact.ctaSite': 'Visit davidyin.dev',
 
       'footer.note': 'MIT Open-Source Project · AI-First Spatial Architecture Visualizer',
+      'footer.guides': 'Guides',
+      'footer.compare': 'Compare Tools',
       'footer.faq': 'FAQ',
       'footer.privacy': 'Privacy',
+      'footer.llms': 'llms.txt',
       'footer.demo': 'Fullscreen Demo'
     }
   };
@@ -1246,6 +1286,8 @@
 
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) metaDescription.setAttribute('content', t('page.description'));
+    const metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (metaKeywords) metaKeywords.setAttribute('content', t('page.keywords'));
     const ogTitle = document.querySelector('meta[property="og:title"]');
     if (ogTitle) ogTitle.setAttribute('content', t('page.title'));
     const ogDescription = document.querySelector('meta[property="og:description"]');
@@ -1260,11 +1302,23 @@
     if (twImage) twImage.setAttribute('content', isEnglish ? 'https://archray.dev/share-en.png' : 'https://archray.dev/share.png');
     const ogImageAlt = document.querySelector('meta[property="og:image:alt"]');
     if (ogImageAlt) ogImageAlt.setAttribute('content', t('share.previewAlt'));
+    const twImageAlt = document.querySelector('meta[name="twitter:image:alt"]');
+    if (twImageAlt) twImageAlt.setAttribute('content', t('share.previewAlt'));
 
     document.querySelectorAll('[data-i18n]').forEach((el) => {
       const k = el.getAttribute('data-i18n');
       if (k) el.textContent = t(k);
     });
+
+    document.querySelectorAll('[data-href-en][data-href-zh]').forEach((el) => {
+      const target = isEnglish ? el.getAttribute('data-href-en') : el.getAttribute('data-href-zh');
+      if (target) el.setAttribute('href', target);
+    });
+
+    const brandMark = document.querySelector('a.brand-mark');
+    if (brandMark) brandMark.setAttribute('aria-label', t('nav.homeAria'));
+    const primaryNav = document.getElementById('primaryNav');
+    if (primaryNav) primaryNav.setAttribute('aria-label', t('nav.mainAria'));
 
     const navToggle = document.getElementById('navToggle');
     if (navToggle) navToggle.setAttribute('aria-label', t('nav.menu'));
@@ -1285,7 +1339,7 @@
       else link.removeAttribute('aria-current');
     });
     document.querySelectorAll('[data-demo-link]').forEach((link) => {
-      link.href = '/demo?locale=' + (lang === 'en' ? 'en' : 'zh-CN');
+      link.href = lang === 'en' ? '/demo' : '/demo?locale=zh-CN';
     });
     updateShareAssets();
   }

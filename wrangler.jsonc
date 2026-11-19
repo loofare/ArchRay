@@ -2,7 +2,8 @@
   "name": "archray-web",
   "compatibility_date": "2026-11-01",
   "assets": {
-    "directory": "./site"
+    "directory": "./site",
+    "not_found_handling": "404-page"
   },
   "routes": [
     {

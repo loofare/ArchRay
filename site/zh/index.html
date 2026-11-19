@@ -9,7 +9,7 @@
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
   <meta name="theme-color" content="#f9fafb" />
   <meta name="application-name" content="ArchRay" />
-  <meta name="keywords" content="ArchRay, AI architecture visualization, 3D architecture diagram, 2D Bento, /archray, Claude Code, Cursor, Codex, offline HTML, source evidence" />
+  <meta name="keywords" content="ArchRay, AI 架构图, 3D 架构图, 代码库可视化, 源码生成架构图, Claude Code 架构图, Cursor 代码可视化, Codex, 离线单文件 HTML, 软件架构分析, C4 架构图" />
   <meta property="og:title" content="ArchRay — 从真实仓库源码生成可交互的 3D 架构图" />
   <meta property="og:description" content="ArchRay 读取真实仓库源码，在 Claude Code、Cursor、Antigravity、Pi 或 Codex 里输入 /archray，生成可分层、可交互、可离线分享的 3D/2D 架构图，每个节点都带有文件与行号证据。" />
   <meta property="og:type" content="website" />
@@ -25,12 +25,15 @@
   <meta name="twitter:title" content="ArchRay — 从真实仓库源码生成可交互的 3D 架构图" />
   <meta name="twitter:description" content="ArchRay 读取真实仓库源码，在 Claude Code、Cursor、Antigravity、Pi 或 Codex 里输入 /archray，生成可分层、可交互、可离线分享的 3D/2D 架构图，每个节点都带有文件与行号证据。" />
   <meta name="twitter:image" content="https://archray.dev/share.png" />
+  <meta name="twitter:image:alt" content="ArchRay 分享卡：给代码库拍张立体架构透视图" />
   <link rel="canonical" href="https://archray.dev/zh/" />
   <link rel="alternate" hreflang="zh-CN" href="https://archray.dev/zh/" />
   <link rel="alternate" hreflang="en" href="https://archray.dev/" />
   <link rel="alternate" hreflang="x-default" href="https://archray.dev/" />
-  <link rel="alternate" type="text/markdown" href="https://archray.dev/llms.txt" title="LLM summary" />
-  <link rel="alternate" type="text/plain" href="https://archray.dev/llms-full.txt" title="Full LLM context" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="alternate" type="text/markdown" href="https://archray.dev/llms-zh.txt" hreflang="zh-CN" title="ArchRay 中文 LLM 完整文档" />
+  <link rel="alternate" type="text/markdown" href="https://archray.dev/llms.txt" hreflang="en" title="LLM summary" />
+  <link rel="alternate" type="text/plain" href="https://archray.dev/llms-full.txt" hreflang="en" title="Full LLM context" />
   <script type="application/ld+json">{
   "@context": "https://schema.org",
   "@graph": [
@@ -39,10 +42,10 @@
       "@id": "https://archray.dev/#website",
       "url": "https://archray.dev/",
       "name": "ArchRay",
-      "description": "AI-first layered architecture visualiser that turns real repository source into offline 3D/2D single-file HTML maps.",
+      "description": "AI 优先的分层空间架构可视化工具：从真实仓库源码生成可分层、可交互、可离线分享的 3D/2D 单文件 HTML 架构图。",
       "inLanguage": [
-        "en",
-        "zh-CN"
+        "zh-CN",
+        "en"
       ],
       "publisher": {
         "@id": "https://archray.dev/#person"
@@ -62,15 +65,25 @@
       "@type": "SoftwareApplication",
       "@id": "https://archray.dev/#software",
       "name": "ArchRay",
+      "description": "AI 优先的架构可视化工具，装入项目后在 Claude Code、Cursor、Antigravity、Pi 或 Codex 中读取真实源码并构建零依赖、离线单文件 3D/2D 架构图，每个模块与依赖均附带文件与行号证据。",
       "applicationCategory": "DeveloperApplication",
-      "applicationSubCategory": "Architecture visualization",
+      "applicationSubCategory": "软件架构可视化与代码库分析",
       "operatingSystem": "macOS, Linux, Windows",
       "softwareVersion": "0.6.0",
+      "softwareRequirements": "Node.js 20+",
+      "datePublished": "2026-11-17",
+      "dateModified": "2026-11-20",
       "url": "https://archray.dev/",
       "image": "https://archray.dev/share.png",
+      "screenshot": "https://archray.dev/share.png",
       "downloadUrl": "https://github.com/loofare/ArchRay/releases/latest",
+      "releaseNotes": "https://github.com/loofare/ArchRay/releases/tag/v0.6.0",
       "codeRepository": "https://github.com/loofare/ArchRay",
       "license": "https://opensource.org/license/mit",
+      "sameAs": [
+        "https://github.com/loofare/ArchRay",
+        "https://archray.dev/"
+      ],
       "isAccessibleForFree": true,
       "offers": {
         "@type": "Offer",
@@ -81,12 +94,13 @@
         "@id": "https://archray.dev/#person"
       },
       "featureList": [
-        "Layered 3D and 2D architecture maps",
-        "Offline single-file HTML",
-        "Source paths and file:line evidence",
-        "Health hotspots and replaceability views",
-        "Claude Code, Cursor, Antigravity, Pi and Codex support",
-        "In-project update and uninstall commands"
+        "L0-L9 十层 3D 空间透视与 2D Bento 确定性架构图",
+        "零依赖、零源码上传的离线单文件 HTML 交付",
+        "源码路径、文件与行号证据链（区分实测与静态估算）",
+        "架构健康度热点诊断与可替代性迁移 Prompt",
+        "原生集成 Claude Code、Cursor、Antigravity、Pi 与 Codex",
+        "无裁切全景 PNG 与离线二维码海报导出",
+        "项目内自包含更新（SHA-256 校验）与干净卸载"
       ]
     },
     {
@@ -96,11 +110,16 @@
       "name": "ArchRay — 从真实仓库源码生成可交互的 3D 架构图",
       "description": "ArchRay 读取真实仓库源码，在 Claude Code、Cursor、Antigravity、Pi 或 Codex 里输入 /archray，生成可分层、可交互、可离线分享的 3D/2D 架构图，每个节点都带有文件与行号证据。",
       "inLanguage": "zh-CN",
+      "datePublished": "2026-11-17",
+      "dateModified": "2026-11-20",
       "isPartOf": {
         "@id": "https://archray.dev/#website"
       },
       "about": {
         "@id": "https://archray.dev/#software"
+      },
+      "breadcrumb": {
+        "@id": "https://archray.dev/zh/#breadcrumb"
       },
       "primaryImageOfPage": {
         "@type": "ImageObject",
@@ -108,9 +127,63 @@
         "width": 1200,
         "height": 630
       },
+      "speakable": {
+        "@type": "SpeakableSpecification",
+        "cssSelector": [
+          ".hero-lead",
+          ".faq-item summary",
+          ".faq-item p"
+        ]
+      },
       "mainEntity": {
         "@id": "https://archray.dev/zh/#faq"
       }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://archray.dev/zh/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "ArchRay",
+          "item": "https://archray.dev/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "中文首页",
+          "item": "https://archray.dev/zh/"
+        }
+      ]
+    },
+    {
+      "@type": "HowTo",
+      "@id": "https://archray.dev/zh/#howto",
+      "name": "如何使用 ArchRay 从真实源码生成离线 3D 架构图",
+      "description": "在项目根目录安装 ArchRay，在 AI 编程助手里运行 /archray，离线打开并分享生成的架构图。",
+      "inLanguage": "zh-CN",
+      "totalTime": "PT2M",
+      "step": [
+        {
+          "@type": "HowToStep",
+          "position": 1,
+          "name": "安装 ArchRay 到目标仓库根目录",
+          "text": "运行 install.sh 安装命令并指定宿主（claude、cursor、antigravity、pi、codex 或 all），CLI 与 Skill 将自包含安装在 .archray/tool。"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 2,
+          "name": "在 AI 编程助手会话中输入 /archray",
+          "text": "开启新会话运行 /archray（Codex 使用 $archray），AI 会通读仓库源码、提取模块与依赖证据到 .archray/graph.json，并由引擎确定性构建单文件 HTML。"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 3,
+          "name": "离线打开、按层切片并导出分享",
+          "text": "在任意浏览器通过 file:// 直接打开 .archray/index.html，按 L0-L9 层筛选、切换健康度或可替代性视图，或导出高清整图 PNG 与二维码海报。"
+        }
+      ]
     },
     {
       "@type": "FAQPage",
@@ -164,6 +237,38 @@
             "@type": "Answer",
             "text": "适合需要理解真实分层、跨层依赖、技术债或迁移评估的仓库，尤其是希望把架构图离线分享给团队的项目。它不是运行时监控或自动扫描器；没有源码证据、只靠描述的图需要额外复核。"
           }
+        },
+        {
+          "@type": "Question",
+          "name": "ArchRay 和 Mermaid、Structurizr、Eraser 有什么区别？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Mermaid 适合写文章顺手画流程与小图，但大模型直出跨层大仓库图极易乱线；Structurizr 需要手动维护 C4 DSL 且依赖本地服务或云端渲染；Eraser 等在线 SaaS 需外传元数据。ArchRay 则由 AI 编程助手通读源码产出 .archray/graph.json，再由 ELK 引擎确定性排版为离线单文件 3D/2D HTML。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "大型 Monorepo（数千文件）会不会卡顿或乱线？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "不会把所有文件一股脑画成蜘蛛网。在 calcom/cal.com（7,712 个跟踪文件）实测中，ArchRay 将仓库提炼为 33 个核心模块、75 条边与 7 个架构层，高密子模块默认 +N 折叠，ELK 确定性布局耗时约 196ms，并支持按单层或跨端组合（如 frontend,data）局部高亮。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Windows 下生成中文架构图会出现问号乱码吗？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "从 v0.6.0 起，ArchRay 在 CLI 校验和解码阶段强制检测 UTF-8 无 BOM 与孤立问号/替换符（U+FFFD）损坏，并自动解码 Windows GB18030 或 UTF-16 文件，同时指导 AI 宿主使用原生 UTF-8 文件写入而非 PowerShell 默认重定向上传，彻底避免中文变成 ???。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "生成的架构图如何离线分享给团队或放进设计文档？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "产物 .archray/index.html 内嵌全部渲染器、字体回退与 167 枚技术栈矢量徽标，直接发给同事双击即可打开。视图顶栏还内置“导出高清整图 PNG（不裁切画布外沿）”、“离线二维码海报”以及 view.json 视角导入导出。"
+          }
         }
       ],
       "isPartOf": {
@@ -179,13 +284,13 @@
   <noscript>
     <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Alumni+Sans:wght@200;300;400;600&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet" />
   </noscript>
-  <link rel="stylesheet" href="/styles/tokens.css?v=063" />
-  <link rel="stylesheet" href="/styles/site.css?v=063" />
+  <link rel="stylesheet" href="/styles/tokens.css?v=064" />
+  <link rel="stylesheet" href="/styles/site.css?v=064" />
 </head>
 <body>
   <header class="site-header">
     <div class="wrap nav-bar">
-      <a class="brand-mark" href="#top" aria-label="ArchRay home">
+      <a class="brand-mark" href="#top" aria-label="ArchRay 首页">
         <span class="brand-glyph" aria-hidden="true">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round">
             <polygon points="12 2 21 7 21 17 12 22 3 17 3 7" />
@@ -196,7 +301,7 @@
         <span class="brand-name">ArchRay</span>
       </a>
 
-      <nav class="nav-links" id="primaryNav" aria-label="Primary navigation">
+      <nav class="nav-links" id="primaryNav" aria-label="主导航">
         <a href="#top" class="is-active"><span class="nav-dot" aria-hidden="true"></span><span data-i18n="nav.home">首页</span></a>
         <a href="#live" data-i18n="nav.live">实机沙盒</a>
         <a href="#console" data-i18n="nav.console">命令与分层</a>
@@ -204,6 +309,7 @@
         <a href="#principles" data-i18n="nav.principles">真实工程</a>
         <a href="#install" data-i18n="nav.install">安装</a>
         <a href="#privacy" data-i18n="nav.privacy">隐私与联系</a>
+        <a href="/zh/guides/" data-href-en="/guides/" data-href-zh="/zh/guides/" data-i18n="nav.guides">指南</a>
       </nav>
 
       <div class="nav-tools">
@@ -958,7 +1064,7 @@
               <span class="repo-name">FreshMart Commerce</span>
               <span class="repo-tag is-emerald" data-i18n="principles.r2Tag">沙盒同源工程</span>
             </div>
-            <div class="repo-metrics" data-i18n="principles.r2Metrics">16 模块 · 21 边 · 5 层 · 3 条链路</div>
+            <div class="repo-metrics" data-i18n="principles.r2Metrics">16 模块 · 19 边 · 5 层 · 6 步主链路</div>
             <p class="repo-desc" data-i18n="principles.r2Desc">定位订单服务 6,200 行同步锁热点，给出 Passport → Clerk 平替方案与迁移 Prompt。</p>
             <code class="repo-evidence">apps/api/src/order/order.service.ts</code>
           </article>
@@ -984,7 +1090,7 @@
                 <div class="mini-term-head"><span>● ● ●</span><span>archray validate &amp; build</span></div>
                 <div class="mini-term-body">
                   <div>&gt; ./.archray/archray validate .archray/graph.json</div>
-                  <div style="color: #34d399;">✓ TypeBox schema valid · 16 nodes · 21 edges</div>
+                  <div style="color: #34d399;">✓ TypeBox schema valid · 16 nodes · 19 edges</div>
                   <div>&gt; ./.archray/archray build .archray/graph.json --force</div>
                   <div style="color: #fbbf24;">→ .archray/index.html ready (100% offline)</div>
                 </div>
@@ -1114,7 +1220,31 @@
             <summary data-i18n="faq.q6">它适合哪些仓库？</summary>
             <p data-i18n="faq.a6">适合需要理解真实分层、跨层依赖、技术债或迁移评估的仓库，尤其是希望把架构图离线分享给团队的项目。它不是运行时监控或自动扫描器；没有源码证据、只靠描述的图需要额外复核。</p>
           </details>
+          <details class="faq-item">
+            <summary data-i18n="faq.q7">ArchRay 和 Mermaid、Structurizr、Eraser 有什么区别？</summary>
+            <p data-i18n="faq.a7">Mermaid 适合写文章顺手画流程与小图，但大模型直出跨层大仓库图极易乱线；Structurizr 需要手动维护 C4 DSL 且依赖本地服务或云端渲染；Eraser 等在线 SaaS 需外传元数据。ArchRay 则由 AI 编程助手通读源码产出 .archray/graph.json，再由 ELK 引擎确定性排版为离线单文件 3D/2D HTML。</p>
+          </details>
+          <details class="faq-item">
+            <summary data-i18n="faq.q8">大型 Monorepo（数千文件）会不会卡顿或乱线？</summary>
+            <p data-i18n="faq.a8">不会把所有文件一股脑画成蜘蛛网。在 calcom/cal.com（7,712 个跟踪文件）实测中，ArchRay 将仓库提炼为 33 个核心模块、75 条边与 7 个架构层，高密子模块默认 +N 折叠，ELK 确定性布局耗时约 196ms，并支持按单层或跨端组合（如 frontend,data）局部高亮。</p>
+          </details>
+          <details class="faq-item">
+            <summary data-i18n="faq.q9">Windows 下生成中文架构图会出现问号乱码吗？</summary>
+            <p data-i18n="faq.a9">从 v0.6.0 起，ArchRay 在 CLI 校验和解码阶段强制检测 UTF-8 无 BOM 与孤立问号/替换符（U+FFFD）损坏，并自动解码 Windows GB18030 或 UTF-16 文件，同时指导 AI 宿主使用原生 UTF-8 文件写入而非 PowerShell 默认重定向上传，彻底避免中文变成 ???。</p>
+          </details>
+          <details class="faq-item">
+            <summary data-i18n="faq.q10">生成的架构图如何离线分享给团队或放进设计文档？</summary>
+            <p data-i18n="faq.a10">产物 .archray/index.html 内嵌全部渲染器、字体回退与 167 枚技术栈矢量徽标，直接发给同事双击即可打开。视图顶栏还内置“导出高清整图 PNG（不裁切画布外沿）”、“离线二维码海报”以及 view.json 视角导入导出。</p>
+          </details>
         </div>
+
+        <nav class="faq-resource-strip" aria-label="深度指南与工具对比">
+          <span class="faq-resource-label" data-i18n="faq.moreLabel">深入了解：</span>
+          <a href="/zh/guides/" data-href-en="/guides/" data-href-zh="/zh/guides/" data-i18n="faq.linkGuides">全部集成指南与技术参考</a>
+          <a href="/zh/compare/mermaid-structurizr-eraser/" data-href-en="/compare/mermaid-structurizr-eraser/" data-href-zh="/zh/compare/mermaid-structurizr-eraser/" data-i18n="faq.linkCompare">ArchRay vs Mermaid / Structurizr / Eraser</a>
+          <a href="/zh/guides/claude-code-architecture-diagram/" data-href-en="/guides/claude-code-architecture-diagram/" data-href-zh="/zh/guides/claude-code-architecture-diagram/" data-i18n="faq.linkClaude">Claude Code 生成架构图</a>
+          <a href="/zh/guides/cursor-codebase-visualization/" data-href-en="/guides/cursor-codebase-visualization/" data-href-zh="/zh/guides/cursor-codebase-visualization/" data-i18n="faq.linkCursor">Cursor 代码库可视化</a>
+        </nav>
       </div>
     </section>
 
@@ -1246,14 +1376,15 @@
         <strong style="color: var(--ink-strong);">ArchRay</strong> · <span data-i18n="footer.note">MIT 开源项目 · AI 优先的空间架构可视化工具</span>
       </p>
       <div class="footer-links">
-        <a href="https://archray.dev">archray.dev</a>
-        <a href="https://davidyin.dev" target="_blank" rel="noopener noreferrer">davidyin.dev</a>
-        <a href="mailto:hello@archray.dev">hello@archray.dev</a>
-        <a href="mailto:loofare@gmail.com">loofare@gmail.com</a>
+        <a href="/zh/guides/" data-href-en="/guides/" data-href-zh="/zh/guides/" data-i18n="footer.guides">指南与文档</a>
+        <a href="/zh/compare/mermaid-structurizr-eraser/" data-href-en="/compare/mermaid-structurizr-eraser/" data-href-zh="/zh/compare/mermaid-structurizr-eraser/" data-i18n="footer.compare">工具对比</a>
         <a href="#faq" data-i18n="footer.faq">常见问题</a>
         <a href="#privacy" data-i18n="footer.privacy">隐私协议</a>
-        <a href="https://github.com/loofare/ArchRay" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="/llms-zh.txt" data-href-en="/llms.txt" data-href-zh="/llms-zh.txt" data-i18n="footer.llms">llms-zh.txt</a>
         <a href="/demo?locale=zh-CN" data-demo-link target="_blank" rel="noopener noreferrer" data-i18n="footer.demo">全屏沙盒</a>
+        <a href="https://github.com/loofare/ArchRay" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://davidyin.dev" target="_blank" rel="noopener noreferrer">davidyin.dev</a>
+        <a href="mailto:hello@archray.dev">hello@archray.dev</a>
       </div>
     </div>
   </footer>
@@ -1311,6 +1442,6 @@
     </div>
   </dialog>
 
-  <script src="/app.js?v=063"></script>
+  <script src="/app.js?v=064"></script>
 </body>
 </html>

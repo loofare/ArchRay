@@ -1,6 +1,6 @@
 ---
 name: archray
-description: Analyzes a repository's real source into an evidence-backed v2 architecture graph (.archray/graph.json) and builds it into a self-contained interactive HTML view. Use for architecture understanding, dependency review and optional replacement or migration planning, or for updating (including check-only) or uninstalling ArchRay; it does not scan source by itself or monitor runtime.
+description: Analyzes a repository's real source into an evidence-backed v2 architecture graph (.archray/graph.json) and builds it into an offline, interactive 3D/2D single-file HTML architecture diagram. Use for architecture understanding, codebase visualization, system architecture maps, dependency graphs, layer slicing, replacement/migration planning, or updating/uninstalling ArchRay (架构图, 代码可视化, 依赖关系图); it does not scan source by itself or monitor runtime.
 ---
 
 # ArchRay v2 — evidence from your repository

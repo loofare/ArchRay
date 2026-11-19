@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ArchRay vs Mermaid, Structurizr &amp; Eraser (Comparison)</title>
+  <meta name="description" content="Objective comparison of ArchRay vs Mermaid, Structurizr C4 DSL, Eraser DiagramGPT, and Excalidraw across source truth, layout determinism, 3D views, and offline privacy." />
+  <meta name="author" content="David Yin" />
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+  <meta name="theme-color" content="#f9fafb" />
+  <meta property="og:title" content="ArchRay vs Mermaid, Structurizr &amp; Eraser (Comparison)" />
+  <meta property="og:description" content="Objective comparison of ArchRay vs Mermaid, Structurizr C4 DSL, Eraser DiagramGPT, and Excalidraw across source truth, layout determinism, 3D views, and offline privacy." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://archray.dev/compare/mermaid-structurizr-eraser/" />
+  <meta property="og:site_name" content="ArchRay" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:locale:alternate" content="zh_CN" />
+  <meta property="og:image" content="https://archray.dev/share-en.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="ArchRay share card: a 3D architecture X-ray of your codebase" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ArchRay vs Mermaid, Structurizr &amp; Eraser (Comparison)" />
+  <meta name="twitter:description" content="Objective comparison of ArchRay vs Mermaid, Structurizr C4 DSL, Eraser DiagramGPT, and Excalidraw across source truth, layout determinism, 3D views, and offline privacy." />
+  <meta name="twitter:image" content="https://archray.dev/share-en.png" />
+  <meta name="twitter:image:alt" content="ArchRay share card: a 3D architecture X-ray of your codebase" />
+  <link rel="canonical" href="https://archray.dev/compare/mermaid-structurizr-eraser/" />
+  <link rel="alternate" hreflang="en" href="https://archray.dev/compare/mermaid-structurizr-eraser/" />
+  <link rel="alternate" hreflang="zh-CN" href="https://archray.dev/zh/compare/mermaid-structurizr-eraser/" />
+  <link rel="alternate" hreflang="x-default" href="https://archray.dev/compare/mermaid-structurizr-eraser/" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="alternate" type="text/markdown" href="https://archray.dev/llms.txt" hreflang="en" title="LLM summary" />
+  <link rel="alternate" type="text/markdown" href="https://archray.dev/llms-zh.txt" hreflang="zh-CN" title="ArchRay 中文 LLM 完整文档" />
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "@id": "https://archray.dev/compare/mermaid-structurizr-eraser/#article",
+      "url": "https://archray.dev/compare/mermaid-structurizr-eraser/",
+      "headline": "ArchRay vs Mermaid, Structurizr & Eraser",
+      "name": "ArchRay vs Mermaid, Structurizr & Eraser (Comparison)",
+      "description": "Objective comparison of ArchRay vs Mermaid, Structurizr C4 DSL, Eraser DiagramGPT, and Excalidraw across source truth, layout determinism, 3D views, and offline privacy.",
+      "inLanguage": "en",
+      "datePublished": "2026-11-20",
+      "dateModified": "2026-11-20",
+      "author": {
+        "@type": "Person",
+        "@id": "https://archray.dev/#person",
+        "name": "David Yin",
+        "url": "https://davidyin.dev"
+      },
+      "publisher": {
+        "@type": "Person",
+        "@id": "https://archray.dev/#person",
+        "name": "David Yin",
+        "url": "https://davidyin.dev"
+      },
+      "about": {
+        "@type": "SoftwareApplication",
+        "@id": "https://archray.dev/#software",
+        "name": "ArchRay",
+        "url": "https://archray.dev/"
+      },
+      "isPartOf": {
+        "@id": "https://archray.dev/#website"
+      },
+      "mainEntityOfPage": {
+        "@id": "https://archray.dev/compare/mermaid-structurizr-eraser/#webpage"
+      },
+      "image": {
+        "@type": "ImageObject",
+        "url": "https://archray.dev/share-en.png",
+        "width": 1200,
+        "height": 630
+      },
+      "speakable": {
+        "@type": "SpeakableSpecification",
+        "cssSelector": [
+          ".answer-box p",
+          ".guide-faq summary",
+          ".guide-faq p"
+        ]
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://archray.dev/compare/mermaid-structurizr-eraser/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://archray.dev/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Guides",
+          "item": "https://archray.dev/guides/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "ArchRay vs Mermaid, Structurizr & Eraser",
+          "item": "https://archray.dev/compare/mermaid-structurizr-eraser/"
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://archray.dev/compare/mermaid-structurizr-eraser/#faq",
+      "inLanguage": "en",
+      "isPartOf": {
+        "@id": "https://archray.dev/compare/mermaid-structurizr-eraser/#webpage"
+      },
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Can ArchRay replace Mermaid inside Markdown pull requests?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "They serve complementary jobs. Keep Mermaid for tiny inline PR sequence flows, and attach an ArchRay full-canvas PNG export or .archray/index.html artifact when reviewing whole-service architecture, cross-layer dependencies, or migration plans."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does ArchRay support C4-style hierarchical drill-down like Structurizr?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. ArchRay Graph v2 models flat nodes with parent references so complex domains group cleanly, auto-collapse with +N badges at overview zoom, and expand interactively without writing C4 DSL by hand."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why does ArchRay produce both 3D Spatial Atrium and 2D Bento maps?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "3D Spatial Atrium separates Client/Edge, Central Services, Async/AI Left Wing (-X), External SaaS Right Orbit (+X), and Data/Infra Plinth vertically so deep cross-layer paths stand out. Switching to 2D Bento flattens the exact same verified graph into clean print-ready containment boxes."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does ArchRay upload source code to archray.dev or any SaaS server?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Never. Analysis occurs exclusively inside the AI coding session you already authorize. CLI build runs offline and produces a self-contained HTML file that works over file://."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I keep graph.json under version control like code?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Many teams commit .archray/graph.json (and view.json) so architecture changes remain diffable in Git alongside application code, while regenerating .archray/index.html locally."
+          }
+        }
+      ]
+    }
+  ]
+}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Alumni+Sans:wght@200;300;400;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles/tokens.css?v=064" />
+  <link rel="stylesheet" href="/styles/site.css?v=064" />
+  <link rel="stylesheet" href="/styles/guides.css?v=064" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap nav-bar">
+      <a class="brand-mark" href="/" aria-label="ArchRay home">
+        <span class="brand-glyph" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round">
+            <polygon points="12 2 21 7 21 17 12 22 3 17 3 7" />
+            <polyline points="3 7 12 12 21 7" />
+            <line x1="12" y1="12" x2="12" y2="22" />
+          </svg>
+        </span>
+        <span class="brand-name">ArchRay</span>
+      </a>
+
+      <nav class="nav-links" id="primaryNav" aria-label="Primary navigation">
+        <a href="/">Home</a>
+        <a href="/guides/">Guides</a>
+        <a href="/compare/mermaid-structurizr-eraser/" class="is-active">Compare</a>
+        <a href="/demo">Live Demo</a>
+        <a href="/#install">Install</a>
+      </nav>
+
+      <div class="nav-tools">
+        <div class="lang-switch" role="group" aria-label="Language / 语言">
+          <a href="/compare/mermaid-structurizr-eraser/" class="lang-option is-active" aria-current="page" hreflang="en" lang="en">EN</a>
+          <a href="/zh/compare/mermaid-structurizr-eraser/" class="lang-option" hreflang="zh-CN" lang="zh-CN">中文</a>
+        </div>
+        <button type="button" class="pill-ctl" id="themeToggle" aria-label="Switch color theme">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+          </svg>
+          <span class="hide-xs" data-theme-label>Dark</span>
+        </button>
+        <button type="button" class="nav-toggle" id="navToggle" aria-label="Open navigation" aria-expanded="false" aria-controls="primaryNav">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <line x1="4" y1="7" x2="20" y2="7" />
+            <line x1="4" y1="12" x2="20" y2="12" />
+            <line x1="4" y1="17" x2="20" y2="17" />
+          </svg>
+        </button>
+        <a class="pill-ctl nav-github" href="https://github.com/loofare/ArchRay" target="_blank" rel="noopener noreferrer" aria-label="ArchRay GitHub repository">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.11.78-.25.78-.55v-1.93c-3.2.7-3.87-1.54-3.87-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.69 1.25 3.34.95.1-.74.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.68 0-1.25.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.16 1.18a10.9 10.9 0 0 1 5.76 0c2.19-1.49 3.16-1.18 3.16-1.18.62 1.58.23 2.75.11 3.04.74.8 1.18 1.83 1.18 3.08 0 4.41-2.69 5.39-5.25 5.67.41.35.78 1.05.78 2.12v3.14c0 .31.21.67.79.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
+          </svg>
+          <span>GitHub</span>
+          <span class="star-glyph" aria-hidden="true">★</span>
+        </a>
+      </div>
+    </div>
+    <div class="scroll-progress-bar" id="scrollProgressBar" aria-hidden="true"></div>
+  </header>
+
+  <main class="wrap guide-main">
+    <nav class="guide-crumb" aria-label="Breadcrumb"><a href="/">Home</a><span class="guide-crumb-sep" aria-hidden="true">/</span><a href="/guides/">Guides</a><span class="guide-crumb-sep" aria-hidden="true">/</span><span aria-current="page">ArchRay vs Mermaid, Structurizr &amp; Eraser</span></nav>
+    <div class="guide-shell">
+  <article class="guide-article">
+    <h1>ArchRay vs Mermaid, Structurizr &amp; Eraser</h1>
+    <p class="guide-lead">Architectural diagrams only stay useful when they reflect real source code, survive scale beyond 15 nodes, and share without leaking private repository metadata.</p>
+    <div class="guide-meta">
+      <span>ArchRay v0.6.0</span>
+      <span>By David Yin · Updated 2026-11-20</span>
+      <span>MIT Open Source</span>
+    </div>
+    <section class="answer-box" aria-label="Direct answer">
+      <p>Choose ArchRay when you want your AI coding agent (Claude Code, Cursor, Codex, Pi, or Antigravity) to verify real source code and produce an offline, single-file 3D/2D architecture map with file:line citations and ELK port routing. Choose Mermaid for quick README snippets, Structurizr for manually governed formal C4 models, and Excalidraw for freehand whiteboarding.</p>
+    </section>
+    <section id="matrix">
+  <h2>Side-by-Side Architecture Tool Matrix</h2>
+  <p>Different diagramming tools optimize for different parts of the software lifecycle. Generic AI diagram prompts optimize for speed on 4–6 box sketches, whereas ArchRay separates semantic source verification (done by your coding agent) from deterministic geometric layout (done offline by ELK and the ArchRay viewer engine).</p>
+  
+  <div class="table-scroll">
+  <table class="spec-table">
+    <thead><tr><th scope="col">Capability</th><th scope="col">ArchRay (v0.6.0)</th><th scope="col">Mermaid</th><th scope="col">Structurizr DSL</th><th scope="col">Eraser / DiagramGPT</th><th scope="col">Excalidraw / Draw.io</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Source Evidence</th><td class="is-strong">Verified paths &amp; file:line citations in graph.json</td><td>Manual / unverified text</td><td>Manual DSL declarations</td><td>Optional prompt upload / opaque</td><td>Manual shapes</td></tr>
+      <tr><th scope="row">AI Coding Integration</th><td class="is-strong">Native Skill + /archray for 5 AI hosts</td><td>Generic text generation</td><td>External DSL scripting</td><td>Web chat UI / IDE plugin</td><td>Manual or ad-hoc AI plugins</td></tr>
+      <tr><th scope="row">Deterministic Layout</th><td class="is-strong">ELK port routing + 4-quadrant 3D atrium + 2D Bento</td><td>Basic DAG / Sugiyama (tangles at &gt;15 nodes)</td><td>Auto-layout + manual coordinates</td><td>Cloud layout engine</td><td>Manual drag &amp; align</td></tr>
+      <tr><th scope="row">Layer Slicing &amp; Filtering</th><td class="is-strong">L0–L9 single layers + comma combos w/ 1-hop context</td><td>Separate files required</td><td>Explicit view scopes in DSL</td><td>Single flat canvas per diagram</td><td>Separate pages / layers</td></tr>
+      <tr><th scope="row">Tech Logos &amp; Silhouettes</th><td class="is-strong">167 embedded vector logos + semantic 3D shapes</td><td>Generic rectangles</td><td>Custom themes required</td><td>Built-in cloud icon library</td><td>Manual icon packs</td></tr>
+      <tr><th scope="row">Health &amp; Replaceability</th><td class="is-strong">Hotspots, measured vs ≈ estimates, migration prompts</td><td>None</td><td>None</td><td>None</td><td>None</td></tr>
+      <tr><th scope="row">Offline Privacy</th><td class="is-strong">100% local single-file HTML (file://)</td><td>Local via Markdown preview / CLI</td><td>Requires local Docker/Lite server or Cloud</td><td>Requires SaaS server</td><td>Local file or web storage</td></tr>
+      <tr><th scope="row">License &amp; Cost</th><td class="is-strong">MIT Open Source · Free</td><td>MIT Open Source</td><td>Apache 2.0 DSL / paid Cloud tiers</td><td>Freemium SaaS subscription</td><td>Open source / freemium</td></tr>
+    </tbody>
+  </table>
+</div>
+  
+</section>
+<section id="why-raw-mermaid-breaks">
+  <h2>Why Raw LLM Diagrams Collapse Past 15 Nodes</h2>
+  <p>When an LLM writes Mermaid or raw SVG directly for a real multi-service codebase, three structural failures emerge quickly:</p>
+<p>First, LLMs guess missing edges from directory names rather than inspecting imports or route definitions, creating plausible boxes with zero file citations. Second, client UIs, API gateways, async workers, and SQL stores share the same flat plane, producing crossed orthogonal spaghetti lines. Third, regenerating the diagram shuffles node positions completely, breaking visual memory in code reviews.</p>
+  <ul><li>Semantic separation: In ArchRay, the coding agent only outputs schema-validated JSON (.archray/graph.json) containing repository-relative sourcePaths.</li><li>Deterministic layout: ELK computes layered coordinates, port anchors, and auto-collapses dense child packages (+N) without overlaps.</li><li>Auditable provenance: Numeric metrics explicitly carry origin: &quot;measured&quot; vs estimated (≈) markers so teams never mistake AI heuristics for live profiler telemetry.</li></ul>
+  
+  
+</section>
+<section id="when-not-archray">
+  <h2>Honest Trade-Offs: When NOT to Use ArchRay</h2>
+  <p>ArchRay is built specifically for source-backed codebase topology and offline team handoffs—not every diagramming job.</p>
+  <ul><li>Use Mermaid directly when you want a compact 5-step sequence diagram embedded inside a GitHub Pull Request description or Markdown README.</li><li>Use Structurizr when your organization enforces strict C4 Model DSL governance across enterprise workspaces with manually curated System Context diagrams.</li><li>Use Excalidraw or Draw.io when brainstorming unbuilt greenfield ideas where source code does not yet exist.</li><li>Note ArchRay boundaries: ArchRay does not attach a live runtime APM agent, capture production request traces, or run standalone AST parsing without your AI coding session.</li></ul>
+  
+  
+</section>
+<section id="install-switch">
+  <h2>Try ArchRay on Your Own Repository in 30 Seconds</h2>
+  <p>Install ArchRay cleanly into .archray/tool without modifying any application source files, then compare the interactive output directly against your existing diagrams.</p>
+  
+  
+  <div class="code-block">
+  <div class="code-head"><span>Install for Claude Code, Cursor, or all supported hosts</span><button type="button" class="code-copy-btn" data-copy-code>Copy</button></div>
+  <pre><code>curl -fsSL https://github.com/loofare/ArchRay/releases/latest/download/install.sh | sh -s -- . all
+# Inside a fresh coding agent session:
+/archray
+# Or slice specific layers after initial generation:
+./.archray/archray build .archray/graph.json --layers frontend,backend,data --style blueprint --force</code></pre>
+</div>
+</section>
+    <section id="faq">
+  <h2>Frequently Asked Questions</h2>
+  <div class="guide-faq">
+    <details class="faq-item" open>
+  <summary>Can ArchRay replace Mermaid inside Markdown pull requests?</summary>
+  <p>They serve complementary jobs. Keep Mermaid for tiny inline PR sequence flows, and attach an ArchRay full-canvas PNG export or .archray/index.html artifact when reviewing whole-service architecture, cross-layer dependencies, or migration plans.</p>
+</details>
+<details class="faq-item">
+  <summary>Does ArchRay support C4-style hierarchical drill-down like Structurizr?</summary>
+  <p>Yes. ArchRay Graph v2 models flat nodes with parent references so complex domains group cleanly, auto-collapse with +N badges at overview zoom, and expand interactively without writing C4 DSL by hand.</p>
+</details>
+<details class="faq-item">
+  <summary>Why does ArchRay produce both 3D Spatial Atrium and 2D Bento maps?</summary>
+  <p>3D Spatial Atrium separates Client/Edge, Central Services, Async/AI Left Wing (-X), External SaaS Right Orbit (+X), and Data/Infra Plinth vertically so deep cross-layer paths stand out. Switching to 2D Bento flattens the exact same verified graph into clean print-ready containment boxes.</p>
+</details>
+<details class="faq-item">
+  <summary>Does ArchRay upload source code to archray.dev or any SaaS server?</summary>
+  <p>Never. Analysis occurs exclusively inside the AI coding session you already authorize. CLI build runs offline and produces a self-contained HTML file that works over file://.</p>
+</details>
+<details class="faq-item">
+  <summary>Can I keep graph.json under version control like code?</summary>
+  <p>Yes. Many teams commit .archray/graph.json (and view.json) so architecture changes remain diffable in Git alongside application code, while regenerating .archray/index.html locally.</p>
+</details>
+  </div>
+</section>
+    <div class="guide-cta-band">
+  <div>
+    <h2>Try ArchRay on your repository in 30 seconds</h2>
+    <p>100% local CLI and single-file offline HTML across Claude Code, Cursor, Antigravity, Pi, and Codex.</p>
+  </div>
+  <div class="guide-cta-actions">
+    <a class="btn-ink" href="/#install">Install ArchRay <span class="arrow-amber" aria-hidden="true">→</span></a>
+    <a class="btn-outline" href="/demo">Open Live Sandbox</a>
+  </div>
+</div>
+    <section style="margin-top: 44px;">
+  <h2>Related Guides & Reference</h2>
+  <div class="related-list"><a class="related-link" href="/guides/claude-code-architecture-diagram/">
+  <span>Claude Code Architecture Diagram Guide</span>
+  <span>Read guide →</span>
+</a>
+<a class="related-link" href="/guides/cursor-codebase-visualization/">
+  <span>Cursor Codebase Visualization Guide</span>
+  <span>Read guide →</span>
+</a>
+<a class="related-link" href="/guides/offline-codebase-architecture-audit/">
+  <span>Offline Codebase Architecture Audit &amp; Real Benchmarks</span>
+  <span>Read guide →</span>
+</a>
+<a class="related-link" href="/guides/architecture-layers-reference/">
+  <span>L0–L9 Layers, Node Kinds &amp; Graph v2 Reference</span>
+  <span>Read guide →</span>
+</a></div>
+</section>
+  </article>
+  <aside class="guide-toc" aria-label="On this page">
+  <div class="guide-toc-title">On this page</div>
+  <ul><li><a href="#matrix">Side-by-Side Architecture Tool Matrix</a></li><li><a href="#why-raw-mermaid-breaks">Why Raw LLM Diagrams Collapse Past 15 Nodes</a></li><li><a href="#when-not-archray">Honest Trade-Offs: When NOT to Use ArchRay</a></li><li><a href="#install-switch">Try ArchRay on Your Own Repository in 30 Seconds</a></li><li><a href="#faq">FAQ</a></li></ul>
+</aside>
+</div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-row">
+      <p style="font-size: 0.88rem;">
+        <strong style="color: var(--ink-strong);">ArchRay</strong> · MIT Open-Source Project · AI-First Spatial Architecture Visualizer
+      </p>
+      <div class="footer-links">
+        <a href="/">Home</a>
+        <a href="/guides/">Guides</a>
+        <a href="/compare/mermaid-structurizr-eraser/">Compare</a>
+        <a href="/demo">Live Demo</a>
+        <a href="/llms.txt">llms.txt</a>
+        <a href="https://github.com/loofare/ArchRay" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="mailto:hello@archray.dev">hello@archray.dev</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/guides.js?v=064"></script>
+</body>
+</html>

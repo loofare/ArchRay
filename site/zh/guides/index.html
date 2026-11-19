@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ArchRay 指南与对比 — 源码架构图、AI 宿主教程与参考</title>
+  <meta name="description" content="ArchRay v0.6.0 完整中文教程：Claude Code、Cursor、Codex、Pi 与 Antigravity 接入指南，Mermaid/Structurizr 深度对比，十层架构与 CLI 参考。" />
+  <meta name="author" content="David Yin" />
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+  <meta name="theme-color" content="#f9fafb" />
+  <meta property="og:title" content="ArchRay 指南与对比 — 源码架构图、AI 宿主教程与参考" />
+  <meta property="og:description" content="ArchRay v0.6.0 完整中文教程：Claude Code、Cursor、Codex、Pi 与 Antigravity 接入指南，Mermaid/Structurizr 深度对比，十层架构与 CLI 参考。" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://archray.dev/zh/guides/" />
+  <meta property="og:site_name" content="ArchRay" />
+  <meta property="og:locale" content="zh_CN" />
+  <meta property="og:locale:alternate" content="en_US" />
+  <meta property="og:image" content="https://archray.dev/share.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="ArchRay 分享卡：给代码库拍张立体架构透视图" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ArchRay 指南与对比 — 源码架构图、AI 宿主教程与参考" />
+  <meta name="twitter:description" content="ArchRay v0.6.0 完整中文教程：Claude Code、Cursor、Codex、Pi 与 Antigravity 接入指南，Mermaid/Structurizr 深度对比，十层架构与 CLI 参考。" />
+  <meta name="twitter:image" content="https://archray.dev/share.png" />
+  <meta name="twitter:image:alt" content="ArchRay 分享卡：给代码库拍张立体架构透视图" />
+  <link rel="canonical" href="https://archray.dev/zh/guides/" />
+  <link rel="alternate" hreflang="en" href="https://archray.dev/guides/" />
+  <link rel="alternate" hreflang="zh-CN" href="https://archray.dev/zh/guides/" />
+  <link rel="alternate" hreflang="x-default" href="https://archray.dev/guides/" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="alternate" type="text/markdown" href="https://archray.dev/llms.txt" hreflang="en" title="LLM summary" />
+  <link rel="alternate" type="text/markdown" href="https://archray.dev/llms-zh.txt" hreflang="zh-CN" title="ArchRay 中文 LLM 完整文档" />
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "CollectionPage",
+      "@id": "https://archray.dev/zh/guides/#article",
+      "url": "https://archray.dev/zh/guides/",
+      "headline": "ArchRay 中文指南与技术参考",
+      "name": "ArchRay 指南与对比 — 源码架构图、AI 宿主教程与参考",
+      "description": "ArchRay v0.6.0 完整中文教程：Claude Code、Cursor、Codex、Pi 与 Antigravity 接入指南，Mermaid/Structurizr 深度对比，十层架构与 CLI 参考。",
+      "inLanguage": "zh-CN",
+      "datePublished": "2026-11-20",
+      "dateModified": "2026-11-20",
+      "author": {
+        "@type": "Person",
+        "@id": "https://archray.dev/#person",
+        "name": "David Yin",
+        "url": "https://davidyin.dev"
+      },
+      "publisher": {
+        "@type": "Person",
+        "@id": "https://archray.dev/#person",
+        "name": "David Yin",
+        "url": "https://davidyin.dev"
+      },
+      "about": {
+        "@type": "SoftwareApplication",
+        "@id": "https://archray.dev/#software",
+        "name": "ArchRay",
+        "url": "https://archray.dev/"
+      },
+      "isPartOf": {
+        "@id": "https://archray.dev/#website"
+      },
+      "mainEntityOfPage": {
+        "@id": "https://archray.dev/zh/guides/#webpage"
+      },
+      "image": {
+        "@type": "ImageObject",
+        "url": "https://archray.dev/share.png",
+        "width": 1200,
+        "height": 630
+      },
+      "speakable": {
+        "@type": "SpeakableSpecification",
+        "cssSelector": [
+          ".answer-box p",
+          ".guide-faq summary",
+          ".guide-faq p"
+        ]
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://archray.dev/zh/guides/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首页",
+          "item": "https://archray.dev/zh/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "指南",
+          "item": "https://archray.dev/zh/guides/"
+        }
+      ]
+    }
+  ]
+}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Alumni+Sans:wght@200;300;400;600&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles/tokens.css?v=064" />
+  <link rel="stylesheet" href="/styles/site.css?v=064" />
+  <link rel="stylesheet" href="/styles/guides.css?v=064" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap nav-bar">
+      <a class="brand-mark" href="/zh/" aria-label="ArchRay 首页">
+        <span class="brand-glyph" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round">
+            <polygon points="12 2 21 7 21 17 12 22 3 17 3 7" />
+            <polyline points="3 7 12 12 21 7" />
+            <line x1="12" y1="12" x2="12" y2="22" />
+          </svg>
+        </span>
+        <span class="brand-name">ArchRay</span>
+      </a>
+
+      <nav class="nav-links" id="primaryNav" aria-label="主导航">
+        <a href="/zh/">首页</a>
+        <a href="/zh/guides/" class="is-active">指南合集</a>
+        <a href="/zh/compare/mermaid-structurizr-eraser/">工具对比</a>
+        <a href="/demo?locale=zh-CN">实机沙盒</a>
+        <a href="/zh/#install">一键安装</a>
+      </nav>
+
+      <div class="nav-tools">
+        <div class="lang-switch" role="group" aria-label="Language / 语言">
+          <a href="/guides/" class="lang-option" hreflang="en" lang="en">EN</a>
+          <a href="/zh/guides/" class="lang-option is-active" aria-current="page" hreflang="zh-CN" lang="zh-CN">中文</a>
+        </div>
+        <button type="button" class="pill-ctl" id="themeToggle" aria-label="切换深浅主题">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+          </svg>
+          <span class="hide-xs" data-theme-label>深色</span>
+        </button>
+        <button type="button" class="nav-toggle" id="navToggle" aria-label="打开导航" aria-expanded="false" aria-controls="primaryNav">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <line x1="4" y1="7" x2="20" y2="7" />
+            <line x1="4" y1="12" x2="20" y2="12" />
+            <line x1="4" y1="17" x2="20" y2="17" />
+          </svg>
+        </button>
+        <a class="pill-ctl nav-github" href="https://github.com/loofare/ArchRay" target="_blank" rel="noopener noreferrer" aria-label="ArchRay GitHub repository">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.11.78-.25.78-.55v-1.93c-3.2.7-3.87-1.54-3.87-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.69 1.25 3.34.95.1-.74.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.68 0-1.25.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.16 1.18a10.9 10.9 0 0 1 5.76 0c2.19-1.49 3.16-1.18 3.16-1.18.62 1.58.23 2.75.11 3.04.74.8 1.18 1.83 1.18 3.08 0 4.41-2.69 5.39-5.25 5.67.41.35.78 1.05.78 2.12v3.14c0 .31.21.67.79.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
+          </svg>
+          <span>GitHub</span>
+          <span class="star-glyph" aria-hidden="true">★</span>
+        </a>
+      </div>
+    </div>
+    <div class="scroll-progress-bar" id="scrollProgressBar" aria-hidden="true"></div>
+  </header>
+
+  <main class="wrap guide-main">
+    <nav class="guide-crumb" aria-label="面包屑导航"><a href="/zh/">首页</a><span class="guide-crumb-sep" aria-hidden="true">/</span><span aria-current="page">指南</span></nav>
+    <div class="guide-shell is-hub">
+  <article class="guide-article">
+    <h1>ArchRay 中文指南与技术参考</h1>
+    <p class="guide-lead">将真实仓库源码转化为可分层、可交互、100% 离线分享的 3D 与 2D 空间架构图——涵盖五大 AI 编程助手集成、选型对比与基准实测。</p>
+    <div class="guide-meta">
+      <span>ArchRay v0.6.0</span>
+      <span>更新于 2026-11-20</span>
+      <span><a href="/demo?locale=zh-CN">打开 3D 沙盒 ↗</a></span>
+    </div>
+    <section class="answer-box" aria-label="核心概要">
+      <p>本专栏汇总 ArchRay v0.6.0 已验证的真实安装命令、宿主配置文件路径、L0–L9 分层规范与大型 Monorepo 实测数据。你可以按需查阅 Claude Code / Cursor / Codex 接入教程，或查看 ArchRay 与 Mermaid、Structurizr、Eraser 的客观选型对比。</p>
+    </section>
+    <section class="hub-section">
+  <h2>选型对比与离线架构审计</h2>
+  <ul class="hub-list" style="list-style:none;margin:0;padding:0;">
+    <li class="hub-row">
+  <a class="hub-row-link" href="/zh/compare/mermaid-structurizr-eraser/">
+    <div>
+      <span class="hub-row-title">ArchRay 对比 Mermaid、Structurizr、Eraser 与 Excalidraw</span>
+      <span class="hub-row-desc">从源码真实性、确定性排版、3D/2D 视图、文件行号证据到零上传离线交付的 10 项全维度对比矩阵。</span>
+    </div>
+    <span class="hub-row-arrow" aria-hidden="true">阅读 →</span>
+  </a>
+</li>
+<li class="hub-row">
+  <a class="hub-row-link" href="/zh/guides/offline-codebase-architecture-audit/">
+    <div>
+      <span class="hub-row-title">大型 Monorepo 离线架构审计与编码安全实践</span>
+      <span class="hub-row-desc">实测 calcom/cal.com（7,712 文件 / 196ms ELK 布局）、实测值与 ≈ 估算边界，以及 v0.6.0 Windows 中文无乱码保障。</span>
+    </div>
+    <span class="hub-row-arrow" aria-hidden="true">阅读 →</span>
+  </a>
+</li>
+  </ul>
+</section>
+<section class="hub-section">
+  <h2>AI 编程助手集成教程</h2>
+  <ul class="hub-list" style="list-style:none;margin:0;padding:0;">
+    <li class="hub-row">
+  <a class="hub-row-link" href="/zh/guides/claude-code-architecture-diagram/">
+    <div>
+      <span class="hub-row-title">Claude Code 生成 3D 架构图实战（/archray）</span>
+      <span class="hub-row-desc">一键安装到 .claude/skills 与 .claude/commands，使用分层切片与跨端组合深入理解陌生仓库。</span>
+    </div>
+    <span class="hub-row-arrow" aria-hidden="true">阅读 →</span>
+  </a>
+</li>
+<li class="hub-row">
+  <a class="hub-row-link" href="/zh/guides/cursor-codebase-visualization/">
+    <div>
+      <span class="hub-row-title">Cursor 代码库空间可视化指南</span>
+      <span class="hub-row-desc">配置 .cursor/rules/archray.mdc 与快捷指令，在本地秒级生成可旋转、可排查热点的交互式架构图。</span>
+    </div>
+    <span class="hub-row-arrow" aria-hidden="true">阅读 →</span>
+  </a>
+</li>
+<li class="hub-row">
+  <a class="hub-row-link" href="/zh/guides/codex-pi-antigravity/">
+    <div>
+      <span class="hub-row-title">Codex、Pi 与 Antigravity 多宿主协同指南</span>
+      <span class="hub-row-desc">适配 Codex 的 $archray 技能触发、Pi 提示模板及多助手 --agent all 团队统一部署方案。</span>
+    </div>
+    <span class="hub-row-arrow" aria-hidden="true">阅读 →</span>
+  </a>
+</li>
+  </ul>
+</section>
+<section class="hub-section">
+  <h2>规范与参考手册</h2>
+  <ul class="hub-list" style="list-style:none;margin:0;padding:0;">
+    <li class="hub-row">
+  <a class="hub-row-link" href="/zh/guides/architecture-layers-reference/">
+    <div>
+      <span class="hub-row-title">L0–L9 十层架构、19 种节点类型与 Graph v2 参考</span>
+      <span class="hub-row-desc">完整查阅 10 个规范架构层、中英文斜杠别名、14 种协议、4 套视觉主题与全部 CLI 参数。</span>
+    </div>
+    <span class="hub-row-arrow" aria-hidden="true">阅读 →</span>
+  </a>
+</li>
+  </ul>
+</section>
+  </article>
+</div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-row">
+      <p style="font-size: 0.88rem;">
+        <strong style="color: var(--ink-strong);">ArchRay</strong> · MIT 开源项目 · AI 优先的空间架构可视化工具
+      </p>
+      <div class="footer-links">
+        <a href="/zh/">首页</a>
+        <a href="/zh/guides/">指南合集</a>
+        <a href="/zh/compare/mermaid-structurizr-eraser/">工具对比</a>
+        <a href="/demo?locale=zh-CN">全屏沙盒</a>
+        <a href="/llms-zh.txt">llms-zh.txt</a>
+        <a href="https://github.com/loofare/ArchRay" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="mailto:hello@archray.dev">hello@archray.dev</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/guides.js?v=064"></script>
+</body>
+</html>

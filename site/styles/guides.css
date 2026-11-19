@@ -1,0 +1,508 @@
+/* ==========================================================================
+   ArchRay Editorial Guides, Comparisons & Technical Reference Stylesheet
+   Inherits palette and header/footer grammar from tokens.css + site.css
+   ========================================================================== */
+
+::selection {
+  background: color-mix(in oklab, var(--amber) 34%, transparent);
+  color: var(--ink-strong);
+}
+
+.guide-main {
+  padding-top: 44px;
+  padding-bottom: 88px;
+}
+
+/* Breadcrumb trail — clean navigation, not an eyebrow */
+.guide-crumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+  margin-bottom: 20px;
+}
+
+.guide-crumb a {
+  text-decoration: none;
+  color: var(--ink-muted);
+  border-bottom: 1px solid transparent;
+  transition: color 0.16s var(--ease-out), border-color 0.16s var(--ease-out);
+}
+
+.guide-crumb a:hover {
+  color: var(--ink-strong);
+  border-color: var(--line-strong);
+}
+
+.guide-crumb-sep {
+  color: var(--ink-faint);
+  user-select: none;
+}
+
+/* Layout shell: readable article column + optional sticky outline on wide screens */
+.guide-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 860px) minmax(0, 220px);
+  justify-content: space-between;
+  align-items: start;
+  gap: 44px;
+}
+
+.guide-shell.is-hub {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 960px;
+}
+
+.guide-article {
+  min-width: 0;
+}
+
+/* Editorial typography overrides scoped cleanly inside .guide-main */
+.guide-main h1 {
+  font-size: clamp(2.25rem, 4vw, 3.2rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  max-width: 24ch;
+}
+
+html[lang="zh-CN"] .guide-main h1 {
+  font-size: clamp(1.9rem, 3.3vw, 2.6rem);
+  line-height: 1.24;
+}
+
+.guide-lead {
+  margin-top: 16px;
+  font-size: 1.08rem;
+  line-height: 1.7;
+  color: var(--ink);
+  max-width: 64ch;
+}
+
+.guide-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+  margin-top: 16px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.82rem;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.guide-main h2 {
+  font-size: clamp(1.55rem, 2.6vw, 2.05rem);
+  line-height: 1.18;
+  margin-top: 44px;
+  margin-bottom: 14px;
+}
+
+html[lang="zh-CN"] .guide-main h2 {
+  font-size: clamp(1.38rem, 2.2vw, 1.72rem);
+  line-height: 1.3;
+}
+
+.guide-main h3 {
+  font-size: 1.12rem;
+  font-weight: 600;
+  margin-top: 28px;
+  margin-bottom: 10px;
+}
+
+.guide-article p + p,
+.guide-article ul + p,
+.guide-article ol + p {
+  margin-top: 14px;
+}
+
+.guide-article p,
+.guide-article li:not(.hub-row) {
+  max-width: 68ch;
+  color: var(--ink);
+  line-height: 1.72;
+}
+
+.guide-article ul,
+.guide-article ol {
+  margin: 12px 0 18px;
+  padding-left: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.guide-article a:not(.btn-ink):not(.btn-outline):not(.hub-row-link):not(.related-link) {
+  color: var(--ink-strong);
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1.5px;
+  transition: text-decoration-color 0.16s var(--ease-out);
+}
+
+.guide-article a:not(.btn-ink):not(.btn-outline):not(.hub-row-link):not(.related-link):hover {
+  text-decoration-color: var(--ink-strong);
+}
+
+.guide-article code:not(pre code) {
+  font-family: var(--font-mono);
+  font-size: 0.87em;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+  color: var(--ink-strong);
+}
+
+/* GEO Direct-Answer Summary Block — uniform 1px hairline border (no thick accent bar) */
+.answer-box {
+  margin-top: 26px;
+  margin-bottom: 8px;
+  padding: 20px 24px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  box-shadow: 0 2px 10px oklch(0% 0 0 / 0.03);
+}
+
+.answer-box p {
+  margin: 0;
+  max-width: 68ch;
+  color: var(--ink-strong);
+  line-height: 1.68;
+}
+
+/* Copyable Terminal Code Blocks */
+.code-block {
+  margin: 18px 0 22px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line-dark);
+  background: var(--surface-terminal);
+  color: var(--ink-on-dark);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 14px;
+  background: var(--surface-terminal-bar);
+  border-bottom: 1px solid var(--line-dark);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--ink-on-dark-muted);
+}
+
+.code-copy-btn {
+  border: 1px solid var(--line-dark);
+  background: transparent;
+  color: var(--ink-on-dark);
+  border-radius: var(--r-xs);
+  padding: 3px 10px;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.16s var(--ease-out), background-color 0.16s var(--ease-out);
+}
+
+.code-copy-btn:hover {
+  border-color: var(--amber-border);
+  background: oklch(24% 0.01 260);
+}
+
+.code-block pre {
+  margin: 0;
+  padding: 16px 18px;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.86rem;
+  line-height: 1.62;
+  color: var(--ink-on-dark);
+  scrollbar-width: thin;
+}
+
+.code-block pre code {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+}
+
+/* Structured High-Contrast Comparison & Reference Tables */
+.table-scroll {
+  margin: 18px 0 26px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.spec-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-top: 1px solid var(--line-strong);
+  border-bottom: 1px solid var(--line-strong);
+  background: var(--surface);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+}
+
+.spec-table th,
+.spec-table td {
+  padding: 12px 15px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line);
+}
+
+.spec-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.spec-table thead th {
+  background: var(--bg-subtle);
+  color: var(--ink-strong);
+  font-weight: 600;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.spec-table tbody th {
+  color: var(--ink-strong);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.spec-table td {
+  color: var(--ink);
+}
+
+.spec-table td.is-strong {
+  color: var(--ink-strong);
+  font-weight: 600;
+}
+
+/* Sticky Outline Rail on Wide Desktop */
+.guide-toc {
+  position: sticky;
+  top: 88px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+}
+
+.guide-toc-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ink-strong);
+  margin-bottom: 10px;
+}
+
+.guide-toc ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.guide-toc a {
+  display: block;
+  font-size: 0.83rem;
+  line-height: 1.4;
+  color: var(--ink-muted);
+  text-decoration: none;
+  transition: color 0.16s var(--ease-out);
+}
+
+.guide-toc a:hover {
+  color: var(--ink-strong);
+}
+
+/* FAQ Accordion inside Articles (mirrors homepage crisp details grammar) */
+.guide-faq {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.guide-faq .faq-item p {
+  margin-top: 10px;
+  font-size: 0.93rem;
+  color: var(--ink-muted);
+}
+
+/* Guides Hub Editorial Index Ledger (typographic hairline list, zero uniform icon cards) */
+.hub-section {
+  margin-top: 42px;
+}
+
+.hub-section h2 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 1.5rem;
+}
+
+.hub-list {
+  border-top: 1px solid var(--line);
+}
+
+.hub-row {
+  border-bottom: 1px solid var(--line);
+}
+
+.hub-row-link {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 24px;
+  align-items: center;
+  padding: 20px 6px;
+  text-decoration: none;
+  transition: background-color 0.16s var(--ease-out);
+}
+
+.hub-row-link:hover {
+  background: var(--bg-subtle);
+}
+
+.hub-row-title {
+  font-size: 1.12rem;
+  font-weight: 600;
+  color: var(--ink-strong);
+  display: block;
+}
+
+.hub-row-desc {
+  margin-top: 5px;
+  font-size: 0.93rem;
+  line-height: 1.55;
+  color: var(--ink-muted);
+  max-width: 64ch;
+  display: block;
+}
+
+.hub-row-arrow {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--ink-strong);
+  white-space: nowrap;
+}
+
+/* Related Guides & Conversion Strip */
+.guide-cta-band {
+  margin-top: 48px;
+  padding: 26px 28px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.guide-cta-band h2 {
+  margin: 0 0 6px;
+  font-size: 1.55rem;
+}
+
+.guide-cta-band p {
+  margin: 0;
+  color: var(--ink-muted);
+  max-width: 52ch;
+}
+
+.guide-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.related-list {
+  margin-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.related-link {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 13px 4px;
+  border-bottom: 1px solid var(--line);
+  text-decoration: none;
+  color: var(--ink-strong);
+  font-weight: 500;
+  transition: color 0.16s var(--ease-out);
+}
+
+.related-link:hover {
+  color: var(--emerald-text);
+}
+
+.related-link span:last-child {
+  font-size: 0.84rem;
+  color: var(--ink-muted);
+  font-weight: 400;
+}
+
+/* Branded 404 Page */
+.error-stage {
+  padding-top: 72px;
+  padding-bottom: 96px;
+  max-width: 720px;
+}
+
+.error-code {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--emerald-text);
+  margin-bottom: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.error-links {
+  margin-top: 28px;
+  border-top: 1px solid var(--line);
+}
+
+@media (max-width: 1080px) {
+  .guide-shell {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+  .guide-toc {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .guide-main {
+    padding-top: 28px;
+    padding-bottom: 64px;
+  }
+  .answer-box,
+  .guide-cta-band {
+    padding: 18px 18px;
+  }
+  .hub-row-link {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .related-link {
+    flex-direction: column;
+    gap: 4px;
+  }
+}

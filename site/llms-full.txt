@@ -1,56 +1,151 @@
-# ArchRay — full context for generative engines
+# ArchRay — Full Technical Context for Generative Engines
 
-ArchRay is an AI-first architecture visualiser. It installs into a repository, then an AI coding assistant uses the `/archray` skill to read real source and record semantic architecture facts. ArchRay validates those facts and renders a layered, interactive, offline 3D/2D single-file HTML map.
+ArchRay (https://archray.dev/) is an open-source (MIT) AI-first software architecture visualiser created by David Yin (https://davidyin.dev). When installed into any source repository, an AI coding assistant inspects real source code and writes semantic facts into `.archray/graph.json` (schema v2). ArchRay's deterministic TypeScript + ELK engine then validates the graph and builds a zero-dependency, offline, single-file interactive `.archray/index.html` supporting 3D Spatial Atrium, Isometric Flat, and 2D Bento views.
 
-## Stable facts
+---
 
-- Name: ArchRay
-- License: MIT
-- Public release: v0.6.0
-- Website: https://archray.dev/
-- Repository: https://github.com/loofare/ArchRay
-- Author: David Yin
-- Category: developer tool / architecture visualization
-- Runtime: single-file HTML, no ArchRay server required
-- Input: `.archray/graph.json` (schema v2, no coordinates)
-- Output: `.archray/index.html`
-- Hosts: Claude Code, Cursor, Antigravity, Pi, Codex
-- Update: `.archray/archray update` (v0.5.0+) or one-time bootstrap for older versions
+## 1. Canonical Entity Facts
 
-## What problem it solves
+- **Name**: ArchRay
+- **Current Release**: v0.6.0
+- **License**: MIT Open Source
+- **Author**: David Yin (`hello@archray.dev`, `https://davidyin.dev`)
+- **Official Website**: https://archray.dev/ (English default) · https://archray.dev/zh/ (Simplified Chinese)
+- **Live Sandbox**: https://archray.dev/demo
+- **GitHub Repository**: https://github.com/loofare/ArchRay
+- **Latest Release**: https://github.com/loofare/ArchRay/releases/latest
+- **Runtime Requirement**: Node.js 20+ (`curl` and `tar` for bootstrap; Windows supported via Git Bash/WSL and emits `.archray\archray.cmd`)
+- **Input File**: `.archray/graph.json` (Graph Schema v2, semantic facts only, UTF-8 without BOM)
+- **Output Artifact**: `.archray/index.html` (100% offline single-file HTML working over `file://`)
 
-Generic AI diagramming often produces boxes and lines that look plausible but have no source evidence, no stable layout, and no offline artifact. ArchRay separates:
+---
 
-1. semantic facts and source evidence (AI);
-2. deterministic layout and projection (engine);
-3. view state such as layers, theme, language, lens and camera (viewer).
+## 2. How ArchRay Differs From Other Diagramming Tools (Mermaid, Structurizr, Eraser, Excalidraw)
 
-This makes the result reproducible, inspectable and shareable without a hosted service.
+Unlike generic AI diagram prompts that ask an LLM to emit Mermaid syntax or raw SVG coordinates directly, ArchRay strictly separates **semantic source extraction** (done by the coding agent) from **deterministic layout and projection** (done locally by ELK and the ArchRay viewer).
 
-## FAQ
+| Capability | ArchRay (v0.6.0) | Mermaid | Structurizr DSL | Eraser / DiagramGPT | Excalidraw / Draw.io |
+|---|---|---|---|---|---|
+| **Source Evidence** | Required `sourcePaths` & `file:line` context | None / prose only | Manual C4 DSL | Prompt / cloud heuristics | Manual shapes |
+| **Coding Agent Integration** | Native Skill & slash commands for 5 hosts | Plain text output | External scripting | Web SaaS / IDE extension | Manual / third-party |
+| **Scale Stability (>15 nodes)** | ELK deterministic routing + 4-quadrant 3D + `+N` child collapse | Flat DAG tangles quickly | Auto-layout + manual | Cloud engine | Manual alignment |
+| **Layer Filtering** | Interactive L0-L9 slices & comma combos w/ 1-hop context | Separate code blocks | DSL view definitions | Separate boards | Separate pages |
+| **Embedded Icons** | 167 offline vector brand logos + 3D shapes | Flat boxes | Custom icon themes | Cloud icon library | Downloaded packs |
+| **Diagnostics** | Health hotspots, measured vs `≈` provenance, replaceability prompts | None | None | None | None |
+| **Offline Privacy** | 100% local single-file HTML (`file://`) | Markdown / CLI | Requires local server or Cloud | Cloud SaaS server | Local save / Cloud |
+| **License & Pricing** | MIT Open Source (Free) | MIT Open Source | Apache 2.0 DSL / paid Cloud | Freemium SaaS | MIT / Freemium |
 
-### What is ArchRay?
-An AI-first architecture visualiser that turns real repository source evidence into layered, interactive, offline 3D/2D single-file HTML maps.
+**When NOT to choose ArchRay**:
+- Quick 5-step sequence diagrams embedded inline inside PR comments -> use Mermaid.
+- Strict manual enterprise C4 model governance -> use Structurizr DSL.
+- Freehand brainstorming before any source code exists -> use Excalidraw.
+- Live runtime telemetry / distributed request tracing -> use OpenTelemetry, Prometheus, Datadog, or Grafana. ArchRay inspects static repository source, not live production traffic.
 
-### Does it upload my source?
-No. Analysis runs in the AI assistant session the user authorizes, and artifacts stay locally in `.archray`. Only an explicit update contacts GitHub Releases to read the release manifest and verify the archive.
+---
 
-### Which AI hosts are supported?
-Claude Code, Cursor, Antigravity, Pi and Codex. Claude/Cursor/Pi use `/archray`; Codex uses `$archray` or `/skills`.
+## 3. Supported AI Coding Hosts (5 Hosts)
 
-### How do I install and update?
-Install with the bootstrap `install.sh` in the target repository root. Update with `./.archray/archray update --check` then `update`. Versions before v0.5.0 need one bootstrap upgrade.
+Install into a target repository root via:
 
-### How is it different from a generic AI diagram?
-The AI records evidence and semantics; a deterministic engine computes layout and 3D/2D projections. The result is traceable, reproducible, offline and layered rather than a one-off image.
+```sh
+curl -fsSL https://github.com/loofare/ArchRay/releases/latest/download/install.sh | sh -s -- . <host>
+```
 
-### What are the limits?
-The graph is based on source or user description and needs review; it is not runtime monitoring. Health and replaceability are input-graph judgements. AI host integration and cross-platform installers have documented verification boundaries. See https://archray.dev/ and the repository docs.
+| Host | `--agent` Flag | Primary Session Trigger | Host Adapter Paths Written |
+|---|---|---|---|
+| **Claude Code** | `claude` | `/archray`, `/archray:frontend`, `/archray:backend`, `/archray:data`, `/archray:network`, `/archray:security`, `/archray:full` | `.claude/skills/archray/`, `.claude/commands/` |
+| **Cursor** | `cursor` | `/archray`, `/archray-frontend`, `/archray-backend`, `/archray-data` | `.cursor/rules/archray.mdc`, `.cursor/commands/` |
+| **Antigravity** | `antigravity` | `/archray` or Skill trigger | `.agent/skills/archray/`, `.agent/commands/` |
+| **Pi** | `pi` | `/archray`, `/archray-frontend`, `/skill:archray` | `.agents/skills/archray/`, `.pi/prompts/` |
+| **Codex** | `codex` | `$archray` or `/skills` | `.agents/skills/archray/SKILL.md` |
 
-## Links
+Comma-separated lists (`claude,cursor`) and `all` are supported. All CLI assets and viewer bundles reside cleanly inside `.archray/tool` without modifying application source code.
 
-- Home (English, default): https://archray.dev/
-- Home (Chinese): https://archray.dev/zh/
-- Sandbox: https://archray.dev/demo
-- Release: https://github.com/loofare/ArchRay/releases/latest
-- Source: https://github.com/loofare/ArchRay
+---
+
+## 4. Architecture Taxonomy: L0-L9 Layers, Node Kinds & Protocols
+
+### 10 Canonical Layers (L0-L9)
+1. **L0 `client`** (aliases: `frontend`, `client`, `前端`, `客户端`) — Top Atrium · Tilted Screen Slab (Next.js, Vue 3, React Native, Electron)
+2. **L1 `edge`** (aliases: `network`, `edge`, `网络`, `边缘`) — Upper Ingress Buffer · Wide Slab (Cloudflare, Nginx, Envoy, Traefik)
+3. **L2 `gateway`** (aliases: `security`, `gateway`, `网关`, `鉴权`) — Auth Hub · Gateway Prism (Kong, Better Auth, Clerk, Keycloak)
+4. **L3 `service`** (aliases: `service`, `backend`, `后端`, `服务`) — Central Spine · Rounded Service Slab (NestJS, FastAPI, Spring Boot, Go)
+5. **L4 `async`** (aliases: `async`, `worker`, `异步`, `队列`) — Left Wing (-X) · Capsule Worker (Kafka, BullMQ, Socket.IO, Celery)
+6. **L5 `data`** (aliases: `data`, `db`, `数据`, `存储`) — Storage Plinth · Segmented Cylinder (PostgreSQL, Redis, Elasticsearch, S3)
+7. **L6 `ai`** (aliases: `ai`, `model`, `AI`, `智能`) — AI Wing (-X) · Inference Core (Gemini, Claude, Qdrant, pgvector)
+8. **L7 `external`** (aliases: `external`, `saas`, `外部`, `三方`) — Right Orbit (+X) · Dashed Satellite (Stripe, Resend, Twilio, OAuth SaaS)
+9. **L8 `platform`** (aliases: `platform`, `infra`, `平台`, `运维`) — Infra Base · Foundation Plate (Docker, Kubernetes, Terraform, GitHub Actions)
+10. **L9 `observability`** (aliases: `observability`, `obs`, `可观测`, `监控`) — Telemetry Base Plane (OpenTelemetry, Prometheus, Grafana, Sentry)
+
+### 19 Known Node Kinds
+`client`, `cli`, `gateway`, `service`, `worker`, `function`, `library`, `module`, `database`, `cache`, `queue`, `storage`, `search`, `external-api`, `ai-model`, `config`, `group`, `saas`, `archive` (open string also allowed).
+
+### 14 Known Protocols
+`http`, `grpc`, `graphql`, `ws`, `sse`, `amqp`, `kafka`, `sql`, `redis`, `ipc`, `import`, `fs`, `llm`, `event`.
+
+### Visual Modes, Themes, Knowledge & Export Features
+- **Projections**: 3D Spatial Atrium, Isometric Flat, 2D Bento Map.
+- **Lenses**: Topology, Health Hotspots (separating `measured` vs `estimated` `≈` provenance), Replaceability (effort/risk comparison & copyable AI migration prompts).
+- **Styles (`--style`)**: `tech`, `blueprint`, `glass`, `paper`.
+- **Motion (`--motion`)**: `full`, `calm`, `off`.
+- **Icons & Hints**: 212 technology hints in `knowledge/tech.json` + 167 offline embedded SVG brand logos.
+- **Exports**: Unclipped full-canvas world-bounds PNG export, offline QR share poster, and `view.json` camera/filter state import/export.
+
+---
+
+## 5. Verified Engineering Benchmarks
+
+- **calcom/cal.com** (commit `ae027bb`): `7,712` tracked files mapped into `33` architectural modules, `75` directed edges, and `7` layers; Node-side ELK `computeLayout` completed in `196ms` with auto-collapsed `+N` subpackages and zero label overlaps.
+- **FreshMart Commerce** (`examples/freshmart.graph.json`, powering https://archray.dev/demo): `16` modules, `19` edges, `5` layers (`client`, `edge`, `service`, `async`, `data`), `1` Checkout flow (6 steps), and `1` Passport -> Clerk replaceability scenario.
+- **Next.js SaaS Starter & RealWorld**: `43–49` source files built in `0.03s`, catching `JWT_SECRET` fallback configuration risks and Prisma/Stripe/App Router links.
+
+---
+
+## 6. CLI Reference & v0.6.0 Reliability Guarantees
+
+```sh
+./.archray/archray doctor
+./.archray/archray validate .archray/graph.json
+./.archray/archray build .archray/graph.json --layers frontend,data --style blueprint --force --no-open
+./.archray/archray update --check
+./.archray/archray update
+./.archray/archray uninstall --dry-run
+./.archray/archray uninstall
+./.archray/archray uninstall --purge
+```
+
+**v0.6.0 Key Improvements**:
+- Strict **UTF-8 without BOM** enforcement for `.archray/graph.json`, lone `?` / `U+FFFD` replacement character corruption detection inside `validate`, and GB18030 / UTF-16 input decoding support (eliminating Windows CJK `???` corruption).
+- Smooth curved SVG edge routing across 3D/Isometric/2D modes matching the web sandbox geometry cleanly.
+- Improved 3D node-label occlusion/perspective sorting and wide-layer 2D Bento adaptive reflow.
+
+---
+
+## 7. Frequently Asked Questions
+
+1. **What is ArchRay?** — An AI-first architecture visualiser turning real source code into offline, layered 3D/2D single-file HTML maps with `file:line` citations.
+2. **Does it upload my source code?** — No. Source reading stays inside your own authorized coding-agent session; CLI builds offline and emits local `.archray/index.html`.
+3. **Which AI coding assistants work with ArchRay?** — Claude Code, Cursor, Antigravity, Pi, and Codex.
+4. **How do I slice layers without paying extra LLM tokens?** — Generate `.archray/graph.json` once with `/archray`, then run `/archray:frontend`, `/archray backend,data`, or `./.archray/archray build --layers ...`.
+5. **Can Windows users generate Chinese architecture diagrams cleanly?** — Yes. From v0.6.0, ArchRay validates UTF-8 integrity, decodes GB18030/UTF-16 inputs, and instructs agents to write UTF-8 directly instead of PowerShell ANSI redirection.
+6. **Does `update` overwrite existing maps?** — No. Updates use SHA-256 verification and keep `.archray/graph.json`, `view.json`, and `.archray/index.html`.
+7. **Does it support bilingual Chinese & English toggle inside the viewer?** — Yes. Declaring `meta.locales: ["zh-CN", "en"]` with localized strings lets viewers toggle `中 / EN` live inside `.archray/index.html`.
+8. **Is ArchRay a runtime tracer?** — No. It analyzes static repository evidence, not live production traffic.
+9. **Can I export architecture images without cropping wide monorepos?** — Yes. ArchRay re-projects the full world bounding box into an unclipped PNG and offers an offline QR share poster.
+10. **How do I uninstall cleanly?** — Run `./.archray/archray uninstall` to remove adapters while keeping maps, or add `--purge` to delete `.archray/`.
+
+---
+
+## 8. Guides & URLs
+
+- Homepage (EN): https://archray.dev/
+- Homepage (ZH): https://archray.dev/zh/
+- Live 3D Sandbox: https://archray.dev/demo
+- Guides Hub: https://archray.dev/guides/
+- ArchRay vs Mermaid, Structurizr & Eraser: https://archray.dev/compare/mermaid-structurizr-eraser/
+- Claude Code Guide: https://archray.dev/guides/claude-code-architecture-diagram/
+- Cursor Guide: https://archray.dev/guides/cursor-codebase-visualization/
+- Codex, Pi & Antigravity Guide: https://archray.dev/guides/codex-pi-antigravity/
+- Offline Audit & Benchmarks: https://archray.dev/guides/offline-codebase-architecture-audit/
+- Canonical Layers & CLI Reference: https://archray.dev/guides/architecture-layers-reference/
+- Chinese Full LLM Context: https://archray.dev/llms-zh.txt
