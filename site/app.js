@@ -705,7 +705,8 @@
   };
 
   const initialLang = new URLSearchParams(location.search).get('lang');
-  let lang = initialLang === 'en' ? 'en' : 'zh-CN';
+  const pathIsEnglish = /^\/en(?:\/|$)/.test(location.pathname);
+  let lang = pathIsEnglish || initialLang === 'en' ? 'en' : 'zh-CN';
   let theme = 'light';
   let detectorResolved = false;
   let activePreset = 'all';
@@ -1138,7 +1139,7 @@
       params.set('proj', '3d');
       params.set('mode', 'topology');
     }
-    frame.src = './demo.html?' + params.toString();
+    frame.src = '/demo.html?' + params.toString();
   }
 
   /* ---- Host Installer (Install Section Selector; Hero stays on `. all`) ---- */
@@ -1181,10 +1182,11 @@
     document.documentElement.setAttribute('data-theme', theme);
     document.title = t('page.title');
     const isEnglish = lang === 'en';
+    const canonicalUrl = isEnglish ? 'https://archray.dev/en/' : 'https://archray.dev/';
     const canonical = document.querySelector('link[rel="canonical"]');
-    if (canonical) canonical.setAttribute('href', isEnglish ? 'https://archray.dev/?lang=en' : 'https://archray.dev/');
+    if (canonical) canonical.setAttribute('href', canonicalUrl);
     const ogUrl = document.querySelector('meta[property="og:url"]');
-    if (ogUrl) ogUrl.setAttribute('content', isEnglish ? 'https://archray.dev/?lang=en' : 'https://archray.dev/');
+    if (ogUrl) ogUrl.setAttribute('content', canonicalUrl);
     const ogLocale = document.querySelector('meta[property="og:locale"]');
     if (ogLocale) ogLocale.setAttribute('content', isEnglish ? 'en_US' : 'zh_CN');
     const ogLocaleAlt = document.querySelector('meta[property="og:locale:alternate"]');
@@ -1252,9 +1254,8 @@
     const langBtn = document.getElementById('langToggle');
     if (langBtn) {
       langBtn.addEventListener('click', () => {
-        lang = lang === 'zh-CN' ? 'en' : 'zh-CN';
-        applyAll();
-        updateDemoIframe();
+        const target = lang === 'en' ? '/' : '/en/';
+        window.location.assign(target + window.location.hash);
       });
     }
 
@@ -1389,6 +1390,7 @@
     }
 
     applyAll();
+    updateDemoIframe();
     initScrollImmersion();
   }
 
@@ -1398,7 +1400,7 @@
     const frame = document.querySelector('.artifact-frame-outer');
     const navLinks = Array.from(document.querySelectorAll('.nav-links a'));
     const navDot = document.querySelector('.nav-links .nav-dot');
-    const sectionIds = ['console', 'detector', 'live', 'principles', 'install', 'privacy'];
+    const sectionIds = ['live', 'console', 'detector', 'principles', 'install', 'privacy'];
 
     const cards = Array.from(document.querySelectorAll(
       '.proof-card, .studio-console, .specimen-cell, .action-window, .real-repo-card, .ledger-pane, .install-card, .policy-card, .creator-card'

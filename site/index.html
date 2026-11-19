@@ -27,7 +27,7 @@
   <meta name="twitter:image" content="https://archray.dev/og.png" />
   <link rel="canonical" href="https://archray.dev/" />
   <link rel="alternate" hreflang="zh-CN" href="https://archray.dev/" />
-  <link rel="alternate" hreflang="en" href="https://archray.dev/?lang=en" />
+  <link rel="alternate" hreflang="en" href="https://archray.dev/en/" />
   <link rel="alternate" hreflang="x-default" href="https://archray.dev/" />
   <link rel="alternate" type="text/markdown" href="https://archray.dev/llms.txt" title="LLM summary" />
   <link rel="alternate" type="text/plain" href="https://archray.dev/llms-full.txt" title="Full LLM context" />
@@ -115,15 +115,15 @@
     ]
   }
   </script>
-<link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Alumni+Sans:wght@200;300;400;600&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
   <noscript>
     <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Alumni+Sans:wght@200;300;400;600&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet" />
   </noscript>
-  <link rel="stylesheet" href="./styles/tokens.css?v=060" />
-  <link rel="stylesheet" href="./styles/site.css?v=060" />
+  <link rel="stylesheet" href="/styles/tokens.css?v=061" />
+  <link rel="stylesheet" href="/styles/site.css?v=061" />
 </head>
 <body>
   <header class="site-header">
@@ -141,9 +141,9 @@
 
       <nav class="nav-links" id="primaryNav" aria-label="Primary navigation">
         <a href="#top" class="is-active"><span class="nav-dot" aria-hidden="true"></span><span data-i18n="nav.home">首页</span></a>
+        <a href="#live" data-i18n="nav.live">实机沙盒</a>
         <a href="#console" data-i18n="nav.console">命令与分层</a>
         <a href="#detector" data-i18n="nav.detector">痛点解剖</a>
-        <a href="#live" data-i18n="nav.live">实机沙盒</a>
         <a href="#principles" data-i18n="nav.principles">真实工程</a>
         <a href="#install" data-i18n="nav.install">安装</a>
         <a href="#privacy" data-i18n="nav.privacy">隐私与联系</a>
@@ -625,7 +625,60 @@
       </div>
     </section>
 
-    <!-- 2. COMMAND COMPOSER + TACTILE HARDWARE CONSOLE: Full Command Scope + 10-Layer Multi-Combo Matrix -->
+    <!-- 2. ARCHRAY IN ACTION: Split Terminal + Real Live Interactive Sandbox -->
+    <section id="live" class="section-band">
+      <div class="wrap">
+        <div class="section-intro">
+          <div class="section-intro-copy">
+            <h2 data-i18n="live.title">实机在线沙盒：真单文件 HTML 即刻把玩。</h2>
+            <p data-i18n="live.subtitle">上方还原 AI 编程会话指令，下方直接内嵌由 FreshMart 示例构建的真实离线 HTML 产物。</p>
+          </div>
+        </div>
+
+        <div class="action-window">
+          <div class="window-chrome">
+            <div class="traffic-lights" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="window-url">.archray/index.html · 100% Offline Single-File</div>
+            <div class="window-presets" role="group" aria-label="Sandbox view presets">
+              <button type="button" class="preset-btn is-active" data-demo-preset="3d" data-i18n="live.p3d">3D 空间全景</button>
+              <button type="button" class="preset-btn" data-demo-preset="2d" data-i18n="live.p2d">2D Bento 版图</button>
+              <button type="button" class="preset-btn" data-demo-preset="health" data-i18n="live.pHealth">健康度热点</button>
+              <button type="button" class="preset-btn" data-demo-preset="replace" data-i18n="live.pReplace">可替代性评估</button>
+              <a class="preset-btn" href="/demo.html" target="_blank" rel="noopener noreferrer" data-i18n="live.openFull">新窗口全屏 ↗</a>
+            </div>
+          </div>
+
+          <div class="session-strip">
+            <div class="session-strip-left">
+              <span class="mono" style="color: var(--ink-on-dark-muted);">You</span>
+              <span class="slash-tag">/archray</span>
+              <span class="slash-sub" id="sessionSubTag">3d</span>
+              <span data-i18n="live.promptText">审查当前仓库真实源码，输出双语分层 3D/2D 架构视图与热点证据。</span>
+            </div>
+            <div class="session-strip-right">
+              <span><span class="ok">✓</span> 16 modules · 5 layers</span>
+              <span><span class="ok">✓</span> 0 locale gaps</span>
+              <span><span class="ok">→</span> .archray/index.html</span>
+            </div>
+          </div>
+
+          <div class="live-iframe-stage">
+            <iframe
+              id="demoFrame"
+              class="demo-iframe"
+              src="/demo.html?lang=zh-CN"
+              title="ArchRay Live Interactive 3D and 2D Architecture Demo"
+              loading="lazy"
+            ></iframe>
+            <div class="iframe-veil" id="demoVeil">
+              <button type="button" class="veil-pill" id="unlockDemoBtn" data-i18n="live.unlock">点击解锁 3D 旋转与缩放交互</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. COMMAND COMPOSER + TACTILE HARDWARE CONSOLE: Full Command Scope + 10-Layer Multi-Combo Matrix -->
     <section id="console" class="section-band">
       <div class="wrap">
         <div class="section-intro">
@@ -731,7 +784,7 @@
       </div>
     </section>
 
-    <!-- 3. PAIN-POINT DETECTOR MOSAIC (Breathing Dual-State Toggle) -->
+    <!-- 4. PAIN-POINT DETECTOR MOSAIC (Breathing Dual-State Toggle) -->
     <section id="detector" class="section-band">
       <div class="wrap">
         <div class="section-intro">
@@ -805,59 +858,6 @@
               <div class="specimen-code"><span data-spec-code="4">Unclipped PNG + Offline QR Poster</span><span>QR</span></div>
             </div>
           </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- 4. ARCHRAY IN ACTION: Split Terminal + Real Live Interactive Sandbox -->
-    <section id="live" class="section-band">
-      <div class="wrap">
-        <div class="section-intro">
-          <div class="section-intro-copy">
-            <h2 data-i18n="live.title">实机在线沙盒：真单文件 HTML 即刻把玩。</h2>
-            <p data-i18n="live.subtitle">左侧还原 AI 编程会话指令，右侧直接内嵌由 FreshMart 示例构建的真实离线 HTML 产物。</p>
-          </div>
-        </div>
-
-        <div class="action-window">
-          <div class="window-chrome">
-            <div class="traffic-lights" aria-hidden="true"><i></i><i></i><i></i></div>
-            <div class="window-url">.archray/index.html · 100% Offline Single-File</div>
-            <div class="window-presets" role="group" aria-label="Sandbox view presets">
-              <button type="button" class="preset-btn is-active" data-demo-preset="3d" data-i18n="live.p3d">3D 空间全景</button>
-              <button type="button" class="preset-btn" data-demo-preset="2d" data-i18n="live.p2d">2D Bento 版图</button>
-              <button type="button" class="preset-btn" data-demo-preset="health" data-i18n="live.pHealth">健康度热点</button>
-              <button type="button" class="preset-btn" data-demo-preset="replace" data-i18n="live.pReplace">可替代性评估</button>
-              <a class="preset-btn" href="./demo.html" target="_blank" rel="noopener noreferrer" data-i18n="live.openFull">新窗口全屏 ↗</a>
-            </div>
-          </div>
-
-          <div class="session-strip">
-            <div class="session-strip-left">
-              <span class="mono" style="color: var(--ink-on-dark-muted);">You</span>
-              <span class="slash-tag">/archray</span>
-              <span class="slash-sub" id="sessionSubTag">3d</span>
-              <span data-i18n="live.promptText">审查当前仓库真实源码，输出双语分层 3D/2D 架构视图与热点证据。</span>
-            </div>
-            <div class="session-strip-right">
-              <span><span class="ok">✓</span> 16 modules · 5 layers</span>
-              <span><span class="ok">✓</span> 0 locale gaps</span>
-              <span><span class="ok">→</span> .archray/index.html</span>
-            </div>
-          </div>
-
-          <div class="live-iframe-stage">
-            <iframe
-              id="demoFrame"
-              class="demo-iframe"
-              src="./demo.html?lang=zh-CN"
-              title="ArchRay Live Interactive 3D and 2D Architecture Demo"
-              loading="lazy"
-            ></iframe>
-            <div class="iframe-veil" id="demoVeil">
-              <button type="button" class="veil-pill" id="unlockDemoBtn" data-i18n="live.unlock">点击解锁 3D 旋转与缩放交互</button>
-            </div>
-          </div>
         </div>
       </div>
     </section>
@@ -1184,11 +1184,11 @@
         <a href="#faq" data-i18n="footer.faq">常见问题</a>
         <a href="#privacy" data-i18n="footer.privacy">隐私协议</a>
         <a href="https://github.com/loofare/ArchRay" target="_blank" rel="noopener noreferrer">GitHub</a>
-        <a href="./demo.html" target="_blank" rel="noopener noreferrer" data-i18n="footer.demo">全屏沙盒</a>
+        <a href="/demo.html" target="_blank" rel="noopener noreferrer" data-i18n="footer.demo">全屏沙盒</a>
       </div>
     </div>
   </footer>
 
-  <script src="./app.js?v=060"></script>
+  <script src="/app.js?v=061"></script>
 </body>
 </html>
