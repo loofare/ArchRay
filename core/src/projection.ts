@@ -24,14 +24,14 @@ export function makeProjection(id: ProjectionId, layout: PlanarLayout): Projecti
   if (id === 'iso') {
     // classic 2:1 dimetric, x axis -> right-down, y axis -> left-down
     const c = Math.cos(ISO), s = Math.sin(ISO);
-    return { id, tilted: true, depth: 14, project: (p) => ({ x: (p.x - p.y) * c, y: (p.x + p.y) * s }) };
+    return { id, tilted: true, depth: 12, project: (p) => ({ x: (p.x - p.y) * c, y: (p.x + p.y) * s }) };
   }
 
-  // stack: each layer band is a floor seen from above-front: y compressed, x sheared, floors separated by lift.
+  // stack: each layer band is a floor seen from above-front: gentle y foreshortening, subtle shear, clear vertical lift.
   const bands = [...layout.bands].sort((a, b) => a.y - b.y);
-  const SY = 0.52; // vertical foreshortening
-  const SHEAR = 0.62; // x shift per unit of (compressed) depth within the plane
-  const LIFT = 56; // extra vertical gap between floors (screen px)
+  const SY = 0.78; // vertical foreshortening
+  const SHEAR = 0.18; // subtle x shift per unit of (compressed) depth within the plane
+  const LIFT = 44; // extra vertical gap between floors (screen px)
   const bandIndexAt = (y: number) => {
     let idx = 0;
     for (let i = 0; i < bands.length; i++) if (y >= bands[i]!.y - 0.01) idx = i;
@@ -40,7 +40,7 @@ export function makeProjection(id: ProjectionId, layout: PlanarLayout): Projecti
   return {
     id,
     tilted: true,
-    depth: 12,
+    depth: 10,
     project: (p) => {
       const i = bands.length ? bandIndexAt(p.y) : 0;
       const b = bands[i];

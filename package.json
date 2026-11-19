@@ -1,6 +1,6 @@
 {
   "name": "archray",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "AI-first architecture visualiser: a Skill + CLI that turns a repository into layered, interactive, offline HTML views.",
   "private": true,
   "type": "module",

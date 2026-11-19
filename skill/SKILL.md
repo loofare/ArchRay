@@ -18,6 +18,8 @@ Read `.archray/graph.schema.json` before generating `.archray/graph.json`. Produ
 - Prefer 6–18 top-level nodes for readability. Group files into architectural modules rather than mirroring every directory.
 - Use a `kind` that matches the module; known kinds are client, cli, gateway, service, worker, function, library, module, database, cache, queue, storage, search, external-api, ai-model, config, group, saas, archive. Other strings are allowed when none fits.
 - Every id in the flat `nodes` array must be globally unique, including child nodes. Prefix child ids with their parent when needed (for example `order/repo`, `billing/repo`); references must resolve unambiguously.
+- Default `meta.locales` to `["zh-CN", "en"]` unless the user asks for a single language. Whenever `meta.locales` contains multiple locales, provide complete translations for **every** declared locale on **every** human-readable `LocalizedText` field (`meta.name`, `meta.description`, `layers[].name`, `nodes[].name`, `nodes[].summary`, `nodes[].description`, `health.findings[].text`, `alternatives.*`, `edges[].label`, `flows[].name`, `flows[].steps[].action`, `scenarios[]`); never translate only layer titles while leaving module content in one language.
+- Always write `.archray/graph.json` in **UTF-8 without BOM** (never pipe CJK text through Windows PowerShell `Set-Content`/`Out-File` or shell redirection without explicit UTF-8 encoding).
 
 ## Candidates and scenarios
 
@@ -49,7 +51,7 @@ When the user asks for a look or language, pass it at build time instead of edit
 node "__ARCHRAY_CLI__" build .archray/graph.json --style blueprint --lang en --force --no-open
 ```
 
-Styles are `tech`, `blueprint`, `glass`, `paper`; motion is `full`, `calm` or `off` (`--motion`). The graph must already contain the requested locale; otherwise report that it is unavailable and keep the default rather than inventing translations. Known technologies get brand marks; unknown ones use a generic kind icon.
+Styles are `tech`, `blueprint`, `glass`, `paper`; motion is `full`, `calm` or `off` (`--motion`). The graph must already contain the requested locale; otherwise report that it is unavailable and keep the default rather than inventing translations. For bilingual repositories (`meta.locales: ["zh-CN", "en"]`), ensure all `meta`, `layers`, `nodes`, `findings`, `alternatives`, `edges`, `flows`, and `scenarios` entries include `{ "zh-CN": "...", "en": "..." }` so toggling 中 / EN translates both titles and content. Known technologies get brand marks; unknown ones use a generic kind icon.
 
 ## Updating and uninstalling
 
@@ -66,6 +68,8 @@ If the user asks to uninstall, run `node "__ARCHRAY_CLI__" uninstall --dry-run` 
 ## Safety and outputs
 
 Write only `.archray` artifacts by default. Preserve existing graph/view files unless the user explicitly authorizes replacement. Do not modify application source or agent configuration as part of analysis.
+
+Always write `.archray/graph.json` as **UTF-8 without BOM** using a native file-write tool or `node` (`fs.writeFileSync(..., 'utf8')`). Never pipe or redirect CJK text through Windows PowerShell `Set-Content`/`Out-File` or shell redirection without explicit UTF-8 encoding (non-UTF-8 Windows code pages replace Chinese characters with `?`). If `validate` reports encoding corruption (`?` placeholders or `\uFFFD`), rewrite `.archray/graph.json` cleanly in UTF-8 before running `build`.
 
 Validate and build from the target repository, using the absolute path to the tool:
 

@@ -37,15 +37,15 @@ export interface LayoutOptions {
 
 const elk = new ELK();
 
-export const NODE_H = 68;
-const GROUP_HEADER = 40;
-const GROUP_PAD = 18;
-const BAND_PAD_Y = 34;
-const BAND_LABEL_W = 0; // labels are drawn inside band, above nodes (top-left)
+export const NODE_H = 84;
+const GROUP_HEADER = 44;
+const GROUP_PAD = 24;
+const BAND_PAD_Y = 32;
+const BAND_LABEL_W = 188; // dedicated left swimlane header rail clear of nodes and groups
 
 export function nodeWidth(label: string, opts: LayoutOptions): number {
-  const w = measureText(label, 15) + 76; // icon + paddings
-  return Math.round(Math.min(opts.maxNodeWidth ?? 280, Math.max(opts.minNodeWidth ?? 168, w)));
+  const w = measureText(label, 14.5) + 92; // icon + paddings + pills
+  return Math.round(Math.min(opts.maxNodeWidth ?? 296, Math.max(opts.minNodeWidth ?? 204, w)));
 }
 
 export async function computeLayout(idx: GraphIndex, vis: VisibleGraph, opts: LayoutOptions): Promise<PlanarLayout> {
@@ -74,7 +74,7 @@ export async function computeLayout(idx: GraphIndex, vis: VisibleGraph, opts: La
           children: [],
           layoutOptions: {
             'elk.padding': `[top=${GROUP_HEADER},left=${GROUP_PAD},bottom=${GROUP_PAD},right=${GROUP_PAD}]`,
-            'elk.nodeSize.minimum': `(${nodeWidth(label, opts) + 40}, ${NODE_H + 60})`,
+            'elk.nodeSize.minimum': `(${nodeWidth(label, opts) + 48}, ${NODE_H + 68})`,
             'elk.nodeSize.constraints': 'MINIMUM_SIZE',
           },
         }
@@ -99,20 +99,21 @@ export async function computeLayout(idx: GraphIndex, vis: VisibleGraph, opts: La
     layoutOptions: {
       'elk.algorithm': 'layered',
       'elk.direction': 'DOWN',
+      'elk.aspectRatio': '1.65',
       'elk.hierarchyHandling': 'INCLUDE_CHILDREN',
       'elk.edgeRouting': 'ORTHOGONAL',
       'elk.partitioning.activate': hasBands ? 'true' : 'false',
       'elk.layered.crossingMinimization.strategy': 'LAYER_SWEEP',
       'elk.layered.nodePlacement.strategy': 'NETWORK_SIMPLEX',
       'elk.layered.considerModelOrder.strategy': 'NODES_AND_EDGES',
-      'elk.spacing.nodeNode': '44',
-      'elk.layered.spacing.nodeNodeBetweenLayers': '72',
-      'elk.spacing.edgeNode': '22',
-      'elk.spacing.edgeEdge': '12',
-      'elk.layered.spacing.edgeNodeBetweenLayers': '22',
-      'elk.layered.spacing.edgeEdgeBetweenLayers': '12',
+      'elk.spacing.nodeNode': '56',
+      'elk.layered.spacing.nodeNodeBetweenLayers': '86',
+      'elk.spacing.edgeNode': '26',
+      'elk.spacing.edgeEdge': '14',
+      'elk.layered.spacing.edgeNodeBetweenLayers': '26',
+      'elk.layered.spacing.edgeEdgeBetweenLayers': '14',
       'elk.layered.mergeEdges': 'false',
-      'elk.padding': '[top=20,left=20,bottom=20,right=20]',
+      'elk.padding': '[top=24,left=24,bottom=24,right=24]',
     },
     children: roots,
     edges: vis.edges.map((e) => ({ id: e.id, sources: [e.source], targets: [e.target] })),
@@ -161,18 +162,18 @@ export async function computeLayout(idx: GraphIndex, vis: VisibleGraph, opts: La
       const members = tops.filter((n) => (n.layer !== undefined ? partOf.get(n.layer) ?? 0 : 0) === index);
       const y0 = Math.min(...members.map((n) => n.y));
       const y1 = Math.max(...members.map((n) => n.y + n.h));
-      return { layer, index, x: minX - 60 - BAND_LABEL_W, y: y0 - BAND_PAD_Y - 22, w: maxX - minX + 120 + BAND_LABEL_W, h: y1 - y0 + BAND_PAD_Y * 2 + 22 };
+      return { layer, index, x: minX - 56 - BAND_LABEL_W, y: y0 - BAND_PAD_Y, w: maxX - minX + 112 + BAND_LABEL_W, h: y1 - y0 + BAND_PAD_Y * 2 };
     });
-    // Resolve band overlaps by splitting gap midpoint (partitions are disjoint, but padding may overlap)
+    // Resolve band overlaps and enforce a clean visual gap between adjacent layers
     for (let i = 1; i < bands.length; i++) {
       const a = bands[i - 1]!;
       const b = bands[i]!;
       const aBottom = a.y + a.h;
-      if (aBottom > b.y) {
+      if (aBottom > b.y - 12) {
         const mid = (aBottom + b.y) / 2;
-        a.h = mid - a.y - 4;
+        a.h = mid - a.y - 6;
         const nb = b.y + b.h;
-        b.y = mid + 4;
+        b.y = mid + 6;
         b.h = nb - b.y;
       }
     }

@@ -83,7 +83,66 @@ assert.ok(html.includes('literal $&amp; $`'), 'title keeps dollar literals and e
 assert.ok(!html.includes('<script>globalThis.INJECTED'), 'title markup is escaped');
 const embedded = html.match(/window\.__ARCHRAY_DATA__=(.*?);<\/script>/);
 assert.ok(embedded, 'graph data is embedded for offline use');
+assert.ok(!/[^\x00-\x7f]/.test(embedded[1]), 'embedded graph JSON escapes non-ASCII characters safely');
 assert.deepEqual(JSON.parse(embedded[1]), graph, 'embedded graph survives JSON round-trip');
+
+/* ------------------------------------------- encoding recovery & validation */
+const utf8Graph = JSON.parse(readFileSync('examples/freshmart.graph.json', 'utf8'));
+const utf8Json = JSON.stringify(utf8Graph);
+writeFileSync(join(workdir, 'utf8-bom.json'), Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from(utf8Json, 'utf8')]));
+run(['validate', 'utf8-bom.json']);
+run(['build', 'utf8-bom.json', '--output', '.archray/bom8.html', '--force', '--no-open']);
+const bom8Embedded = read('.archray/bom8.html').match(/window\.__ARCHRAY_DATA__=(.*?);<\/script>/);
+assert.ok(bom8Embedded && !/[^\x00-\x7f]/.test(bom8Embedded[1]));
+assert.deepEqual(JSON.parse(bom8Embedded[1]), utf8Graph, 'UTF-8 BOM graph builds cleanly');
+
+writeFileSync(join(workdir, 'utf16le-bom.json'), Buffer.concat([Buffer.from([0xff, 0xfe]), Buffer.from(utf8Json, 'utf16le')]));
+run(['validate', 'utf16le-bom.json']);
+run(['build', 'utf16le-bom.json', '--output', '.archray/bom16.html', '--force', '--no-open']);
+assert.deepEqual(
+  JSON.parse(read('.archray/bom16.html').match(/window\.__ARCHRAY_DATA__=(.*?);<\/script>/)[1]),
+  utf8Graph,
+  'UTF-16 LE BOM graph builds cleanly',
+);
+
+const gbkGraph = {
+  schemaVersion: '2.0',
+  meta: { name: '网关系统', locales: ['zh-CN'], generatedAt: '2026-11-19T00:00:00Z' },
+  layers: [{ id: 'gateway', name: '网关', order: 0 }],
+  nodes: [{ id: 'gw', name: '网关', kind: 'gateway', layer: 'gateway', summary: '核心网关' }],
+  edges: [],
+};
+const gbkPrefix = Buffer.from('{"schemaVersion":"2.0","meta":{"name":"', 'ascii');
+const gbkWord = Buffer.from([0xcd, 0xf8, 0xb9, 0xd8]); // "网关" in GB18030
+const gbkSys = Buffer.from([0xcf, 0xb5, 0xcd, 0xb3]); // "系统" in GB18030
+const gbkCore = Buffer.from([0xba, 0xcb, 0xd0, 0xc4]); // "核心" in GB18030
+const gbkBuf = Buffer.concat([
+  gbkPrefix, gbkWord, gbkSys,
+  Buffer.from('","locales":["zh-CN"],"generatedAt":"2026-11-19T00:00:00Z"},"layers":[{"id":"gateway","name":"', 'ascii'),
+  gbkWord,
+  Buffer.from('","order":0}],"nodes":[{"id":"gw","name":"', 'ascii'),
+  gbkWord,
+  Buffer.from('","kind":"gateway","layer":"gateway","summary":"', 'ascii'),
+  gbkCore, gbkWord,
+  Buffer.from('"}],"edges":[]}', 'ascii'),
+]);
+writeFileSync(join(workdir, 'gbk.json'), gbkBuf);
+const gbkVal = run(['validate', 'gbk.json']);
+assert.match(gbkVal.stderr, /GB18030/, 'GB18030 input warns caller to save as UTF-8');
+run(['build', 'gbk.json', '--output', '.archray/gbk.html', '--force', '--no-open']);
+const gbkEmbedded = read('.archray/gbk.html').match(/window\.__ARCHRAY_DATA__=(.*?);<\/script>/);
+assert.ok(gbkEmbedded && !/[^\x00-\x7f]/.test(gbkEmbedded[1]));
+assert.deepEqual(JSON.parse(gbkEmbedded[1]), gbkGraph, 'GB18030 Chinese graph decodes accurately instead of turning into ?');
+
+const corruptGraph = structuredClone(utf8Graph);
+corruptGraph.meta.name = '????????';
+corruptGraph.layers[0].name = '????';
+corruptGraph.nodes[0].name = 'API ??';
+writeFileSync(join(workdir, 'corrupt.json'), JSON.stringify(corruptGraph));
+const corruptVal = run(['validate', 'corrupt.json'], { ok: false });
+assert.match(corruptVal.stderr, /corrupted text/, 'validate rejects ?-corrupted graph');
+const corruptBuild = run(['build', 'corrupt.json', '--output', '.archray/corrupt.html', '--force', '--no-open'], { ok: false });
+assert.match(corruptBuild.stderr, /corrupted text/, 'build rejects ?-corrupted graph');
 
 /* ---------------------------------------------------- output protection */
 const refuseExisting = run(['build', 'graph.json', '--no-open'], { ok: false });

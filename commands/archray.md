@@ -11,8 +11,8 @@ Read `.archray/SKILL.md` first.
    - Only an explicit update authorizes `update`; a check-only request never does.
    - If the intent is `uninstall`, run `node "__ARCHRAY_CLI__" uninstall --dry-run`, show the removal scope, and stop. Wait for explicit confirmation before running the real uninstall; never use `--purge` without explicit user authorization.
 
-1. Reuse `.archray/graph.json` when it exists. Only inspect source again when the graph is missing or the user asks for a refresh.
-2. Validate and build:
+1. Reuse `.archray/graph.json` when it exists. Only inspect source again when the graph is missing or the user asks for a refresh. When writing `.archray/graph.json`, always save it as **UTF-8 without BOM** (using a native file-write tool or Node UTF-8 write; never pipe CJK text through Windows PowerShell `Set-Content`/`Out-File`).
+2. Validate and build (if `validate` reports any encoding corruption such as `?` placeholders or `\uFFFD`, rewrite `.archray/graph.json` cleanly in UTF-8 first):
 
 ```sh
 node "__ARCHRAY_CLI__" validate .archray/graph.json

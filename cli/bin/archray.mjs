@@ -6486,7 +6486,13 @@ var ViewState = Open(Type.Object({
   viewVersion: Type.Literal("1"),
   locale: Type.Optional(Type.String()),
   theme: Type.Optional(Type.Union([Type.Literal("midnight"), Type.Literal("paper"), Type.Literal("blueprint"), Type.Literal("glass")])),
-  projection: Type.Optional(Type.Union([Type.Literal("flat"), Type.Literal("iso"), Type.Literal("stack")])),
+  projection: Type.Optional(Type.Union([
+    Type.Literal("3d"),
+    Type.Literal("2d"),
+    Type.Literal("flat"),
+    Type.Literal("iso"),
+    Type.Literal("stack")
+  ])),
   lens: Type.Optional(Type.Union([Type.Literal("topology"), Type.Literal("health"), Type.Literal("replaceability"), Type.Literal("flow")])),
   focus: Type.Optional(Id),
   collapsed: Type.Optional(Type.Array(Id)),
@@ -6545,13 +6551,22 @@ function semantic(g, issues) {
   const err = (path, message) => issues.push({ level: "error", path, message });
   const warn = (path, message) => issues.push({ level: "warning", path, message });
   const locales = new Set(g.meta.locales);
+  const hasNonZh = g.meta.locales.some((l) => !l.startsWith("zh"));
+  const hasCjkLocale = g.meta.locales.some((l) => /^(zh|ja|ko)/i.test(l));
+  const declaredLangs = new Set(g.meta.locales.map((l) => l.split("-")[0]));
+  const suspiciousDoubleQ = [];
+  const emittedCorruptPaths = /* @__PURE__ */ new Set();
   if (g.meta.defaultLocale && !locales.has(g.meta.defaultLocale)) {
     err("/meta/defaultLocale", `defaultLocale "${g.meta.defaultLocale}" not in meta.locales`);
   }
+  checkText(g.meta.name, "/meta/name", "primary");
+  checkText(g.meta.description, "/meta/description", "detail");
   const layerIds = /* @__PURE__ */ new Set();
   (g.layers ?? []).forEach((l, i) => {
     if (layerIds.has(l.id)) err(`/layers/${i}/id`, `duplicate layer id "${l.id}"`);
     layerIds.add(l.id);
+    checkText(l.name, `/layers/${i}/name`, "primary");
+    checkText(l.description, `/layers/${i}/description`, "detail");
   });
   const nodeIds = /* @__PURE__ */ new Map();
   g.nodes.forEach((n, i) => {
@@ -6565,7 +6580,10 @@ function semantic(g, issues) {
       else if (n.parent === n.id) err(`/nodes/${i}/parent`, "node cannot be its own parent");
     }
     if (!n.parent && !n.layer && layerIds.size > 0) warn(`/nodes/${i}/layer`, `top-level node "${n.id}" has no layer`);
-    checkText(n.name, `/nodes/${i}/name`);
+    checkText(n.name, `/nodes/${i}/name`, "primary");
+    checkText(n.summary, `/nodes/${i}/summary`, "summary");
+    checkText(n.description, `/nodes/${i}/description`, "detail");
+    n.health?.findings?.forEach((f, j) => checkText(f.text, `/nodes/${i}/health/findings/${j}/text`, "detail"));
   });
   for (const n of g.nodes) {
     const seen = /* @__PURE__ */ new Set();
@@ -6585,10 +6603,17 @@ function semantic(g, issues) {
     edgeIds.add(e.id);
     if (!nodeIds.has(e.source)) err(`/edges/${i}/source`, `unknown node "${e.source}"`);
     if (!nodeIds.has(e.target)) err(`/edges/${i}/target`, `unknown node "${e.target}"`);
+    checkText(e.label, `/edges/${i}/label`, "summary");
   });
   const scenarioIds = new Set((g.scenarios ?? []).map((s) => s.id));
   g.nodes.forEach((n, i) => {
+    checkText(n.alternatives?.rationale, `/nodes/${i}/alternatives/rationale`, "detail");
+    n.alternatives?.lockIn?.forEach((x, j) => checkText(x, `/nodes/${i}/alternatives/lockIn/${j}`, "detail"));
     n.alternatives?.options?.forEach((o, j) => {
+      checkText(o.name, `/nodes/${i}/alternatives/options/${j}/name`, "detail");
+      checkText(o.summary, `/nodes/${i}/alternatives/options/${j}/summary`, "detail");
+      o.pros?.forEach((x, k) => checkText(x, `/nodes/${i}/alternatives/options/${j}/pros/${k}`, "detail"));
+      o.cons?.forEach((x, k) => checkText(x, `/nodes/${i}/alternatives/options/${j}/cons/${k}`, "detail"));
       if (o.scenario && !scenarioIds.has(o.scenario)) err(`/nodes/${i}/alternatives/options/${j}/scenario`, `unknown scenario "${o.scenario}"`);
       (o.references ?? []).forEach((r, k) => {
         if (!/^https?:\/\//i.test(r)) warn(`/nodes/${i}/alternatives/options/${j}/references/${k}`, "reference must be an http(s) URL");
@@ -6596,7 +6621,10 @@ function semantic(g, issues) {
     });
   });
   (g.flows ?? []).forEach((f, i) => {
+    checkText(f.name, `/flows/${i}/name`, "summary");
+    checkText(f.description, `/flows/${i}/description`, "detail");
     f.steps.forEach((s, j) => {
+      checkText(s.action, `/flows/${i}/steps/${j}/action`, "summary");
       if (!nodeIds.has(s.from)) err(`/flows/${i}/steps/${j}/from`, `unknown node "${s.from}"`);
       if (!nodeIds.has(s.to)) err(`/flows/${i}/steps/${j}/to`, `unknown node "${s.to}"`);
       const linked = g.edges.find((e) => e.id === s.edge);
@@ -6604,9 +6632,73 @@ function semantic(g, issues) {
       if (s.edge && !edgeIds.has(s.edge)) err(`/flows/${i}/steps/${j}/edge`, `unknown edge "${s.edge}"`);
     });
   });
-  function checkText(t2, path) {
-    if (t2 && typeof t2 === "object") {
-      for (const k of Object.keys(t2)) if (!locales.has(k)) warn(path, `locale "${k}" not declared in meta.locales`);
+  (g.scenarios ?? []).forEach((s, i) => {
+    checkText(s.name, `/scenarios/${i}/name`, "summary");
+    checkText(s.description, `/scenarios/${i}/description`, "detail");
+  });
+  if (suspiciousDoubleQ.length > 0) {
+    const uniqueSuspicious = suspiciousDoubleQ.filter((item, idx, arr) => arr.findIndex((x) => x.path === item.path) === idx);
+    if (uniqueSuspicious.length >= 2 || uniqueSuspicious.length >= 1 && hasCjkLocale) {
+      let emitted = 0;
+      for (const item of uniqueSuspicious) {
+        if (emittedCorruptPaths.has(item.path)) continue;
+        emittedCorruptPaths.add(item.path);
+        err(
+          item.path,
+          `corrupted text (looks like '?' placeholders from non-UTF-8 encoding, e.g. "${item.sample}"); rewrite .archray/graph.json as UTF-8 without BOM (avoid Windows PowerShell Set-Content/Out-File default encodings)`
+        );
+        emitted += 1;
+        if (emitted >= 5) break;
+      }
+    }
+  }
+  function inspectTextValue(s, path, role) {
+    if (emittedCorruptPaths.has(path)) return;
+    if (s.includes("\uFFFD")) {
+      emittedCorruptPaths.add(path);
+      err(path, 'corrupted UTF-8 text (contains replacement character "\\uFFFD"); rewrite .archray/graph.json as UTF-8 without BOM');
+      return;
+    }
+    const isAllQPrimary = role === "primary" && (s.match(/\?/g)?.length ?? 0) >= 2 && /^[?\s.,·•/\\\-_:;()[\]{}]+$/.test(s);
+    const hasLongQRun = role === "primary" || role === "summary" ? /\?{3,}/.test(s) : /\?{4,}/.test(s);
+    if (isAllQPrimary || hasLongQRun) {
+      emittedCorruptPaths.add(path);
+      err(
+        path,
+        `corrupted text (looks like '?' placeholders from non-UTF-8 encoding, e.g. "${s.slice(0, 48)}"); rewrite .archray/graph.json as UTF-8 without BOM (avoid Windows PowerShell Set-Content/Out-File default encodings)`
+      );
+      return;
+    }
+    if ((role === "primary" || role === "summary") && /(?:^|[\s/(\[，、])\?{2}$|^\?{2}(?:$|[\s/)\]，、])|[A-Za-z0-9]\?{2}|\?{2}[A-Za-z0-9]/.test(s)) {
+      suspiciousDoubleQ.push({ path, sample: s.slice(0, 48) });
+    }
+  }
+  function checkText(t2, path, role = "detail") {
+    if (t2 === void 0 || t2 === null) return;
+    if (typeof t2 === "string") {
+      inspectTextValue(t2, path, role);
+      if (g.meta.locales.length > 1 && hasNonZh && /[\u2E80-\u9FFF\uF900-\uFAFF]/.test(t2)) {
+        warn(path, "plain CJK text in multi-locale graph; provide translations for all meta.locales");
+      }
+      return;
+    }
+    if (typeof t2 === "object") {
+      const obj = t2;
+      const keys = Object.keys(obj);
+      for (const k of keys) {
+        const val = obj[k];
+        if (typeof val === "string") inspectTextValue(val, path, role);
+      }
+      const langs = new Set(keys.map((k) => k.split("-")[0]));
+      for (const k of keys) if (!locales.has(k)) warn(path, `locale "${k}" not declared in meta.locales`);
+      if (g.meta.locales.length > 1) {
+        for (const loc of g.meta.locales) {
+          if (!keys.includes(loc) && !langs.has(loc.split("-")[0])) {
+            warn(path, `missing translation for "${loc}"`);
+          }
+        }
+        void declaredLangs;
+      }
     }
   }
 }
@@ -7216,7 +7308,7 @@ function compareVersions(a, b) {
 
 // cli/src/main.ts
 var root = resolve2(dirname2(fileURLToPath(import.meta.url)), "../..");
-var VERSION = true ? "0.5.1" : "dev";
+var VERSION = true ? "0.6.0" : "dev";
 var HELP = `ArchRay v${VERSION}
 
 Usage: archray <command> [options]
@@ -7297,6 +7389,30 @@ function parseArgs(argv) {
 }
 var flag = (args, key, fallback) => typeof args.flags[key] === "string" ? args.flags[key] : fallback;
 var has = (args, key) => args.flags[key] !== void 0;
+function decodeJsonBuffer(buf, path) {
+  if (buf.length >= 3 && buf[0] === 239 && buf[1] === 187 && buf[2] === 191) {
+    return new TextDecoder("utf-8", { fatal: true }).decode(buf.subarray(3));
+  }
+  if (buf.length >= 2 && buf[0] === 255 && buf[1] === 254) {
+    return buf.subarray(2).toString("utf16le");
+  }
+  if (buf.length >= 2 && buf[0] === 254 && buf[1] === 255) {
+    const swapped = Buffer.from(buf.subarray(2));
+    swapped.swap16();
+    return swapped.toString("utf16le");
+  }
+  try {
+    return new TextDecoder("utf-8", { fatal: true }).decode(buf);
+  } catch (utfErr) {
+    try {
+      const text = new TextDecoder("gb18030", { fatal: true }).decode(buf);
+      console.error(`warning: ${path} is not valid UTF-8; decoded as GB18030. Save .archray/graph.json as UTF-8 (no BOM).`);
+      return text;
+    } catch {
+      throw new Error(`Cannot decode ${path} as UTF-8 or GB18030 (${utfErr?.message ?? "invalid bytes"}); rewrite the file as UTF-8 without BOM.`);
+    }
+  }
+}
 function readJson(path) {
   if (!existsSync2(path)) {
     throw new Error(
@@ -7305,7 +7421,7 @@ Run /archray in your AI session (or "archray init" from a source checkout) to wr
     );
   }
   try {
-    return JSON.parse(readFileSync2(path, "utf8"));
+    return JSON.parse(decodeJsonBuffer(readFileSync2(path), path));
   } catch (e) {
     throw new Error(`Cannot read ${path}: ${e.message}`);
   }
@@ -7372,7 +7488,7 @@ function writeOutput(path, data, args, input, quiet = false) {
   try {
     const fd = openSync(temp, "wx");
     try {
-      writeFileSync2(fd, data);
+      writeFileSync2(fd, data, "utf8");
     } finally {
       closeSync(fd);
     }
@@ -7414,7 +7530,9 @@ function cmdVersion() {
 }
 function cmdValidate(args) {
   const path = args.positional[0] ?? ".archray/graph.json";
-  assertValid(readJson(path));
+  const result = validateGraph(readJson(path));
+  if (!result.ok) throw new Error(result.errors.map((e) => `${e.path}: ${e.message}`).join("\n"));
+  for (const w of result.warnings) console.error(`warning: ${w.path}: ${w.message}`);
   console.log(`Valid v2 graph: ${path}`);
 }
 function cmdSchema(args) {
@@ -7735,7 +7853,7 @@ Use full, calm or off.`);
 Run "npm run build" in the ArchRay checkout first.`);
   }
   let html = readFileSync2(viewerPath, "utf8");
-  const embed = (value) => JSON.stringify(value).replace(/</g, "\\u003c").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
+  const embed = (value) => JSON.stringify(value).replace(/</g, "\\u003c").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029").replace(/[\u007f-\uffff]/g, (ch) => "\\u" + ch.charCodeAt(0).toString(16).padStart(4, "0"));
   const name = graph.meta.name;
   const title = typeof name === "string" ? name : Object.values(name)[0] ?? "ArchRay";
   const escapedTitle = String(title).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");

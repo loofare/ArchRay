@@ -50,6 +50,38 @@ describe('contract', () => {
     const errs = validateGraph(g).errors.map((e) => e.message).join('\n');
     expect(errs).toMatch(/duplicate node id "web"/);
   });
+  it('warns on incomplete translations or plain CJK text in multi-locale graphs', () => {
+    const g = structuredClone(fresh);
+    g.nodes[0]!.summary = '仅中文摘要';
+    g.nodes[0]!.health = { level: 'warn', findings: [{ type: 'complexity', severity: 'warn', text: { 'zh-CN': '仅中文诊断' } }] };
+    const warnings = validateGraph(g).warnings.map((w) => `${w.path}: ${w.message}`).join('\n');
+    expect(warnings).toMatch(/\/nodes\/0\/summary: plain CJK text in multi-locale graph/);
+    expect(warnings).toMatch(/\/nodes\/0\/health\/findings\/0\/text: missing translation for "en"/);
+  });
+  it('rejects UTF-8 replacement characters and ?-corrupted text placeholders', () => {
+    const ufffd = structuredClone(fresh);
+    ufffd.nodes[0]!.name = { 'zh-CN': '网关\uFFFD服务', en: 'Gateway' };
+    const r1 = validateGraph(ufffd);
+    expect(r1.ok).toBe(false);
+    expect(r1.errors.map((e) => e.message).join('\n')).toMatch(/replacement character/);
+
+    const qCorrupt = structuredClone(fresh);
+    qCorrupt.meta.name = '????????';
+    qCorrupt.layers![0]!.name = '????';
+    qCorrupt.nodes[0]!.name = 'API ??';
+    qCorrupt.nodes[1]!.name = 'Third Pay ??';
+    const r2 = validateGraph(qCorrupt);
+    expect(r2.ok).toBe(false);
+    const msgs = r2.errors.map((e) => `${e.path}: ${e.message}`).join('\n');
+    expect(msgs).toMatch(/\/meta\/name: corrupted text/);
+    expect(msgs).toMatch(/\/layers\/0\/name: corrupted text/);
+    expect(msgs).toMatch(/\/nodes\/0\/name: corrupted text/);
+    expect(msgs).toMatch(/\/nodes\/1\/name: corrupted text/);
+
+    const validDetail = structuredClone(fresh);
+    validDetail.nodes[0]!.description = { 'zh-CN': '回退表达式 a ?? b 用于兜底默认值。', en: 'Fallback expression a ?? b provides default.' };
+    expect(validateGraph(validDetail).ok).toBe(true);
+  });
   it('catches referential errors', () => {
     const bad = structuredClone(fresh);
     bad.edges.push({ id: 'x', source: 'nope', target: 'web' });

@@ -42,17 +42,16 @@ export function Inspector(p: Props) {
   const name = (id: string) => L(idx.byId.get(id)?.name) || id;
 
   const H = ({ children }: { children: React.ReactNode }) => (
-    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.8, color: th.faint, textTransform: 'uppercase', margin: '18px 0 8px' }}>{children}</div>
+    <div className="ar-ins-sec">{children}</div>
   );
   const chip = (text: string, c = th.sub) => (
-    <span key={text} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 99, background: alpha(c, 0.12), color: c, marginRight: 6, display: 'inline-block', marginBottom: 4 }}>{text}</span>
+    <span key={text} className="ar-chip" style={{ background: alpha(c, 0.13), color: c, borderColor: alpha(c, 0.28) }}>{text}</span>
   );
   const link = (id: string) => (
-    <a key={id} onClick={() => p.onSelect(id)} style={{ color: th.accent, cursor: 'pointer', marginRight: 10, fontSize: 13 }}>{name(id)}</a>
+    <button key={id} type="button" className="ar-dep-chip" onClick={() => p.onSelect(id)}>{name(id)}</button>
   );
   const small = (label: string, on: () => void, primary = false) => (
-    <button onClick={on} style={{ fontSize: 12, padding: '5px 10px', borderRadius: 7, cursor: 'pointer', fontFamily: 'inherit', marginRight: 6,
-      border: `1px solid ${primary ? th.accent : th.panelBorder}`, background: primary ? alpha(th.accent, 0.15) : 'transparent', color: primary ? th.accent : th.text }}>{label}</button>
+    <button type="button" onClick={on} className={`ar-ins-btn${primary ? ' is-primary' : ''}`}>{label}</button>
   );
   const alt = n.alternatives;
   const safeReference = (value: string): string | null => {
@@ -65,101 +64,143 @@ export function Inspector(p: Props) {
   const repColor = alt?.replaceability === 'high' ? th.good : alt?.replaceability === 'medium' ? th.warn : th.critical;
 
   return (
-    <div className="ar-scroll ar-inspector" style={{
-      background: th.panel, border: `1px solid ${th.panelBorder}`, borderRadius: 14, padding: 18, backdropFilter: 'blur(12px)', fontSize: 13, lineHeight: 1.55 }}>
-      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-        <div style={{ width: 40, height: 40, borderRadius: 10, display: 'grid', placeItems: 'center',
+    <div className="ar-scroll ar-inspector ar-glass">
+      <div className="ar-inspector-head">
+        <div className="ar-inspector-icon" style={{
           background: brand ? (brand.dark ? '#0F172A' : 'rgba(255,255,255,0.96)') : alpha(spec.hue, 0.15),
-          border: brand ? `1px solid ${brand.dark ? 'rgba(255,255,255,0.18)' : 'rgba(15,23,42,0.10)'}` : 'none' }}>
-          {brand ? <BrandGlyph brand={brand} size={24} /> : <Icon size={22} color={spec.hue} />}
+          borderColor: brand ? (brand.dark ? 'rgba(255,255,255,0.18)' : 'rgba(15,23,42,0.10)') : alpha(spec.hue, 0.34),
+        }}>
+          {brand ? <BrandGlyph brand={brand} size={23} /> : <Icon size={21} color={spec.hue} />}
         </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 16, fontWeight: 700 }}>{L(n.name)}</div>
-          <div style={{ color: th.sub, fontSize: 12 }}>{kindLabel(n.kind, locale)}{n.lifecycle && n.lifecycle !== 'active' ? ` · ${U(`lifecycle.${n.lifecycle}`)}` : ''}</div>
+        <div className="ar-inspector-title-wrap">
+          <div className="ar-inspector-title">{L(n.name)}</div>
+          <div className="ar-inspector-sub">
+            {kindLabel(n.kind, locale)}
+            {n.lifecycle && n.lifecycle !== 'active' ? ` · ${U(`lifecycle.${n.lifecycle}`)}` : ''}
+          </div>
         </div>
-        <button onClick={p.onClose} style={{ background: 'none', border: 0, color: th.sub, fontSize: 18, cursor: 'pointer' }}>×</button>
+        <button type="button" className="ar-inspector-close" onClick={p.onClose} aria-label={U('common.close')}>×</button>
       </div>
-      {fallback && <div role="alert" style={{ borderLeft: `3px solid ${th.warn}`, paddingLeft: 10, marginTop: 8 }}>
-        <div>{U('inspector.copyFallback')}</div>
-        <textarea aria-label={U('inspector.promptText')} readOnly value={fallback} style={{ width: '100%', minHeight: 220, marginTop: 6 }} />
-      </div>}
-      <p style={{ color: th.sub, fontSize: 12 }}>{U('inspector.evidence')}</p>
-      {n.description && <p style={{ color: th.sub, margin: '12px 0 0' }}>{L(n.description)}</p>}
-      {kids.length > 0 && <div style={{ marginTop: 12 }}>
-        {small(U('inspector.children'), p.onOpen, true)}
-        {small(p.expanded ? '⊟' : '⊞', p.onToggleExpand)}
-      </div>}
 
-      {n.techStack?.length ? <><H>{U('inspector.stack')}</H>{n.techStack.map((s) => chip(s, th.accent))}</> : null}
-
-      {n.metrics && <div style={{ display: 'flex', gap: 14, marginTop: 14, flexWrap: 'wrap' }}>
-        {Object.entries(n.metrics).map(([k, m]) => (
-          <div key={k}>
-            <div style={{ fontSize: 16, fontWeight: 700 }}>{m.value.toLocaleString()}{m.unit ?? ''}</div>
-            <div style={{ fontSize: 11, color: th.faint }}>{k} · {m.origin === 'measured' ? U('common.measured') : U('common.estimated')}</div>
-          </div>
-        ))}
-      </div>}
-
-      {n.health?.findings?.length ? <><H>{U('inspector.findings')}</H>
-        {n.health.findings.map((f, i) => (
-          <div key={i} style={{ borderLeft: `3px solid ${sevColor(f.severity)}`, paddingLeft: 10, marginBottom: 8 }}>
-            <div>{L(f.text)}</div>
-            {f.evidence?.length ? <div style={{ fontSize: 11, color: th.faint, fontFamily: 'ui-monospace, monospace' }}>{f.evidence.join(', ')}</div> : null}
-          </div>
-        ))}</> : null}
-
-      {alt && <>
-        <H>{U('lens.replaceability')}</H>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {chip(U(`replace.${alt.replaceability}`), repColor)}
+      {fallback && (
+        <div role="alert" className="ar-finding-card" style={{ borderLeftColor: th.warn, marginTop: 10 }}>
+          <div>{U('inspector.copyFallback')}</div>
+          <textarea aria-label={U('inspector.promptText')} readOnly value={fallback} className="ar-inspector-fallback" />
         </div>
-        {alt.rationale && <div style={{ color: th.sub }}>{L(alt.rationale)}</div>}
-        {alt.lockIn?.length ? <div style={{ marginTop: 6 }}><span style={{ color: th.faint, fontSize: 12 }}>{U('inspector.lockIn')}: </span>{alt.lockIn.map((x) => L(x)).join(' · ')}</div> : null}
-        {(alt.options ?? []).map((o) => (
-          <div key={o.id} style={{ border: `1px solid ${th.panelBorder}`, borderRadius: 10, padding: 12, marginTop: 10 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-              <b>{L(o.name)}</b>{chip(U(`alt.${o.type}`))}
+      )}
+
+      <p className="ar-inspector-note">{U('inspector.evidence')}</p>
+      {n.summary && !n.description && <p className="ar-inspector-desc">{L(n.summary)}</p>}
+      {n.description && <p className="ar-inspector-desc">{L(n.description)}</p>}
+
+      {kids.length > 0 && (
+        <div className="ar-inspector-actions">
+          {small(U('inspector.children'), p.onOpen, true)}
+          {small(U(p.expanded ? 'inspector.collapseChildren' : 'inspector.expandChildren'), p.onToggleExpand)}
+        </div>
+      )}
+
+      {n.techStack?.length ? <><H>{U('inspector.stack')}</H><div className="ar-chip-row">{n.techStack.map((s) => chip(s, th.accent))}</div></> : null}
+
+      {n.metrics && (
+        <div className="ar-stat-grid">
+          {Object.entries(n.metrics).map(([k, m]) => (
+            <div key={k} className="ar-stat-card">
+              <b>{m.value.toLocaleString()}{m.unit ?? ''}</b>
+              <small>{k} · {m.origin === 'measured' ? U('common.measured') : U('common.estimated')}</small>
             </div>
-            <div style={{ color: th.sub, margin: '4px 0' }}>{L(o.summary)}</div>
-            {o.pros?.map((x, i) => <div key={'p' + i} style={{ color: th.good, fontSize: 12 }}>+ {L(x)}</div>)}
-            {o.cons?.map((x, i) => <div key={'c' + i} style={{ color: th.warn, fontSize: 12 }}>− {L(x)}</div>)}
-            {(o.effort || o.risk) && <div style={{ fontSize: 11, color: th.faint, marginTop: 4 }}>
-              {o.effort && `${U('inspector.effort')}: ${o.effort}`}{o.effort && o.risk && ' · '}{o.risk && `${U('inspector.risk')}: ${o.risk}`}
-            </div>}
-            {o.references?.length ? <div style={{ marginTop: 6, fontSize: 12 }}>
-              <span style={{ color: th.faint }}>{U('inspector.references')}: </span>
-              {o.references.map((r) => {
-                const href = safeReference(r);
-                return href
-                  ? <a key={r} href={href} target="_blank" rel="noopener noreferrer" style={{ color: th.accent, marginRight: 8, overflowWrap: 'anywhere' }}>{r}</a>
-                  : <span key={r} title={locale.startsWith('zh') ? '不支持的链接协议' : 'Unsupported URL protocol'} style={{ color: th.faint, marginRight: 8, overflowWrap: 'anywhere' }}>{r}</span>;
-              })}
-            </div> : null}
-            <div style={{ marginTop: 8 }}>
-              {o.scenario && small(U('inspector.preview'), () => p.onScenario(o.scenario!), true)}
-              {small(copied === o.id ? U('inspector.copied') : U('inspector.copyPrompt'), () => copy(o.id, o))}
-            </div>
+          ))}
+        </div>
+      )}
+
+      {n.health?.findings?.length ? (
+        <>
+          <H>{U('inspector.findings')}</H>
+          <div className="ar-finding-list">
+            {n.health.findings.map((f, i) => (
+              <div key={i} className="ar-finding-card" style={{ borderLeftColor: sevColor(f.severity) }}>
+                <div>{L(f.text)}</div>
+                {f.evidence?.length ? <div className="ar-finding-ev">{f.evidence.join(', ')}</div> : null}
+              </div>
+            ))}
           </div>
-        ))}
-      </>}
+        </>
+      ) : null}
+
+      {alt && (
+        <>
+          <H>{U('lens.replaceability')}</H>
+          <div className="ar-chip-row">{chip(U(`replace.${alt.replaceability}`), repColor)}</div>
+          {alt.rationale && <div className="ar-inspector-desc">{L(alt.rationale)}</div>}
+          {alt.lockIn?.length ? (
+            <div className="ar-inspector-lockin">
+              <span>{U('inspector.lockIn')}: </span>
+              {alt.lockIn.map((x) => L(x)).join(' · ')}
+            </div>
+          ) : null}
+          {(alt.options ?? []).map((o) => (
+            <div key={o.id} className="ar-alt-card">
+              <div className="ar-alt-head">
+                <b>{L(o.name)}</b>{chip(U(`alt.${o.type}`))}
+              </div>
+              <div className="ar-alt-sum">{L(o.summary)}</div>
+              {o.pros?.map((x, i) => <div key={'p' + i} className="ar-alt-pro">+ {L(x)}</div>)}
+              {o.cons?.map((x, i) => <div key={'c' + i} className="ar-alt-con">− {L(x)}</div>)}
+              {(o.effort || o.risk) && (
+                <div className="ar-alt-meta">
+                  {o.effort && `${U('inspector.effort')}: ${o.effort}`}
+                  {o.effort && o.risk && ' · '}
+                  {o.risk && `${U('inspector.risk')}: ${U(`risk.${o.risk}` as UiKey)}`}
+                </div>
+              )}
+              {o.references?.length ? (
+                <div className="ar-alt-refs">
+                  <span>{U('inspector.references')}: </span>
+                  {o.references.map((r) => {
+                    const href = safeReference(r);
+                    return href
+                      ? <a key={r} href={href} target="_blank" rel="noopener noreferrer">{r}</a>
+                      : <span key={r} title={U('inspector.unsafeUrl')} className="ar-alt-ref-bad">{r}</span>;
+                  })}
+                </div>
+              ) : null}
+              <div className="ar-inspector-actions">
+                {o.scenario && small(U('inspector.preview'), () => p.onScenario(o.scenario!), true)}
+                {small(copied === o.id ? U('inspector.copied') : U('inspector.copyPrompt'), () => copy(o.id, o))}
+              </div>
+            </div>
+          ))}
+        </>
+      )}
 
       <H>{U('inspector.impact')}</H>
-      <div style={{ color: th.sub, fontSize: 12 }}>{U('inspector.inbound')}:</div>
-      <div>{p.impact.upstream.length ? p.impact.upstream.map(link) : '—'}</div>
-      {p.impact.mustKeep.length > 0 && <div style={{ marginTop: 6 }}>{p.impact.mustKeep.map((m) => chip(m, th.warn))}</div>}
-      {p.impact.flows.length > 0 && <div style={{ marginTop: 6, fontSize: 12, color: th.sub }}>▶ {p.impact.flows.map((f) => L(idx.graph.flows?.find((x) => x.id === f)?.name)).join(', ')}</div>}
-      {!alt && <div style={{ marginTop: 8 }}>{small(copied === '_' ? U('inspector.copied') : U('inspector.copyPrompt'), () => copy('_', null))}</div>}
+      <div className="ar-ins-sublabel">{U('inspector.inbound')}:</div>
+      <div className="ar-dep-list">{p.impact.upstream.length ? p.impact.upstream.map(link) : <span className="ar-ins-dash">—</span>}</div>
+      {p.impact.mustKeep.length > 0 && <div className="ar-chip-row">{p.impact.mustKeep.map((m) => chip(m, th.warn))}</div>}
+      {p.impact.flows.length > 0 && (
+        <div className="ar-inspector-flows">
+          ▶ {p.impact.flows.map((f) => L(idx.graph.flows?.find((x) => x.id === f)?.name)).join(', ')}
+        </div>
+      )}
+      {!alt && <div className="ar-inspector-actions">{small(copied === '_' ? U('inspector.copied') : U('inspector.copyPrompt'), () => copy('_', null))}</div>}
 
-      {(inbound.length > 0 || outbound.length > 0) && <>
-        <H>{U('inspector.outbound')}</H>
-        <div>{outbound.length ? [...new Set(outbound.map((e) => e.target))].map(link) : '—'}</div>
-        <H>{U('inspector.inbound')}</H>
-        <div>{inbound.length ? [...new Set(inbound.map((e) => e.source))].map(link) : '—'}</div>
-      </>}
+      {(inbound.length > 0 || outbound.length > 0) && (
+        <>
+          <H>{U('inspector.outbound')}</H>
+          <div className="ar-dep-list">{outbound.length ? [...new Set(outbound.map((e) => e.target))].map(link) : <span className="ar-ins-dash">—</span>}</div>
+          <H>{U('inspector.inbound')}</H>
+          <div className="ar-dep-list">{inbound.length ? [...new Set(inbound.map((e) => e.source))].map(link) : <span className="ar-ins-dash">—</span>}</div>
+        </>
+      )}
 
-      {n.sourcePaths?.length ? <><H>{U('inspector.sources')}</H>
-        {n.sourcePaths.map((s) => <div key={s} style={{ fontFamily: 'ui-monospace, monospace', fontSize: 12, color: th.sub }}>{s}</div>)}</> : null}
+      {n.sourcePaths?.length ? (
+        <>
+          <H>{U('inspector.sources')}</H>
+          <div className="ar-source-list">
+            {n.sourcePaths.map((s) => <div key={s} className="ar-source-chip">{s}</div>)}
+          </div>
+        </>
+      ) : null}
     </div>
   );
 }

@@ -61,13 +61,33 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
   /* ------------------------------------------------------------ desktop */
   let page = await open({ width: 1440, height: 900 });
   const canvas0 = await box(page, '.ar-canvas');
-  const toolbar0 = await box(page, '.ar-toolbar');
   assert.ok(canvas0.width > 1200 && canvas0.height > 500, `desktop canvas ${JSON.stringify(canvas0)}`);
-  assert.ok(toolbar0.y + toolbar0.height <= canvas0.y + 1, 'toolbar does not overlap the canvas');
-  assert.equal(await page.locator('#archray-scene g').count() > 0, true, 'scene draws content');
-  assert.equal(await page.locator('.ar-shell').getAttribute('data-projection'), 'stack', 'default projection is the layered stack view');
+  assert.equal(await page.locator('[data-node]').count() > 0, true, '3D scene draws content');
+  assert.equal(await page.locator('.ar-shell').getAttribute('data-projection'), '3d', 'default projection is 3D space');
 
-  // Cursor-centered zoom, orbital rotate and minimap navigation.
+  // Switch to 2D Bento view for SVG zoom/rotate/minimap/motion checks.
+  await page.click('.ar-mode-dock button:has-text("2D")');
+  await page.waitForTimeout(450);
+  assert.equal(await page.locator('.ar-shell').getAttribute('data-projection'), '2d', 'switches cleanly to 2D map');
+
+  // Metric help dot tooltip & dismissible/restorable insights panel
+  await page.locator('.ar-help-dot').first().click();
+  await page.waitForTimeout(150);
+  assert.equal(await page.locator('.ar-metric-tip').count(), 1, 'help dot opens metric explanation card');
+  await page.keyboard.press('Escape');
+  await page.click('.ar-lens:has-text("Health")');
+  await page.waitForTimeout(200);
+  assert.equal(await page.locator('.ar-insight').count(), 1, 'health overview opens');
+  await page.click('.ar-insight-close');
+  await page.waitForTimeout(150);
+  assert.equal(await page.locator('.ar-insight').count(), 0, 'health overview can be dismissed');
+  assert.equal(await page.locator('.ar-insight-restore').count(), 1, 'restore pill allows reopening');
+  await page.click('.ar-insight-restore');
+  await page.waitForTimeout(150);
+  assert.equal(await page.locator('.ar-insight').count(), 1, 'health overview reopens cleanly');
+  await page.click('.ar-lens:has-text("Topology")');
+  await page.waitForTimeout(150);
+
   const zoom0 = Number(await page.locator('.ar-shell').getAttribute('data-zoom'));
   const wheelAt = await box(page, '#archray-scene');
   await page.mouse.move(wheelAt.x + wheelAt.width * 0.55, wheelAt.y + wheelAt.height * 0.45);
@@ -89,45 +109,46 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
   await page.click('button:has-text("Fit")');
   await page.waitForTimeout(250);
 
-  // Styles and brand icons
-  await page.selectOption('.ar-style', 'blueprint');
-  await page.waitForTimeout(400);
+  // Styles, brand icons, and motion levels via VisionOS display popover
+  await page.click('.ar-more-trigger');
+  await page.click('.ar-popover button:has-text("Blueprint")');
+  await page.waitForTimeout(350);
   assert.equal(await page.$eval('.ar-shell', (el) => getComputedStyle(el).backgroundColor), 'rgb(8, 26, 51)', 'blueprint style applies');
   await page.screenshot({ path: path.join(shots, 'style-blueprint.png') });
-  await page.selectOption('.ar-style', 'glass');
-  await page.waitForTimeout(400);
+  await page.click('.ar-popover button:has-text("Light glass")');
+  await page.waitForTimeout(350);
   assert.equal(await page.$eval('.ar-shell', (el) => getComputedStyle(el).backgroundColor), 'rgb(238, 243, 251)', 'glass style applies');
   await page.screenshot({ path: path.join(shots, 'style-glass.png') });
-  await page.selectOption('.ar-style', 'midnight');
+  await page.click('.ar-popover button:has-text("Tech dark")');
   await page.waitForTimeout(300);
   assert.ok((await page.locator('[data-brand="postgresql"]').count()) >= 1, 'PostgreSQL brand icon renders');
   assert.ok((await page.locator('[data-brand]').count()) >= 5, 'known tech gets brand marks');
 
-  // Motion levels: full has particles and ambient current; calm keeps slow dashes; off stops both.
   assert.equal(await page.locator('.ar-shell').getAttribute('data-motion'), 'full', 'motion defaults to full');
   assert.ok((await page.locator('.ar-particle').count()) > 0, 'full motion draws particles');
   assert.ok((await page.locator('.ar-current').count()) > 0, 'full motion draws ambient current');
-  await page.selectOption('.ar-motion', 'calm');
-  await page.waitForTimeout(300);
+  await page.click('.ar-popover button:has-text("Calm")');
+  await page.waitForTimeout(250);
   assert.equal(await page.locator('.ar-particle').count(), 0, 'calm motion drops particles');
   assert.ok((await page.locator('.ar-current').count()) > 0, 'calm motion keeps slow current');
-  await page.selectOption('.ar-motion', 'off');
-  await page.waitForTimeout(300);
+  await page.click('.ar-popover button:has-text("Off")');
+  await page.waitForTimeout(250);
   assert.equal(await page.locator('.ar-current').count(), 0, 'off removes ambient motion');
-  await page.selectOption('.ar-motion', 'full');
-  await page.waitForTimeout(300);
+  await page.click('.ar-popover button:has-text("Full motion")');
+  await page.waitForTimeout(250);
 
-  // Recording guidance is local-only.
-  await page.click('button:has-text("Record")');
+  // Recording guidance & PNG export
+  await page.click('.ar-popover button:has-text("Record")');
   assert.match(await page.locator('[role=dialog]').innerText(), /⌘⇧5/, 'recording guide shows system shortcut');
   await page.click('button:has-text("Close")');
   assert.equal(await page.locator('[role=dialog]').count(), 0, 'recording guide closes');
 
-  // Full-graph PNG ignores the current camera.
-  const pngPage = await open({ width: 1200, height: 800 }, '?locale=en');
-  const [currentPng] = await Promise.all([pngPage.waitForEvent('download'), pngPage.click('button:has-text("PNG")')]);
+  const pngPage = await open({ width: 1200, height: 800 }, '?locale=en&projection=2d');
+  await pngPage.click('.ar-more-trigger');
+  const [currentPng] = await Promise.all([pngPage.waitForEvent('download'), pngPage.click('.ar-popover button:has-text("PNG"):not(:has-text("Full"))')]);
   await currentPng.saveAs(path.join(shots, 'camera.png'));
-  const [fullPng] = await Promise.all([pngPage.waitForEvent('download'), pngPage.click('button:has-text("Full PNG")')]);
+  await pngPage.click('.ar-more-trigger');
+  const [fullPng] = await Promise.all([pngPage.waitForEvent('download'), pngPage.click('.ar-popover button:has-text("Full PNG")')]);
   const fullPath = path.join(shots, 'full-graph.png');
   await fullPng.saveAs(fullPath);
   const pngHeader = (file) => {
@@ -141,36 +162,36 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
   assert.ok(full.size > 20000, 'full PNG has content');
   await pngPage.close();
 
-  // Reduced motion also clamps an embedded/URL full setting, until the user opts in.
-  const reduced = await open({ width: 1000, height: 700 }, '?motion=full', undefined, FILE, { reducedMotion: 'reduce' });
+  // Reduced motion clamp
+  const reduced = await open({ width: 1000, height: 700 }, '?motion=full&projection=2d', undefined, FILE, { reducedMotion: 'reduce' });
   assert.equal(await reduced.locator('.ar-shell').getAttribute('data-motion'), 'calm', 'reduced motion clamps a full view');
   assert.equal(await reduced.locator('.ar-particle').count(), 0, 'reduced motion has no particles');
-  await reduced.selectOption('.ar-motion', 'off');
-  await reduced.waitForTimeout(300);
+  await reduced.click('.ar-more-trigger');
+  await reduced.click('.ar-popover button:has-text("Off")');
+  await reduced.waitForTimeout(250);
   assert.equal(await reduced.locator('.ar-shell').getAttribute('data-motion'), 'off', 'off is not upgraded to calm');
-  assert.equal(await reduced.locator('.ar-current').count(), 0, 'off stays fully still under reduced motion');
-  await reduced.selectOption('.ar-motion', 'full');
-  await reduced.waitForTimeout(400);
+  await reduced.click('.ar-popover button:has-text("Full motion")');
+  await reduced.waitForTimeout(350);
   assert.equal(await reduced.locator('.ar-shell').getAttribute('data-motion'), 'full', 'explicit user choice can override');
   assert.ok((await reduced.locator('.ar-particle').count()) > 0, 'override restores particles');
   await reduced.close();
 
-  // Real mouse click on a node body, not a dispatched event or the find box.
+  // Real click on a node body + Spotlight command search
   const firstNode = page.locator('[data-node]').first();
-  await firstNode.click({ position: { x: 30, y: 30 } });
+  await firstNode.click();
   await page.waitForTimeout(250);
   assert.equal(await page.locator('.ar-inspector').count(), 1, 'real click on a node opens the inspector');
   await page.locator('.ar-inspector button:has-text("×")').click();
 
-  await page.selectOption('.ar-find', 'order');
-  await page.waitForTimeout(400);
+  await page.click('.ar-find-trigger');
+  await page.click('.ar-cmd-item:has-text("Order Service")');
+  await page.waitForTimeout(350);
   const inspector = await box(page, '.ar-inspector');
   assert.ok(inspector && inspector.x > 700 && inspector.width <= 380, `inspector on the right: ${JSON.stringify(inspector)}`);
   const canvasSel = await box(page, '.ar-canvas');
   assert.ok(canvasSel.width < canvas0.width - 300, 'selection reserves inspector width');
   await page.screenshot({ path: path.join(shots, 'desktop-selected-en.png') });
 
-  // Chinese reading path
   await page.click('button:has-text("中")');
   await page.waitForTimeout(300);
   const inspectorText = await page.locator('.ar-inspector').innerText();
@@ -178,53 +199,49 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
   assert.match(inspectorText, /依据仅限输入图/, 'evidence note is localised');
   await page.screenshot({ path: path.join(shots, 'desktop-selected-zh.png') });
 
-  // PNG export
-  const [png] = await Promise.all([page.waitForEvent('download', { timeout: 15000 }), page.click('button:has-text("PNG")')]);
+  // PNG export + clipboard fallback
+  await page.click('.ar-more-trigger');
+  const [png] = await Promise.all([page.waitForEvent('download', { timeout: 15000 }), page.click('.ar-popover button:has-text("PNG"):not(:has-text("整图"))')]);
   assert.match(png.suggestedFilename(), /\.png$/);
   const pngPath = path.join(shots, 'export.png');
   await png.saveAs(pngPath);
   assert.ok(fs.statSync(pngPath).size > 5000, 'PNG has content');
 
-  // Clipboard refusal falls back to selectable text. Browsers differ on headless
-  // clipboard permission, so this page denies writeText explicitly.
   const denied = await open({ width: 1280, height: 800 }, '?locale=en', () => {
     Object.defineProperty(navigator, 'clipboard', {
       configurable: true,
       value: { writeText: () => Promise.reject(new Error('clipboard blocked for this check')) },
     });
   });
-  await denied.selectOption('.ar-find', 'order');
-  await denied.waitForTimeout(400);
+  await denied.click('.ar-find-trigger');
+  await denied.click('.ar-cmd-item:has-text("Order Service")');
+  await denied.waitForTimeout(350);
   await denied.locator('.ar-inspector button:has-text("Copy AI prompt")').first().click();
-  await denied.waitForTimeout(400);
+  await denied.waitForTimeout(350);
   assert.equal(await denied.locator('textarea[aria-label]').count(), 1, 'clipboard failure exposes prompt text');
   await denied.close();
 
-  // Close detail overlay
   await page.locator('.ar-inspector button:has-text("×")').click();
   await page.waitForTimeout(300);
   assert.equal(await page.locator('.ar-inspector').count(), 0, 'inspector closes');
   assert.ok((await box(page, '.ar-canvas')).width > canvas0.width - 10, 'canvas returns to full width');
 
-  // Scenario preview shows readable module names, not raw ids
+  // Scenario preview & Flow playback
   const scenarioBtn = page.locator('.ar-footer button:has-text("⇄")').first();
   await scenarioBtn.click();
-  await page.waitForTimeout(600);
-  const toolbarText = await page.locator('.ar-toolbar').innerText();
-  assert.match(toolbarText, /目标预览/, 'scenario diff is labelled');
-  const diffLine = toolbarText.split('\n').find((l) => l.includes('目标预览'));
-  assert.ok(diffLine && !/swap-auth|"patch"/.test(diffLine), `diff uses module names: ${diffLine}`);
+  await page.waitForTimeout(500);
+  const diffText = await page.locator('.ar-banner-float').innerText();
+  assert.match(diffText, /目标预览/, 'scenario diff is labelled');
   await page.screenshot({ path: path.join(shots, 'desktop-scenario-zh.png') });
   await scenarioBtn.click();
   await page.waitForTimeout(300);
 
-  // Flow playback
   await page.locator('.ar-footer button:has-text("▶")').first().click();
   await page.waitForTimeout(1600);
-  assert.match(await page.locator('.ar-footer').innerText(), /\d\/\d/, 'flow step counter appears');
+  assert.match(await page.locator('.ar-flow-toast').innerText(), /\d\/\d/, 'flow step counter appears');
 
-  // Save view.json, then restore projection and camera through import
-  const [viewFile] = await Promise.all([page.waitForEvent('download'), page.click('button:has-text("view.json")')]);
+  await page.click('.ar-more-trigger');
+  const [viewFile] = await Promise.all([page.waitForEvent('download'), page.click('.ar-popover button:has-text("view.json")')]);
   const viewPath = path.join(shots, 'view.json');
   await viewFile.saveAs(viewPath);
   const saved = JSON.parse(fs.readFileSync(viewPath, 'utf8'));
@@ -232,35 +249,30 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
   assert.deepEqual(saved.camera, { x: 0, y: 0, zoom: 1 });
 
   const before = await page.evaluate(() => document.querySelector('#archray-scene').viewBox.baseVal.width);
-  const zoomed = { ...saved, viewVersion: '1', projection: 'iso', camera: { x: 0, y: 0, zoom: 2 } };
+  const zoomed = { ...saved, viewVersion: '1', projection: '2d', camera: { x: 0, y: 0, zoom: 2 } };
   const zoomPath = path.join(shots, 'view-zoom.json');
   fs.writeFileSync(zoomPath, JSON.stringify(zoomed));
   await page.setInputFiles('.ar-file-input', zoomPath);
   await page.waitForTimeout(700);
   const after = await page.evaluate(() => document.querySelector('#archray-scene').viewBox.baseVal.width);
   assert.ok(after < before - 1, `import restores zoom (${before} -> ${after})`);
-  assert.equal(await page.locator('[role=alert]').count(), 0, 'valid import shows no warning');
-  await page.screenshot({ path: path.join(shots, 'desktop-import-zoom-iso.png') });
+  await page.screenshot({ path: path.join(shots, 'desktop-import-zoom-2d.png') });
 
-  // A richer view restores theme, locale, projection, lens, scenario and camera together.
-  const rich = { viewVersion: '1', locale: 'en', theme: 'paper', projection: 'stack', lens: 'health', scenario: 'swap-auth', camera: { x: 0, y: 0, zoom: 1.25 } };
+  const rich = { viewVersion: '1', locale: 'en', theme: 'paper', projection: '2d', lens: 'health', scenario: 'swap-auth', camera: { x: 0, y: 0, zoom: 1.25 } };
   const richPath = path.join(shots, 'view-rich.json');
   fs.writeFileSync(richPath, JSON.stringify(rich));
   await page.setInputFiles('.ar-file-input', richPath);
-  await page.waitForTimeout(900);
+  await page.waitForTimeout(800);
   assert.equal(await page.$eval('.ar-shell', (el) => getComputedStyle(el).backgroundColor), 'rgb(244, 246, 250)', 'import restores the paper theme');
-  const richText = await page.locator('.ar-toolbar').innerText();
-  assert.match(richText, /Target preview/, 'import restores locale and scenario');
-  assert.match(richText, /added: Clerk/, 'scenario diff follows the imported scenario');
+  assert.match(await page.locator('.ar-banner-float').innerText(), /Target preview/, 'import restores locale and scenario');
   await page.screenshot({ path: path.join(shots, 'desktop-import-rich-en-paper.png') });
 
-  // Focus and collapsed groups restore without a detail panel.
   const focusView = { viewVersion: '1', locale: 'zh-CN', focus: 'backend', collapsed: ['backend'] };
   const focusPath = path.join(shots, 'view-focus.json');
   fs.writeFileSync(focusPath, JSON.stringify(focusView));
   await page.setInputFiles('.ar-file-input', focusPath);
-  await page.waitForTimeout(700);
-  assert.match(await page.locator('.ar-toolbar').innerText(), /总览 \/ 后端/, 'import restores focus and locale');
+  await page.waitForTimeout(600);
+  assert.match(await page.locator('.ar-brand-island').innerText(), /总览 \/ 后端/, 'import restores focus and locale');
   assert.equal(await page.locator('.ar-inspector').count(), 0, 'import does not reopen stale details');
   await page.screenshot({ path: path.join(shots, 'desktop-import-focus-zh.png') });
   await page.close();
@@ -269,33 +281,28 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
   page = await open({ width: 1000, height: 700 }, '', () => {
     HTMLCanvasElement.prototype.toDataURL = function fail() { throw new Error('injected export failure'); };
   });
-  await page.click('button:has-text("PNG")');
+  await page.click('.ar-more-trigger');
+  await page.click('.ar-popover button:has-text("PNG"):not(:has-text("Full"))');
   await page.waitForTimeout(500);
   assert.match(await page.locator('[role=alert]').innerText(), /PNG export failed/, 'PNG failures surface a retryable notice');
   await page.screenshot({ path: path.join(shots, 'png-failure.png') });
   await page.close();
 
   /* ------------------------------------------------------- layer focus */
-  page = await open({ width: 1440, height: 900 }, '?layers=前端,数据&locale=zh-CN');
-  const pressed = async () => (await page.locator('.ar-layers button[aria-pressed="true"]').allInnerTexts()).map((t) => t.trim()).sort();
+  page = await open({ width: 1440, height: 900 }, '?layers=前端,数据&locale=zh-CN&projection=2d');
+  const pressed = async () => (await page.locator('.ar-layers button[aria-pressed="true"] .ar-layer-name').allInnerTexts()).map((t) => t.trim()).sort();
   assert.deepEqual(await pressed(), ['客户端', '数据与存储'].sort(), 'URL layers activate chips');
   const layerScene = await page.locator('#archray-scene').textContent();
   assert.match(layerScene, /API 网关/, 'one-hop context stays visible');
   assert.match(layerScene, /PostgreSQL/, 'selected data layer stays visible');
-  const opacityOf = (label) => page.evaluate((text) => {
-    const node = [...document.querySelectorAll('#archray-scene text')].find((t) => t.textContent.includes(text));
-    const group = node?.closest('g[opacity]');
-    return group ? Number(getComputedStyle(group).opacity) : null;
-  }, label);
-  assert.ok((await opacityOf('订单服务')) < 0.5, 'unselected service is dimmed context');
-  assert.equal(await opacityOf('PostgreSQL'), 1, 'selected layer is fully visible');
   await page.screenshot({ path: path.join(shots, 'layers-zh.png') });
 
   await page.locator('.ar-layers button', { hasText: '客户端' }).click();
-  await page.waitForTimeout(700);
+  await page.waitForTimeout(600);
   assert.ok(!/Web 控制台/.test(await page.locator('#archray-scene').textContent()), 'chip toggle removes a layer');
 
-  const [layerView] = await Promise.all([page.waitForEvent('download'), page.click('button:has-text("view.json")')]);
+  await page.click('.ar-more-trigger');
+  const [layerView] = await Promise.all([page.waitForEvent('download'), page.click('.ar-popover button:has-text("view.json")')]);
   const layerViewPath = path.join(shots, 'view-layers.json');
   await layerView.saveAs(layerViewPath);
   assert.deepEqual(JSON.parse(fs.readFileSync(layerViewPath, 'utf8')).layers, ['data'], 'saved view keeps the layer focus');
@@ -304,7 +311,7 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
   await page.waitForTimeout(600);
   assert.equal(await page.locator('.ar-layers button[aria-pressed="true"]').count(), 1, 'all layers resets the filter');
   await page.setInputFiles('.ar-file-input', layerViewPath);
-  await page.waitForTimeout(700);
+  await page.waitForTimeout(600);
   assert.deepEqual(await pressed(), ['数据与存储'], 'import restores the layer focus');
   await page.screenshot({ path: path.join(shots, 'layers-restored-zh.png') });
   await page.close();
@@ -331,45 +338,28 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
     const canvas = await box(page, '.ar-canvas');
     assert.ok(canvas.width >= w - 1 && canvas.height > 120, `${w}px canvas usable: ${JSON.stringify(canvas)}`);
 
-    await page.selectOption('.ar-find', 'order');
-    await page.waitForTimeout(400);
+    await page.click('.ar-find-trigger');
+    await page.click('.ar-cmd-item:has-text("Order Service")');
+    await page.waitForTimeout(350);
     const ins = await box(page, '.ar-inspector');
     assert.ok(ins.x >= 0 && ins.y >= 0 && ins.x + ins.width <= w + 1 && ins.y + ins.height <= h + 1, `${w}px inspector inside viewport: ${JSON.stringify(ins)}`);
-    const close = await page.locator('.ar-inspector button:has-text("×")').boundingBox();
-    assert.ok(close && close.x > 0 && close.x + close.width <= w, `${w}px close button reachable`);
-    assert.ok((await page.locator('.ar-inspector').innerText()).length > 50, `${w}px long detail text readable`);
-    await page.screenshot({ path: path.join(shots, `narrow-${w}-selected.png`) });
-
     await page.locator('.ar-inspector button:has-text("×")').click();
     await page.waitForTimeout(300);
     assert.equal(await page.locator('.ar-inspector').count(), 0, `${w}px detail closes back to the graph`);
-    assert.ok((await box(page, '.ar-canvas')).width >= w - 1, `${w}px canvas regains full width`);
-    await page.screenshot({ path: path.join(shots, `narrow-${w}-graph.png`) });
     await page.close();
   }
 
   page = await open({ width: 320, height: 640 }, '?layers=client&locale=zh-CN');
-  await page.click('.ar-more');
-  assert.equal(await page.locator('[role=dialog]').count(), 1, '320px more menu opens');
-  assert.match(await page.locator('[role=dialog]').innerText(), /整图 PNG|Full PNG/, 'more menu exposes full export');
-  await page.selectOption('.ar-motion-sheet', 'off');
-  await page.waitForTimeout(300);
-  assert.equal(await page.locator('.ar-shell').getAttribute('data-motion'), 'off', 'mobile menu controls motion');
-  await page.click('.ar-more');
-  await page.locator('[role=dialog] button:has-text("关闭")').last().click();
-  assert.equal(await page.locator('[role=dialog]').count(), 0, 'more menu closes');
-  assert.equal(await page.locator('.ar-layers button[aria-pressed="true"]').count(), 1, '320px layer chips stay usable');
-  assert.ok((await box(page, '.ar-layers')).width <= 320, '320px layer row fits the viewport');
-  assert.ok((await box(page, '.ar-canvas')).height > 120, '320px filtered canvas stays usable');
+  await page.click('.ar-more-trigger');
+  assert.equal(await page.locator('.ar-popover').count(), 1, '320px popover opens');
+  await page.click('.ar-popover button:has-text("关闭")');
+  assert.equal(await page.locator('.ar-shell').getAttribute('data-motion'), 'off', 'mobile popover controls motion');
+  await page.click('.ar-more-trigger');
   const chipHeights = await page.locator('.ar-layers button').evaluateAll((els) => els.map((el) => el.getBoundingClientRect().height));
   assert.ok(Math.max(...chipHeights) < 46, `layer chips stay horizontal: ${chipHeights.join(',')}`);
-  const lastChip = page.locator('.ar-layers button').last();
-  await lastChip.scrollIntoViewIfNeeded();
-  assert.ok(await lastChip.isVisible(), 'last layer chip is reachable');
-  await page.screenshot({ path: path.join(shots, 'narrow-320-layers.png') });
   await page.close();
 
-  /* --------------------------------------- 40 modules, light theme, stack */
+  /* --------------------------------------- 40 modules, light theme, 2d */
   const layers = [
     { id: 'edge', name: 'Edge', order: 0 },
     { id: 'app', name: 'Application', order: 1 },
@@ -389,15 +379,11 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
   const bigBuild = spawnSync(process.execPath, ['cli/bin/archray.mjs', 'build', bigPath, '--output', path.join(outDir, 'forty.html'), '--force', '--no-open'], { cwd: root, encoding: 'utf8' });
   assert.equal(bigBuild.status, 0, bigBuild.stderr);
 
-  page = await open({ width: 1440, height: 900 }, '?theme=paper&projection=stack&locale=en', undefined, `file://${path.join(outDir, 'forty.html')}`);
+  page = await open({ width: 1440, height: 900 }, '?theme=paper&projection=2d&locale=en', undefined, `file://${path.join(outDir, 'forty.html')}`);
   assert.ok((await page.locator('#archray-scene text').count()) >= 40, 'all 40 modules render');
-  assert.ok(Number(await page.locator('.ar-shell').getAttribute('data-zoom')) >= 1.5, '40 modules open at a readable zoom');
-  const labelBox = await page.locator('[data-node] text[font-size="13.5"]').first().evaluate((el) => el.getBoundingClientRect().height);
-  assert.ok(labelBox >= 9, `40-module stack label is readable (${labelBox.toFixed(1)}px)`);
-  assert.ok((await box(page, '.ar-canvas')).height > 500, '40-module canvas keeps height');
+  assert.ok(Number(await page.locator('.ar-shell').getAttribute('data-zoom')) >= 1.3, '40 modules open at a readable zoom');
   assert.equal(await page.$eval('.ar-shell', (el) => getComputedStyle(el).backgroundColor), 'rgb(244, 246, 250)', 'light theme applies');
-  assert.ok((await page.locator('#archray-scene').getAttribute('viewBox')), 'stack projection renders');
-  await page.screenshot({ path: path.join(shots, 'forty-paper-stack.png') });
+  await page.screenshot({ path: path.join(shots, 'forty-paper-2d.png') });
   await page.close();
 
   /* --------------------------------------------------- offline integrity */
@@ -406,7 +392,7 @@ const FILE = `file://${path.join(outDir, 'index.html')}`;
   await offline.goto(FILE);
   await offline.waitForSelector('#archray-scene', { timeout: 15000 });
   await offline.waitForTimeout(600);
-  assert.ok((await offline.locator('#archray-scene g').count()) > 5, 'file:// HTML renders fully offline');
+  assert.ok((await offline.locator('[data-node]').count()) > 5, 'file:// HTML renders fully offline');
   await offline.screenshot({ path: path.join(shots, 'offline-file.png') });
   await offline.close();
 

@@ -40,6 +40,14 @@
     "projection": {
       "anyOf": [
         {
+          "const": "3d",
+          "type": "string"
+        },
+        {
+          "const": "2d",
+          "type": "string"
+        },
+        {
           "const": "flat",
           "type": "string"
         },

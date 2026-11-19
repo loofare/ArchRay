@@ -122,6 +122,9 @@ describe('view recovery and prompts', () => {
 
     const rotated = { ...view, camera: { x: 12, y: 13, zoom: 2, rotate: 12 } };
     expect(parseView(JSON.parse(JSON.stringify(rotated)), graph).view).toEqual(rotated);
+    expect(validateView({ viewVersion: '1', projection: '3d' }).ok).toBe(true);
+    expect(validateView({ viewVersion: '1', projection: '2d' }).ok).toBe(true);
+    expect(parseView({ viewVersion: '1', projection: '3d' }, graph).view.projection).toBe('3d');
     const badRotate = parseView({ camera: { x: 0, y: 0, zoom: 1, rotate: 31 } }, graph);
     expect(badRotate.warnings).toContain('invalid:camera');
     expect(badRotate.view.camera).toBeUndefined();

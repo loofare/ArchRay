@@ -107,6 +107,31 @@ const flag = (args: Args, key: string, fallback: string) =>
   typeof args.flags[key] === 'string' ? (args.flags[key] as string) : fallback;
 const has = (args: Args, key: string) => args.flags[key] !== undefined;
 
+function decodeJsonBuffer(buf: Buffer, path: string): string {
+  if (buf.length >= 3 && buf[0] === 0xef && buf[1] === 0xbb && buf[2] === 0xbf) {
+    return new TextDecoder('utf-8', { fatal: true }).decode(buf.subarray(3));
+  }
+  if (buf.length >= 2 && buf[0] === 0xff && buf[1] === 0xfe) {
+    return buf.subarray(2).toString('utf16le');
+  }
+  if (buf.length >= 2 && buf[0] === 0xfe && buf[1] === 0xff) {
+    const swapped = Buffer.from(buf.subarray(2));
+    swapped.swap16();
+    return swapped.toString('utf16le');
+  }
+  try {
+    return new TextDecoder('utf-8', { fatal: true }).decode(buf);
+  } catch (utfErr: any) {
+    try {
+      const text = new TextDecoder('gb18030', { fatal: true }).decode(buf);
+      console.error(`warning: ${path} is not valid UTF-8; decoded as GB18030. Save .archray/graph.json as UTF-8 (no BOM).`);
+      return text;
+    } catch {
+      throw new Error(`Cannot decode ${path} as UTF-8 or GB18030 (${utfErr?.message ?? 'invalid bytes'}); rewrite the file as UTF-8 without BOM.`);
+    }
+  }
+}
+
 function readJson(path: string): any {
   if (!existsSync(path)) {
     throw new Error(
@@ -115,7 +140,7 @@ function readJson(path: string): any {
     );
   }
   try {
-    return JSON.parse(readFileSync(path, 'utf8'));
+    return JSON.parse(decodeJsonBuffer(readFileSync(path), path));
   } catch (e: any) {
     throw new Error(`Cannot read ${path}: ${e.message}`);
   }
@@ -190,7 +215,7 @@ function writeOutput(path: string, data: string, args: Args, input?: string, qui
   try {
     const fd = openSync(temp, 'wx');
     try {
-      writeFileSync(fd, data);
+      writeFileSync(fd, data, 'utf8');
     } finally {
       closeSync(fd);
     }
@@ -237,7 +262,9 @@ function cmdVersion(): void {
 
 function cmdValidate(args: Args): void {
   const path = args.positional[0] ?? '.archray/graph.json';
-  assertValid(readJson(path));
+  const result = validateGraph(readJson(path));
+  if (!result.ok) throw new Error(result.errors.map((e) => `${e.path}: ${e.message}`).join('\n'));
+  for (const w of result.warnings) console.error(`warning: ${w.path}: ${w.message}`);
   console.log(`Valid v2 graph: ${path}`);
 }
 
@@ -578,7 +605,8 @@ function cmdBuild(args: Args): void {
   const embed = (value: unknown) => JSON.stringify(value)
     .replace(/</g, '\\u003c')
     .replace(/\u2028/g, '\\u2028')
-    .replace(/\u2029/g, '\\u2029');
+    .replace(/\u2029/g, '\\u2029')
+    .replace(/[\u007f-\uffff]/g, (ch) => '\\u' + ch.charCodeAt(0).toString(16).padStart(4, '0'));
   const name = graph.meta.name;
   const title = typeof name === 'string' ? name : Object.values(name)[0] ?? 'ArchRay';
   const escapedTitle = String(title).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');

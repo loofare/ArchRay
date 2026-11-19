@@ -1,246 +1,107 @@
-**中文** | [English](README.en.md)
+🌐 **简体中文** | [English README](./README.en.md) | [官网 · archray.dev](https://archray.dev) | [在线 3D 沙盒](https://archray.dev/demo)
 
 # ArchRay
 
-ArchRay 是 **AI 优先的架构可视化工具**：安装到你的仓库一次，之后在 AI 助手里输入 `/archray`。它会读取真实源码、记录证据，并生成可分层、可交互、可离线的单文件 HTML。
+**让你的 AI 编程助手（Agent）读懂仓库真实源码，画出可交互的 3D 空间与 2D 版图架构。**
+
+告别乱线重叠与凭目录臆测的静态方块图。将 ArchRay 装入项目一次，在 AI 中输入 `/archray`，它会通读真实代码、绑定源码行号证据，并在本地生成 **100% 离线可交互的单文件 HTML**（`.archray/index.html`）。
+
+- **真 3D 空间 + 2D Bento 双视图**：VisionOS 风格悬浮顶栏，ELK 确定性端口分流，四象限分离客户端、核心主塔、异步/AI 侧翼与外部 SaaS 轨道。
+- **源码证据与诚实边界**：每条依赖与结论绑定 `sourcePaths` / 文件行号，诚实区分实测指标（`measured`）与静态估算（`≈`），绝不伪造线上监控。
+- **健康度诊断 + 平替演进闭环**：内置热点模块扫描与技术选型可替代性对比，一键复制 AI 迁移 Prompt 发回编码助手。
+- **零网络单文件交付**：内嵌 167 枚技术栈矢量图标，支持无裁切整图 PNG 导出与带开源溯源二维码的分享海报。
 
 ---
 
-## 1. 第一次使用
+## 1. 30 秒安装与首次使用
 
-1. 在**你的项目仓库根目录**安装 ArchRay（见第 4 节）。
-2. 新开一个 AI 会话。
-3. 输入你的宿主对应入口：Claude/Cursor/Pi 用 `/archray`；Antigravity 用 Skill（命令目录兼容性以宿主版本为准）；Codex 用 `$archray` 或 `/skills`。
-4. 第一次会分析当前仓库，生成 `.archray/graph.json` 和 `.archray/index.html`。打开 HTML 即可查看。
+> 环境要求：Node.js 20+、`curl`、`tar`（Windows 请在 Git Bash 或 WSL 中执行，安装后会生成 `.archray\archray.cmd`）。
 
-已经安装过？直接从第 2 节开始。
+### 一行命令安装到项目根目录
 
-## 2. 在 AI 里怎么说
+```sh
+curl -fsSL https://github.com/loofare/ArchRay/releases/latest/download/install.sh | sh -s -- . claude
+```
 
-| 目的 | 直接输入 |
-|---|---|
-| 安装 | 把第 4 节的安装句复制给 AI |
-| 分析当前仓库 | `/archray` |
-| 只看前端 | `/archray 前端` |
-| 更新 | `/archray update` |
-| 卸载 | `请卸载当前仓库的 ArchRay，保留 graph/view/index` |
+把末尾的 `claude` 换成你的 AI 宿主（支持同时装多个，如 `claude,cursor` 或 `all`）：
 
-自然语言也可以：
+| AI 宿主 | 安装参数 | 装好后在会话中输入 | 写入宿主目录 |
+|---|---|---|---|
+| **Claude Code** | `claude` | `/archray`、`/archray:frontend` 等 | `.claude/skills/archray/`、`.claude/commands/` |
+| **Cursor** | `cursor` | `/archray`、`/archray-frontend` 等 | `.cursor/rules/archray.mdc`、`.cursor/commands/` |
+| **Antigravity** | `antigravity` | `/archray` 或通过 Skill 唤醒 | `.agent/skills/archray/`、`.agent/commands/` |
+| **Pi** | `pi` | `/archray`、`/archray-frontend`、`/skill:archray` | `.agents/skills/archray/`、`.pi/prompts/` |
+| **Codex** | `codex` | `$archray` 或 `/skills` | `.agents/skills/archray/SKILL.md` |
+
+也可以直接把下面这段话发给你的 AI 助手，让它帮你装好：
 
 ```text
-分析当前仓库的真实代码，生成分层架构图，记录证据和未知项，构建单文件 HTML，并告诉我产物路径。不要修改业务代码。
+请下载 https://github.com/loofare/ArchRay/releases/latest/download/install.sh 到临时文件并校验后，在当前仓库根目录执行 `sh <临时文件> . claude`（将 claude 替换为你的宿主），完成后告诉我即可。
 ```
 
-```text
-请把当前仓库的 ArchRay 更新到最新版，保留 .archray/graph.json 和 view.json，并告诉我更新前后的版本。
-```
+### 装好后马上体验
 
-Codex 没有 `/archray` 斜杠命令，使用 `$archray` 或先输入 `/skills`。
+1. 新开一个 AI 编程会话。
+2. 输入 `/archray`（Codex 用 `$archray`），或直接用自然语言说：**“用 archray 分析源码并画出 3D 架构图”**。
+3. 完成后用浏览器打开生成的 `.archray/index.html` 即可交互查看。
 
-## 3. 在命令行里怎么用
+---
 
-以下命令都在**目标仓库根目录**执行。安装器提供项目内短命令，不会安装到全局 PATH：
+## 2. 在 AI 里怎么用（支持全栈、单端与自由组合）
 
-```sh
-./.archray/archray help
-./.archray/archray version
-./.archray/archray doctor
+一次分析源码生成 `.archray/graph.json` 后，可随时按任意层切片重绘（未选中的直接上下游会自动保留“一跳半透明上下文”）：
 
-./.archray/archray update --check
-./.archray/archray update
-
-./.archray/archray validate .archray/graph.json
-./.archray/archray build .archray/graph.json --force --no-open
-
-./.archray/archray uninstall --dry-run
-./.archray/archray uninstall
-```
-
-Windows 使用：
-
-```bat
-.archray\archray.cmd help
-.archray\archray.cmd update --check
-```
-
-直接调用 CLI 也可以：
-
-```sh
-node .archray/tool/cli/bin/archray.mjs build .archray/graph.json --force --no-open
-```
-
-## 4. 安装
-
-要求：Node 20+、`curl`、`tar`，以及能访问 GitHub Releases 的网络。安装脚本需要 POSIX `sh`/`mktemp`；Windows 请在 Git Bash 或 WSL 中执行，安装后的 `.archray\archray.cmd` 是后续 CLI 入口。
-
-### 发布包一键安装
-
-```sh
-tmp=$(mktemp)
-if curl -fsSL https://github.com/loofare/ArchRay/releases/latest/download/install.sh -o "$tmp"; then
-  sh "$tmp" . claude
-  archray_install_status=$?
-else
-  archray_install_status=$?
-fi
-rm -f "$tmp"
-test "$archray_install_status" -eq 0
-```
-
-把 `claude` 换成你的宿主：
-
-| 宿主 | 参数 | 安装后入口 |
+| 场景 | 斜杠指令 / 参数 | 说明 |
 |---|---|---|
-| Claude Code | `claude` | `/archray`、`/archray:frontend` 等 |
-| Cursor | `cursor` | `/archray`、`/archray-frontend` 等 |
-| Antigravity | `antigravity` | `/archray`（命令目录兼容性以宿主版本为准） |
-| Pi | `pi` | `/archray`、`/archray-frontend`、`/skill:archray` |
-| Codex | `codex` | `$archray` 或 `/skills` |
+| **查看全部（默认）** | `/archray` 或 `/archray:full` | 展示 L0–L9 全部架构层 |
+| **前端视角** | `/archray:frontend` 或 `/archray frontend` | 聚焦客户端与 UI 层 |
+| **后端与异步** | `/archray:backend` 或 `/archray backend` | 聚焦业务服务与异步任务通道 |
+| **数据与存储** | `/archray:data` 或 `/archray data` | 聚焦数据库、缓存与对象存储 |
+| **网络与接入** | `/archray:network` 或 `/archray network` | 聚焦 CDN/WAF 边缘网络与网关 |
+| **安全与鉴权** | `/archray:security` 或 `/archray security` | 聚焦网关、OAuth/OIDC 与权限边界 |
+| **跨端自由组合** | `/archray frontend,backend`<br>`/archray 前端,后端,数据`<br>`/archray ai,async,data` | 用逗号自由组合任意多层（支持中英文别名） |
+| **切换风格/语言** | `--style blueprint --lang en` | 支持 `tech` / `blueprint` / `glass` / `paper` |
+| **工具升级/卸载** | `/archray update` / `/archray uninstall` | 升级或卸载均默认保留 `graph.json` 与 HTML |
 
-多宿主（下载一次，按需选择一个命令）：
-
-```sh
-tmp=$(mktemp)
-if curl -fsSL https://github.com/loofare/ArchRay/releases/latest/download/install.sh -o "$tmp"; then
-  sh "$tmp" . claude,pi          # 或 pi,codex / all
-  archray_install_status=$?
-else
-  archray_install_status=$?
-fi
-rm -f "$tmp"
-test "$archray_install_status" -eq 0
-```
-
-
-包内 `install` 的默认宿主是 `claude`，根 bootstrap 的默认值是 `auto`；两者不同。`auto` 只探测**这个仓库里已有的 ArchRay 安装**，不是识别你电脑上装了哪些 AI；干净仓库第一次安装请显式写宿主。
-
-安装器会：
-
-- 把 CLI、viewer、Skill、命令和知识库放到 `.archray/tool/`；
-- 写入 `.archray/SKILL.md`、schema 和 `tech.json`；
-- 写入选中宿主的命令/Skill 文件；
-- 写入 `.archray/archray` 与 `.archray/archray.cmd` 短命令；
-- 记录 `.archray/install.json` 的版本和宿主。
-
-`--force` 会刷新工具和已登记宿主的自带模板/命令，但**保留** `.archray/graph.json`、`view.json`、`index.html`。如果你改过自带命令或 Skill，升级前先备份。
-
-### AI 安装句
-
-把下面这句复制给能执行命令的 AI（把 `claude` 换成你的宿主或 `claude,pi`）：
-
-```text
-请在这个仓库安装 ArchRay：把 https://github.com/loofare/ArchRay/releases/latest/download/install.sh 下载到临时文件，确认下载成功后运行 `sh <临时文件> . claude`；下载失败或校验失败就不要执行。
-```
-
-安装完成后新开 AI 会话。安装已经成功、后续命令异常时先运行 `./.archray/archray doctor`；如果首次安装早期就失败（此时可能还没有包装器），先看 Node/curl/tar/sh 和网络错误，不要直接删除 `.archray` 数据。
-
-## 5. 升级
-
-### v0.5.0 及以后
-
-`./.archray/archray update --check` 会联网读取 manifest，只报告当前/可用版本，不下载、不应用；`update` 才下载、校验并安装。
-
-更新只刷新工具、Skill、命令和模板，**不重新分析源码**，保留 graph/view/index。失败会保留旧工具；成功后可运行 `version` 和 `doctor` 确认。AI 里输入 `/archray update` 等价。
-
-### 从 v0.4.0 或更早一次性升级
-
-旧版本没有 `update` 命令，也没有新短命令，不能自己更新自己。旧版无安装清单时 `auto` 会把共用 `.agents/skills` 的布局保守识别为 `pi,codex` 以免部分卸载误删共享 Skill；只用单宿主的仓库建议显式指定宿主。做一次引导升级：
-
-```sh
-tmp=$(mktemp)
-if curl -fsSL https://github.com/loofare/ArchRay/releases/latest/download/install.sh -o "$tmp"; then
-  sh "$tmp" . auto --force
-  archray_install_status=$?
-else
-  archray_install_status=$?
-fi
-rm -f "$tmp"
-test "$archray_install_status" -eq 0
-```
-
-如果不想用 `auto`，或旧 Pi+Codex 共用 `.agents/skills`，请显式写：
-
-```sh
-tmp=$(mktemp)
-if curl -fsSL https://github.com/loofare/ArchRay/releases/latest/download/install.sh -o "$tmp"; then
-  sh "$tmp" . pi,codex --force
-  archray_install_status=$?
-else
-  archray_install_status=$?
-fi
-rm -f "$tmp"
-test "$archray_install_status" -eq 0
-```
-
-升级后才有 `./.archray/archray update`。自带模板/命令的本地修改会被刷新覆盖，升级前先备份。
-
-## 6. 卸载
-
-先预览：
-
-```sh
-./.archray/archray uninstall --dry-run
-```
-
-默认卸载会移除工具、包装器和宿主命令，**保留** `.archray/graph.json`、`view.json` 和 `index.html`：
-
-```sh
-./.archray/archray uninstall
-```
-
-只移除某个宿主（保留其他宿主和共享工具）：
-
-```sh
-./.archray/archray uninstall --agent pi
-```
-
-`--purge` 删除整个 `.archray`，包括 graph/view/index 和你在其中自存的文件，且不能和 `--agent` 组合。先备份再执行：
-
-```sh
-./.archray/archray uninstall --purge
-```
-
-完整卸载后包装器也会消失，不能再执行 `./.archray/archray`。要保留图，先备份。
-
-AI 卸载话术：
-
-```text
-请卸载当前仓库的 ArchRay，只删除 ArchRay 的安装文件，保留 .archray/graph.json、view.json 和 index.html。
-```
+**支持的 10 个规范架构层**：`client`（前端/客户端）、`edge`（网络/接入）、`gateway`（安全/网关）、`service`（后端/中间层）、`async`（异步/任务）、`data`（数据/存储）、`ai`（AI/模型）、`external`（外部/SaaS）、`platform`（平台/基础设施）、`observability`（可观测/监控）。
 
 ---
 
-## HTML 提供什么
+## 3. 命令行与维护（项目根目录执行）
 
-单个 HTML 内嵌 viewer 和图数据，使用系统字体栈（不内嵌字体文件），可离线打开，包括 `file://`。
-
-- 默认楼层视图，也提供等轴/平面；
-- 滚轮以指针为中心缩放，拖拽平移，右键或 Alt+拖拽旋转；
-- 全屏、缩略图定位、模块选择、下钻、折叠/展开、Fit；
-- 健康度总览：评分、热点、分层健康；
-- 可替代性总览：高/中/低/未分析、锁定点、已保存方案；
-- 保存 `view.json` 可恢复语言、风格、动效、投影、镜头（含旋转）、聚焦、层和方案。
-
-流程高亮依据声明的有向边，不是实际流量；sourcePaths 是待复核声明，不是运行时监控。PNG 导出当前相机或整图；页面不自行录屏。
-
-## 分层与风格
+安装器在项目 `.archray/` 内提供自包含短命令，零全局污染（Windows 用 `.archray\archray.cmd`）：
 
 ```sh
-./.archray/archray build .archray/graph.json --layers frontend,data --force --no-open
-./.archray/archray build .archray/graph.json --style blueprint --lang en --force --no-open
+./.archray/archray doctor                                      # 检查工具与 Node 版本
+./.archray/archray validate .archray/graph.json                # 校验图谱 Schema 与双语覆盖
+./.archray/archray build .archray/graph.json --force --no-open # 重新构建离线 HTML
+./.archray/archray build .archray/graph.json --layers frontend,data --style blueprint --force
 ```
 
-层包括 `client`、`edge`、`gateway`、`service`、`async`、`data`、`ai`、`external`、`platform`、`observability`；中文别名如 `前端`、`数据`、`网关` 也可用。风格为 `tech`、`blueprint`、`glass`、`paper`；未知技术回退通用图标，不虚构品牌。
+**升级与卸载：**
 
-## 常见问题
+```sh
+./.archray/archray update --check   # 仅检查最新版本，不修改本地文件
+./.archray/archray update           # 校验 SHA-256 并升级（保留 graph/view/HTML）
 
-- `Cannot read ... file not found`：先运行 `./.archray/archray help`，让 AI 写入 `.archray/graph.json`。
-- `already exists`：保留文件、换输出路径，或确认要替换时加 `--force`。
-- `--purge 删除整个 .archray`：先备份 `graph.json`、`view.json`、`index.html`。
-- 更新检查失败：旧工具仍可用，检查网络和代理后重试；不要先删旧工具。
+./.archray/archray uninstall --dry-run  # 预览卸载清单
+./.archray/archray uninstall            # 移除工具与宿主命令（保留 graph/view/HTML）
+./.archray/archray uninstall --purge    # 连同 .archray/graph.json 与 HTML 全部清除
+```
 
-## 边界
+<details>
+<summary>从 v0.4.0 及更早版本升级（无 update 子命令）</summary>
 
-不包含 npm 正式发布、自动扫描服务、SaaS、自动重构、替代目录、时间线/watch 或海报编辑器。分析由 AI 依据真实源码或用户描述生成；图中的路径、健康度、可替代性都需要复核。
+```sh
+curl -fsSL https://github.com/loofare/ArchRay/releases/latest/download/install.sh | sh -s -- . auto --force
+```
 
-品牌名称与商标归各所有者；图标来自 Iconify `logos`（CC0），仅用于识别。详见 [NOTICE](NOTICE) 和 [变更记录](docs/changelog.md)。[MIT](LICENSE)。
+</details>
+
+---
+
+## 4. 隐私安全与边界
+
+- **100% 本地零上传**：ArchRay CLI 与单文件 HTML 完全离线运行，绝不向外部服务器上传源码、路径或图谱数据；源码阅读仅在你自己授权的 AI 会话内完成。
+- **诚实边界**：不包含云端 SaaS 或运行时 APM 探针；节点 `sourcePaths` 与健康度建议均为静态源码审查结论，需开发者复核。
+- 更多兼容性细节见 [宿主兼容性矩阵](docs/host-compatibility.md)、[变更记录](docs/changelog.md) 与 [NOTICE](NOTICE)。遵循 [MIT License](LICENSE)。
