@@ -8,7 +8,7 @@
 - Website: https://archray.dev/
 - Repository: https://github.com/loofare/ArchRay
 - Latest release: https://github.com/loofare/ArchRay/releases/latest
-- Current public release: v0.5.0
+- Current public release: v0.6.0
 - Maker: David Yin (https://davidyin.dev)
 
 ArchRay is not runtime monitoring, not an automatic source scanner, and not a hosted diagram service. An AI agent performs the semantic reading; a deterministic engine computes layout, projections, and the single-file viewer.

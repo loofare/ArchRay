@@ -16,6 +16,7 @@ const FILE = path.join(ROOT, 'site', 'demo.html');
 const CANONICAL = 'https://archray.dev/demo';
 const DESCRIPTION = 'Explore a live ArchRay demo: an interactive 3D and 2D architecture map of the FreshMart sample app, built from real source with file-and-line evidence.';
 const H1 = 'ArchRay Live Demo — Interactive 3D and 2D Architecture Map';
+const TITLE = 'ArchRay Live Demo — Interactive 3D and 2D Architecture Map';
 const HEAD_START = '<!-- archray:seo:head:start -->';
 const HEAD_END = '<!-- archray:seo:head:end -->';
 const BODY_START = '<!-- archray:seo:body:start -->';
@@ -48,12 +49,12 @@ function attrs(html, pattern) {
 }
 
 const original = readFileSync(FILE, 'utf8');
-const title = attrs(original, /<title>([\s\S]*?)<\/title>/i);
+const originalTitle = attrs(original, /<title>([\s\S]*?)<\/title>/i);
 const lang = attrs(original, /<html\b[^>]*\blang="([^"]*)"/i);
 const rootMatch = original.match(/^([ \t]*)<div id="root"><\/div>/m);
 const bodyIndent = rootMatch?.[1] ?? '  ';
 const viewportMatch = original.match(/^[ \t]*<meta name="viewport"[^>]*>/m);
-if (!title) throw new Error('demo title not found');
+if (!originalTitle) throw new Error('demo title not found');
 if (!lang) throw new Error('demo lang not found');
 if (!rootMatch) throw new Error('demo root mount not found');
 if (!viewportMatch) throw new Error('demo viewport not found');
@@ -74,12 +75,13 @@ const bodyBlock = [
   `${bodyIndent}${BODY_END}`
 ].join('\n');
 
+html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${TITLE}</title>`);
 html = html.replace(viewportMatch[0], `${viewportMatch[0]}\n${headBlock}`);
 html = html.replace(ROOT_MARKUP, `${bodyBlock}\n${bodyIndent}${ROOT_MARKUP}`);
 
 const afterTitle = attrs(html, /<title>([\s\S]*?)<\/title>/i);
 const afterLang = attrs(html, /<html\b[^>]*\blang="([^"]*)"/i);
-if (afterTitle !== title) throw new Error('demo title changed unexpectedly');
+if (afterTitle !== TITLE) throw new Error(`demo title mismatch: ${afterTitle}`);
 if (afterLang !== lang) throw new Error('demo lang changed unexpectedly');
 if (count(html, /<h1\b/gi) !== 1) throw new Error(`expected exactly one h1, got ${count(html, /<h1\b/gi)}`);
 if (count(html, /<link\b[^>]*rel="canonical"[^>]*>/gi) !== 1) throw new Error('expected exactly one canonical');
