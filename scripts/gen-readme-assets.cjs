@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Generate bilingual Light/Dark architectural SVG diagrams and real live sandbox
- * screenshots for README.md and README.en.md under docs/assets/readme/.
+ * screenshots for README.md and README.zh-CN.md under docs/assets/readme/.
  *
  * Run:
  *   PLAYWRIGHT_PATH=/path/to/playwright CHROME_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" node scripts/gen-readme-assets.cjs
