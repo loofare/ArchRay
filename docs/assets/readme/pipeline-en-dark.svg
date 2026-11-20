@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 242" width="1120" height="242" fill="none">
+  <rect x="0.5" y="0.5" width="1119" height="241" rx="16" fill="#0D1117" stroke="#30363D" />
+  <g>
+  <rect x="38" y="26" width="240" height="148" rx="12" fill="#161B22" stroke="#38BDF8" stroke-width="1.4" />
+  <rect x="54" y="42" width="32" height="20" rx="5" fill="#0B1020" stroke="#38BDF8" stroke-opacity="0.5" stroke-width="1" />
+  <text x="70" y="56" text-anchor="middle" fill="#F3F4F6" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="700">01</text>
+  <text x="54" y="88" fill="#F3F4F6" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="16" font-weight="700">Real Source Repo</text>
+  <text x="54" y="112" fill="#9CA3AF" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="12.5">Files · Routes · Imports · Config</text>
+  <rect x="54" y="132" width="208" height="26" rx="6" fill="#0B1020" />
+  <text x="64" y="149" fill="#F3F4F6" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" font-weight="600">git repo / src/**</text>
+</g><g>
+  <line x1="282" y1="100" x2="300" y2="100" stroke="#E8BA55" stroke-width="2" />
+  <polygon points="296,95 304,100 296,105" fill="#E8BA55" />
+</g>
+<g>
+  <rect x="306" y="26" width="240" height="148" rx="12" fill="#262012" stroke="#D9A73E" stroke-width="1.4" />
+  <rect x="322" y="42" width="32" height="20" rx="5" fill="#0B1020" stroke="#D9A73E" stroke-opacity="0.5" stroke-width="1" />
+  <text x="338" y="56" text-anchor="middle" fill="#F3F4F6" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="700">02</text>
+  <text x="322" y="88" fill="#F3F4F6" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="16" font-weight="700">AI Coding Agent</text>
+  <text x="322" y="112" fill="#9CA3AF" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="12.5">Run /archray or $archray</text>
+  <rect x="322" y="132" width="208" height="26" rx="6" fill="#0B1020" />
+  <text x="332" y="149" fill="#F3F4F6" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" font-weight="600">.archray/graph.json</text>
+</g><g>
+  <line x1="550" y1="100" x2="568" y2="100" stroke="#E8BA55" stroke-width="2" />
+  <polygon points="564,95 572,100 564,105" fill="#E8BA55" />
+</g>
+<g>
+  <rect x="574" y="26" width="240" height="148" rx="12" fill="#161B22" stroke="#818CF8" stroke-width="1.4" />
+  <rect x="590" y="42" width="32" height="20" rx="5" fill="#0B1020" stroke="#818CF8" stroke-opacity="0.5" stroke-width="1" />
+  <text x="606" y="56" text-anchor="middle" fill="#F3F4F6" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="700">03</text>
+  <text x="590" y="88" fill="#F3F4F6" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="16" font-weight="700">Deterministic ELK</text>
+  <text x="590" y="112" fill="#9CA3AF" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="12.5">TypeBox · 4-Quadrant Engine</text>
+  <rect x="590" y="132" width="208" height="26" rx="6" fill="#0B1020" />
+  <text x="600" y="149" fill="#F3F4F6" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" font-weight="600">167 logos · 0 overlaps</text>
+</g><g>
+  <line x1="818" y1="100" x2="836" y2="100" stroke="#E8BA55" stroke-width="2" />
+  <polygon points="832,95 840,100 832,105" fill="#E8BA55" />
+</g>
+<g>
+  <rect x="842" y="26" width="240" height="148" rx="12" fill="#11251E" stroke="#10B981" stroke-width="1.4" />
+  <rect x="858" y="42" width="32" height="20" rx="5" fill="#0B1020" stroke="#10B981" stroke-opacity="0.5" stroke-width="1" />
+  <text x="874" y="56" text-anchor="middle" fill="#F3F4F6" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="700">04</text>
+  <text x="858" y="88" fill="#F3F4F6" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="16" font-weight="700">Offline Single HTML</text>
+  <text x="858" y="112" fill="#9CA3AF" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="12.5">3D · 2D · Health · Replace</text>
+  <rect x="858" y="132" width="208" height="26" rx="6" fill="#0B1020" />
+  <text x="868" y="149" fill="#F3F4F6" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" font-weight="600">.archray/index.html</text>
+</g>
+  <rect x="38" y="192" width="1044" height="32" rx="8" fill="#11251E" stroke="#10B981" stroke-opacity="0.65" stroke-width="1" />
+  <circle cx="58" cy="208" r="4" fill="#10B981" />
+  <text x="72" y="212.5" fill="#34D399" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="12.5" font-weight="600">100% Local Build &amp; Browser Viewing (file://)  ·  Zero Bytes of Source Code Uploaded to External Servers</text>
+</svg>

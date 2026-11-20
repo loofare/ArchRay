@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 388" width="1120" height="388" fill="none">
+  <rect x="0.5" y="0.5" width="1119" height="387" rx="16" fill="#F7F5F0" stroke="#DFDDD5" />
+  <text x="38" y="34" fill="#12110E" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="16" font-weight="700">L0–L9 Spatial 4-Quadrant Zoning &amp; CLI Layer Slicing (--layers)</text>
+  <text x="1082" y="34" text-anchor="end" fill="#57534E" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="12">Separates ingress, central domain tower, async/AI wings, external orbits &amp; storage plinth</text>
+
+  <g>
+  <rect x="38" y="62" width="336" height="72" rx="10" fill="#F0F9FF" stroke="#0284C7" stroke-width="1.3" />
+  <text x="54" y="86" fill="#0369A1" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" font-weight="700">L0 · client</text>
+  <text x="54" y="106" fill="#12110E" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="14.5" font-weight="700">Client &amp; UI Surfaces</text>
+  <text x="54" y="124" fill="#57534E" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="11.5">Next.js · Vue · React Native · CLI</text>
+</g>
+<g>
+  <rect x="392" y="62" width="336" height="72" rx="10" fill="#F0F9FF" stroke="#0284C7" stroke-width="1.3" />
+  <text x="408" y="86" fill="#0369A1" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" font-weight="700">L1 · edge</text>
+  <text x="408" y="106" fill="#12110E" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="14.5" font-weight="700">Edge &amp; Ingress Buffer</text>
+  <text x="408" y="124" fill="#57534E" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="11.5">Cloudflare · Nginx · Envoy · CDN</text>
+</g>
+<g>
+  <rect x="746" y="62" width="336" height="72" rx="10" fill="#F0F9FF" stroke="#0284C7" stroke-width="1.3" />
+  <text x="762" y="86" fill="#0369A1" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" font-weight="700">L2 · gateway</text>
+  <text x="762" y="106" fill="#12110E" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="14.5" font-weight="700">Auth &amp; API Gateway</text>
+  <text x="762" y="124" fill="#57534E" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="11.5">Kong · Better Auth · Clerk · JWT</text>
+</g>
+
+  <!-- Vertical conduits from Entry -> Core & Wings -->
+  <line x1="206" y1="134" x2="206" y2="150" stroke="#C28A20" stroke-width="1.5" stroke-dasharray="3 3" />
+  <line x1="560" y1="134" x2="560" y2="150" stroke="#C28A20" stroke-width="1.8" />
+  <line x1="914" y1="134" x2="914" y2="150" stroke="#DB2777" stroke-width="1.5" stroke-dasharray="4 3" />
+
+  <!-- Left Wing (-X): Async + AI -->
+  <rect x="38" y="150" width="336" height="58" rx="10" fill="#FDF8EB" stroke="#D9A73E" stroke-width="1.3" />
+  <text x="54" y="173" fill="#9A6B12" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" font-weight="700">L4 · async (Left Wing -X)</text>
+  <text x="54" y="194" fill="#12110E" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="12.5">Queues · Workers · WebSocket (BullMQ / Kafka)</text>
+
+  <rect x="38" y="218" width="336" height="58" rx="10" fill="#FAF5FF" stroke="#9333EA" stroke-width="1.3" />
+  <text x="54" y="241" fill="#7E22CE" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" font-weight="700">L6 · ai (AI Wing -X)</text>
+  <text x="54" y="262" fill="#12110E" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="12.5">LLM Gateways · Claude · Qdrant · pgvector</text>
+
+  <!-- Central Tower Spine: Core Domain Services -->
+  <rect x="392" y="150" width="336" height="126" rx="12" fill="#F4F5FF" stroke="#6366F1" stroke-width="1.6" />
+  <text x="410" y="176" fill="#6366F1" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="700">L3 · service (Central Domain Spine)</text>
+  <text x="410" y="203" fill="#12110E" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="15.5" font-weight="700">Core Domain Services &amp; APIs</text>
+  <text x="410" y="228" fill="#57534E" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12">NestJS · FastAPI · Spring Boot · Go</text>
+  <text x="410" y="254" fill="#57534E" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="12">Subpackages fold (+N) · 1-hop context kept</text>
+
+  <!-- Horizontal Connectors Left <-> Spine <-> Right -->
+  <line x1="374" y1="213" x2="392" y2="213" stroke="#C28A20" stroke-width="1.8" />
+  <line x1="728" y1="213" x2="746" y2="213" stroke="#DB2777" stroke-width="1.8" stroke-dasharray="4 3" />
+
+  <!-- Right Orbit (+X): External SaaS -->
+  <rect x="746" y="150" width="336" height="126" rx="12" fill="#FDF2F8" stroke="#DB2777" stroke-dasharray="6 4" stroke-width="1.4" />
+  <text x="764" y="176" fill="#BE185D" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="700">L7 · external (Right Orbit +X)</text>
+  <text x="764" y="204" fill="#12110E" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="15.5" font-weight="700">External SaaS &amp; 3rd-Party APIs</text>
+  <text x="764" y="232" fill="#57534E" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="12.5">Stripe · Resend · Twilio · OAuth SaaS</text>
+
+  <!-- Conduits Core -> Data & Base -->
+  <line x1="206" y1="276" x2="206" y2="294" stroke="#10B981" stroke-width="1.8" />
+  <line x1="560" y1="276" x2="560" y2="294" stroke="#64748B" stroke-width="1.5" />
+  <line x1="914" y1="276" x2="914" y2="294" stroke="#64748B" stroke-width="1.5" stroke-dasharray="3 3" />
+
+  <g>
+  <rect x="38" y="294" width="336" height="70" rx="10" fill="#ECFDF5" stroke="#10B981" stroke-width="1.3" />
+  <text x="54" y="317" fill="#047857" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" font-weight="700">L5 · data</text>
+  <text x="54" y="337" fill="#12110E" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="14.5" font-weight="700">Data &amp; Storage Plinth</text>
+  <text x="54" y="354" fill="#57534E" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="11.5">PostgreSQL · Redis · Elasticsearch · S3</text>
+</g>
+<g>
+  <rect x="392" y="294" width="336" height="70" rx="10" fill="#FFFFFF" stroke="#64748B" stroke-width="1.3" />
+  <text x="408" y="317" fill="#57534E" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" font-weight="700">L8 · platform</text>
+  <text x="408" y="337" fill="#12110E" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="14.5" font-weight="700">Platform &amp; Infra Ops</text>
+  <text x="408" y="354" fill="#57534E" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="11.5">Docker · Kubernetes · Terraform · CI/CD</text>
+</g>
+<g>
+  <rect x="746" y="294" width="336" height="70" rx="10" fill="#FFFFFF" stroke="#64748B" stroke-width="1.3" />
+  <text x="762" y="317" fill="#57534E" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" font-weight="700">L9 · observability</text>
+  <text x="762" y="337" fill="#12110E" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="14.5" font-weight="700">Observability &amp; Telemetry</text>
+  <text x="762" y="354" fill="#57534E" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="11.5">OpenTelemetry · Prometheus · Grafana · Sentry</text>
+</g>
+</svg>

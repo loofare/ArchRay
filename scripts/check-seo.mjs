@@ -74,6 +74,7 @@ const indexableUrls = new Set();
 
 for (const file of htmlFiles) {
   const rel = path.relative(SITE, file).replaceAll(path.sep, '/');
+  if (/^(?:baidu_verify_[^/]+\.html|google[0-9a-f]+\.html)$/i.test(rel)) continue;
   const html = readFileSync(file, 'utf8');
 
   if (rel === '404.html') {
